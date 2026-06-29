@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEIL — AI Manipulation Detector</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080a0e;
+    --surface: #0d1117;
+    --surface2: #131920;
+    --surface3: #1a2232;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8ecf0;
+    --muted: #6b7a8d;
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --red: #ff4757;
+    --red-dim: rgba(255,71,87,0.1);
+    --green: #00d68f;
+    --green-dim: rgba(0,214,143,0.08);
+    --blue: #4dabf7;
+    --blue-dim: rgba(77,171,247,0.08);
+    --scan: #00d68f;
+  }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(77,171,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(77,171,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes scanline {
+    0% { top: -2px; opacity: 1; }
+    100% { top: 100vh; opacity: 0; }
+  }
+
+  .scan-line {
+    position: fixed;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--scan), transparent);
+    box-shadow: 0 0 20px var(--scan), 0 0 60px rgba(0,214,143,0.3);
+    animation: scanline 4s linear infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .app { position: relative; z-index: 2; }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,10,14,0.9);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--amber);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .logo-icon::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 4px;
+    background: var(--amber-dim);
+    animation: pulse-icon 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-icon {
+    0%, 100% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  .logo-icon svg { position: relative; z-index: 1; }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 4px;
+    color: #fff;
+  }
+
+  .logo-sub {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .header-status { display: flex; align-items: center; gap: 20px; }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--green);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 1px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .threat-counter { text-align: right; }
+
+  .threat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--red);
+    line-height: 1;
+  }
+
+  .threat-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* SCANNER */
+  .scanner-section {
+    padding: 48px 32px 32px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+
+  .scanner-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .scanner-title span { color: var(--amber); }
+
+  .scanner-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.8;
+  }
+
+  /* API KEY PANEL */
+  .api-key-panel {
+    background: var(--surface);
+    border: 1px solid rgba(245,166,35,0.25);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .api-key-panel.connected {
+    border-color: rgba(0,214,143,0.3);
+  }
+
+  .api-key-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    white-space: nowrap;
+    min-width: 100px;
+  }
+
+  .api-key-panel.connected .api-key-label { color: var(--green); }
+
+  .api-key-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    caret-color: var(--amber);
+  }
+
+  .api-key-input::placeholder { color: var(--muted); }
+
+  .api-key-btn {
+    padding: 6px 14px;
+    background: var(--amber-dim);
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--amber);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  .api-key-btn:hover { background: rgba(245,166,35,0.2); }
+
+  .api-status-text {
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .api-key-panel.connected .api-status-text { color: var(--green); }
+
+  /* URL INPUT */
+  .url-input-wrap {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+    transition: border-color 0.2s;
+  }
+
+  .url-input-wrap:focus-within {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.1);
+  }
+
+  .url-prefix {
+    padding: 14px 16px;
+    font-size: 11px;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    letter-spacing: 1px;
+  }
+
+  .url-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    caret-color: var(--amber);
+  }
+
+  .url-input::placeholder { color: var(--muted); }
+
+  .scan-btn {
+    padding: 14px 24px;
+    background: var(--amber);
+    border: none;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #0a0700;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .scan-btn:hover { background: #ffc146; }
+  .scan-btn:active { transform: scale(0.98); }
+  .scan-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+  /* PRESETS */
+  .presets {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .presets-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  .preset-btn {
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .preset-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    width: fit-content;
+  }
+
+  .mode-btn {
+    padding: 7px 16px;
+    background: transparent;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mode-btn.active {
+    background: var(--amber-dim);
+    color: var(--amber);
+  }
+
+  /* PASTE TEXT AREA */
+  .text-input-wrap {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+    transition: border-color 0.2s;
+  }
+
+  .text-input-wrap.active { display: flex; }
+  .text-input-wrap:focus-within {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.1);
+  }
+
+  .text-area {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    caret-color: var(--amber);
+    resize: none;
+    min-height: 120px;
+    line-height: 1.7;
+  }
+
+  .text-area::placeholder { color: var(--muted); }
+
+  .text-scan-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .char-count {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* SCANNING ANIMATION */
+  .scanning-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 32px;
+    text-align: center;
+  }
+
+  .scanning-overlay.active { display: flex; }
+
+  .radar {
+    width: 120px; height: 120px;
+    position: relative;
+    margin-bottom: 32px;
+  }
+
+  .radar-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid;
+  }
+
+  .radar-ring:nth-child(1) { inset: 0; border-color: rgba(0,214,143,0.4); }
+  .radar-ring:nth-child(2) { inset: 15px; border-color: rgba(0,214,143,0.3); }
+  .radar-ring:nth-child(3) { inset: 30px; border-color: rgba(0,214,143,0.2); }
+  .radar-ring:nth-child(4) { inset: 45px; border-color: rgba(0,214,143,0.15); }
+
+  .radar-sweep {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(rgba(0,214,143,0.3), rgba(0,214,143,0.05), transparent 60%);
+    animation: sweep 1.5s linear infinite;
+  }
+
+  @keyframes sweep { to { transform: rotate(360deg); } }
+
+  .radar-dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 8px var(--red);
+  }
+
+  .scan-log {
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 1px;
+    text-align: left;
+    min-width: 300px;
+    max-width: 500px;
+    margin: 0 auto;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .log-line { margin-bottom: 4px; animation: fade-in 0.3s ease; }
+
+  @keyframes fade-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; } }
+
+  /* RESULTS PANEL */
+  .results-section {
+    display: none;
+    padding: 0 32px 48px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .results-section.active { display: block; }
+
+  /* AI BADGE */
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(77,171,247,0.1);
+    border: 1px solid rgba(77,171,247,0.25);
+    border-radius: 20px;
+    font-size: 9px;
+    color: var(--blue);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .ai-badge::before {
+    content: '◈';
+    font-size: 10px;
+  }
+
+  /* THREAT HEADER */
+  .threat-header {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: var(--surface);
+  }
+
+  .threat-banner {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .threat-banner.high { background: rgba(255,71,87,0.06); }
+  .threat-banner.medium { background: rgba(245,166,35,0.06); }
+  .threat-banner.low { background: rgba(0,214,143,0.04); }
+
+  .threat-site { display: flex; align-items: center; gap: 12px; }
+
+  .site-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .site-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .site-url { font-size: 10px; color: var(--muted); }
+
+  .threat-verdict { text-align: right; }
+
+  .verdict-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .verdict-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .verdict-badge.high { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+  .verdict-badge.medium { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); }
+  .verdict-badge.low { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,214,143,0.2); }
+
+  /* SCORE BARS */
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .score-cell {
+    background: var(--surface);
+    padding: 20px 24px;
+  }
+
+  .score-dim {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .score-bar-wrap {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .score-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s cubic-bezier(0.25, 1, 0.5, 1);
+    width: 0;
+  }
+
+  .score-bar.high { background: var(--red); }
+  .score-bar.medium { background: var(--amber); }
+  .score-bar.low { background: var(--green); }
+
+  .score-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .score-val.high { color: var(--red); }
+  .score-val.medium { color: var(--amber); }
+  .score-val.low { color: var(--green); }
+
+  /* FINDINGS */
+  .findings-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .findings-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .finding-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .finding-card:hover { border-color: var(--border2); }
+  .finding-card.expanded { border-color: var(--border2); }
+
+  .finding-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .finding-severity {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+
+  .finding-severity.critical { background: var(--red-dim); border: 1px solid rgba(255,71,87,0.3); }
+  .finding-severity.warning { background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.3); }
+  .finding-severity.info { background: var(--blue-dim); border: 1px solid rgba(77,171,247,0.2); }
+
+  .finding-title { flex: 1; }
+
+  .finding-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .finding-type {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .finding-confidence { text-align: right; }
+
+  .conf-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .conf-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .finding-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .finding-body.open { display: block; }
+
+  .finding-evidence {
+    background: var(--surface2);
+    border-left: 3px solid;
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+    font-style: italic;
+  }
+
+  .finding-evidence.critical { border-color: var(--red); }
+  .finding-evidence.warning { border-color: var(--amber); }
+  .finding-evidence.info { border-color: var(--blue); }
+
+  .finding-mechanism {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.9;
+    margin-bottom: 12px;
+  }
+
+  .research-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 10px;
+    color: var(--blue);
+    letter-spacing: 0.5px;
+  }
+
+  /* SUMMARY BOX */
+  .summary-box {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+
+  .summary-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+  }
+
+  .summary-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+
+  /* LAYERS STRIP */
+  .layers-strip {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+
+  .layer-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .layer-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+  }
+
+  /* EXPORT BAR */
+  .export-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .export-btn {
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .export-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* ARCHITECTURE PANEL */
+  .arch-section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px 48px;
+  }
+
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .arch-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
+
+  .arch-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .arch-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+    font-size: 16px;
+  }
+
+  .arch-icon.l1 { background: rgba(0,214,143,0.1); border: 1px solid rgba(0,214,143,0.2); }
+  .arch-icon.l2 { background: rgba(77,171,247,0.1); border: 1px solid rgba(77,171,247,0.2); }
+  .arch-icon.l3 { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2); }
+
+  .arch-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .arch-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .arch-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .arch-badge.l1 { background: rgba(0,214,143,0.1); color: var(--green); }
+  .arch-badge.l2 { background: rgba(77,171,247,0.1); color: var(--blue); }
+  .arch-badge.l3 { background: var(--amber-dim); color: var(--amber); }
+
+  /* PRIVACY STRIP */
+  .privacy-strip {
+    max-width: 960px;
+    margin: 0 auto 48px;
+    padding: 0 32px;
+  }
+
+  .privacy-banner {
+    border: 1px solid rgba(0,214,143,0.2);
+    border-radius: 10px;
+    padding: 16px 24px;
+    background: rgba(0,214,143,0.04);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .privacy-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(0,214,143,0.1);
+    border: 1px solid rgba(0,214,143,0.2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .privacy-text { flex: 1; }
+
+  .privacy-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .privacy-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .privacy-pills { display: flex; gap: 8px; }
+
+  .priv-pill {
+    padding: 4px 10px;
+    border: 1px solid rgba(0,214,143,0.2);
+    border-radius: 20px;
+    font-size: 10px;
+    color: var(--green);
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+
+  /* ERROR BOX */
+  .error-box {
+    background: var(--red-dim);
+    border: 1px solid rgba(255,71,87,0.3);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 12px;
+    color: var(--red);
+    margin-bottom: 20px;
+    display: none;
+    line-height: 1.7;
+  }
+
+  .error-box.active { display: block; }
+
+  /* HISTORY */
+  .history-section {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px 48px;
+    display: none;
+  }
+
+  .history-section.active { display: block; }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .history-item:hover { border-color: var(--border2); }
+
+  .history-level {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .history-url {
+    flex: 1;
+    font-size: 11px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .history-badge {
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .history-badge.high { background: var(--red-dim); color: var(--red); }
+  .history-badge.medium { background: var(--amber-dim); color: var(--amber); }
+  .history-badge.low { background: var(--green-dim); color: var(--green); }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 32px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 720px) {
+    .score-grid { grid-template-columns: 1fr; }
+    .arch-grid { grid-template-columns: 1fr; }
+    .scanner-title { font-size: 26px; }
+    .privacy-pills { display: none; }
+    .header { padding: 16px 20px; }
+    .scanner-section { padding: 32px 20px 24px; }
+    .results-section { padding: 0 20px 32px; }
+    .arch-section { padding: 0 20px 32px; }
+    .privacy-strip { padding: 0 20px; }
+    .export-bar { gap: 6px; }
+  }
+
+  /* KEY ICON BUTTON */
+  .key-icon-btn {
+    position: relative;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .key-icon-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .key-icon-btn.connected { border-color: rgba(0,214,143,0.4); color: var(--green); }
+  .key-status-dot {
+    position: absolute;
+    top: -3px; right: -3px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    border: 2px solid var(--bg);
+  }
+  .key-icon-btn.connected .key-status-dot { background: var(--green); }
+
+  /* KEY MODAL */
+  .key-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 72px 24px 0;
+  }
+  .key-modal-overlay.open { display: flex; }
+  .key-modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 24px;
+    width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: modal-in 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .key-modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .key-modal-close {
+    background: none; border: none;
+    color: var(--muted); cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 0;
+  }
+  .key-modal-close:hover { color: var(--text); }
+  .key-modal-sub {
+    font-size: 10px; color: var(--muted);
+    letter-spacing: 1px; margin-bottom: 18px;
+  }
+  .key-modal-input-wrap {
+    display: flex;
+    border: 1px solid var(--border2);
+    border-radius: 8px; overflow: hidden;
+    background: var(--surface2);
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .key-modal-input-wrap:focus-within { border-color: var(--amber); }
+  .key-modal-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    padding: 11px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px; color: var(--text);
+    caret-color: var(--amber);
+  }
+  .key-modal-input::placeholder { color: var(--muted); }
+  .key-eye-btn {
+    background: none; border: none;
+    padding: 0 12px; cursor: pointer;
+    color: var(--muted); font-size: 14px;
+  }
+  .key-eye-btn:hover { color: var(--text); }
+  .key-modal-connect-btn {
+    width: 100%; padding: 11px;
+    background: var(--amber); border: none;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: #0a0700; cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 10px;
+  }
+  .key-modal-connect-btn:hover { background: #ffc146; }
+  .key-modal-connect-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+  .key-modal-status {
+    font-size: 11px; text-align: center;
+    color: var(--muted); min-height: 18px; padding: 2px 0;
+  }
+  .key-modal-status.ok { color: var(--green); }
+  .key-modal-status.err { color: var(--red); }
+  .key-modal-hint {
+    font-size: 10px; color: var(--muted);
+    margin-top: 12px; line-height: 1.7;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="scan-line"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="6" stroke="#f5a623" stroke-width="1.5"/>
+          <circle cx="9" cy="9" r="2" fill="#f5a623"/>
+          <line x1="9" y1="3" x2="9" y2="0" stroke="#f5a623" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">VEIL</div>
+        <div class="logo-sub">Manipulation Intelligence</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <button class="key-icon-btn" id="keyIconBtn" onclick="toggleKeyModal()" title="API Key Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="7.5" cy="15.5" r="5.5"/>
+          <path d="M21 2l-9.6 9.6"/>
+          <path d="M15.5 7.5l3 3L22 7l-3-3"/>
+        </svg>
+        <div class="key-status-dot" id="keyStatusDot"></div>
+      </button>
+      <div class="status-pill">
+        <div class="dot"></div>
+        <span id="statusLabel">ACTIVE</span>
+      </div>
+      <div class="threat-counter">
+        <div class="threat-num" id="sessionCount">0</div>
+        <div class="threat-label">Threats Found</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- KEY MODAL -->
+  <div class="key-modal-overlay" id="keyModalOverlay" onclick="handleOverlayClick(event)">
+    <div class="key-modal">
+      <div class="key-modal-title">
+        🔑 Gemini API Key
+        <button class="key-modal-close" onclick="toggleKeyModal()">✕</button>
+      </div>
+      <div class="key-modal-sub">GOOGLE AI STUDIO · REQUIRED FOR LIVE SCANS</div>
+      <div class="key-modal-input-wrap">
+        <input class="key-modal-input" id="apiKeyInput" type="password" placeholder="AIzaSy..." />
+        <button class="key-eye-btn" onclick="toggleKeyVisibility()" id="eyeBtn">👁</button>
+      </div>
+      <button class="key-modal-connect-btn" id="connectBtn" onclick="saveApiKey()">CONNECT KEY</button>
+      <div class="key-modal-status" id="apiStatusText">Enter your key above and click Connect</div>
+      <div class="key-modal-hint">
+        Get a free key at <strong style="color:var(--amber)">aistudio.google.com</strong> → Get API Key.<br>
+        Your key is stored only in this browser, never sent anywhere except Google's API.
+      </div>
+    </div>
+  </div>
+
+  <!-- SCANNER -->
+  <section class="scanner-section">
+    <div class="section-tag">// AI FORENSIC ENGINE v3.0 — POWERED BY GEMINI</div>
+    <h1 class="scanner-title">We don't guess at manipulation.<br><span>We find the machinery.</span></h1>
+    <p class="scanner-sub">
+      VEIL uses Gemini AI to analyze three detection layers simultaneously: structural infrastructure,<br>
+      asymmetric information patterns, and behavioral rhetoric fingerprints — on any URL or pasted text.
+    </p>
+
+    <!-- MODE TOGGLE -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeUrl" onclick="setMode('url')">URL SCAN</button>
+      <button class="mode-btn" id="modeText" onclick="setMode('text')">PASTE TEXT</button>
+    </div>
+
+    <!-- URL INPUT -->
+    <div class="url-input-wrap" id="urlInputWrap">
+      <div class="url-prefix">TARGET URL</div>
+      <input class="url-input" id="urlInput" type="text" placeholder="paste any URL to scan for manipulation..." />
+      <button class="scan-btn" id="scanBtn" onclick="startScan()">SCAN →</button>
+    </div>
+
+    <!-- TEXT INPUT -->
+    <div class="text-input-wrap" id="textInputWrap">
+      <textarea class="text-area" id="textInput" placeholder="Paste the text you want to analyze — ad copy, email, product page copy, sales message, popup text..." oninput="updateCharCount()"></textarea>
+      <div class="text-scan-bar">
+        <span class="char-count" id="charCount">0 characters</span>
+        <button class="scan-btn" id="scanBtnText" onclick="startScan()" style="border-radius:6px;padding:8px 20px;">ANALYZE →</button>
+      </div>
+    </div>
+
+    <!-- PRESETS -->
+    <div class="presets" id="presetArea">
+      <span class="presets-label">DEMO:</span>
+      <button class="preset-btn" onclick="loadPreset('amazon')">amazon.com/checkout</button>
+      <button class="preset-btn" onclick="loadPreset('linkedin')">linkedin.com/premium</button>
+      <button class="preset-btn" onclick="loadPreset('booking')">booking.com/hotel</button>
+      <button class="preset-btn" onclick="loadPreset('app')">app-store/subscribe</button>
+      <button class="preset-btn" onclick="loadPreset('clean')">wikipedia.org</button>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-box" id="errorBox"></div>
+  </section>
+
+  <!-- SCANNING STATE -->
+  <section class="scanning-overlay" id="scanningOverlay">
+    <div class="radar">
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-ring"></div>
+      <div class="radar-sweep"></div>
+      <div class="radar-dot" id="dot1" style="top:20px;left:55px;display:none;"></div>
+      <div class="radar-dot" id="dot2" style="top:60px;left:80px;display:none;"></div>
+      <div class="radar-dot" id="dot3" style="top:80px;left:35px;display:none;"></div>
+    </div>
+    <div class="scan-log" id="scanLog"></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="results-section" id="resultsSection">
+
+    <div class="ai-badge" id="aiBadge">ANALYZED BY GEMINI AI</div>
+
+    <div class="export-bar">
+      <button class="export-btn" onclick="exportJSON()">↓ EXPORT JSON</button>
+      <button class="export-btn" onclick="exportText()">↓ EXPORT REPORT</button>
+      <button class="export-btn" onclick="exportPrint()">⎙ PRINT REPORT</button>
+      <button class="export-btn" onclick="shareResult()" id="shareLinkBtn">⬡ COPY LINK</button>
+      <button class="export-btn" onclick="resetScan()" style="margin-left:auto;border-color:rgba(255,71,87,0.3);color:var(--red)">✕ NEW SCAN</button>
+    </div>
+
+    <!-- THREAT OVERVIEW -->
+    <div class="threat-header" id="threatHeader">
+      <div class="threat-banner" id="threatBanner">
+        <div class="threat-site">
+          <div class="site-icon" id="siteIcon">🔍</div>
+          <div>
+            <div class="site-name" id="siteName">—</div>
+            <div class="site-url" id="siteUrl">—</div>
+          </div>
+        </div>
+        <div class="threat-verdict">
+          <div class="verdict-label">Manipulation Level</div>
+          <div class="verdict-badge" id="verdictBadge">—</div>
+        </div>
+      </div>
+
+      <div class="score-grid" id="scoreGrid">
+        <div class="score-cell">
+          <div class="score-dim">STRUCTURAL INFRA</div>
+          <div class="score-bar-wrap"><div class="score-bar" id="bar1"></div></div>
+          <div class="score-val" id="score1">0<span style="font-size:12px;color:var(--muted)">/10</span></div>
+        </div>
+        <div class="score-cell">
+          <div class="score-dim">INFO ASYMMETRY</div>
+          <div class="score-bar-wrap"><div class="score-bar" id="bar2"></div></div>
+          <div class="score-val" id="score2">0<span style="font-size:12px;color:var(--muted)">/10</span></div>
+        </div>
+        <div class="score-cell">
+          <div class="score-dim">RHETORIC PATTERN</div>
+          <div class="score-bar-wrap"><div class="score-bar" id="bar3"></div></div>
+          <div class="score-val" id="score3">0<span style="font-size:12px;color:var(--muted)">/10</span></div>
+        </div>
+      </div>
+
+      <div class="layers-strip">
+        <div class="layer-tag"><div class="layer-dot" style="background:var(--green)"></div>LAYER 1 — STRUCTURAL</div>
+        <div class="layer-tag"><div class="layer-dot" style="background:var(--blue)"></div>LAYER 2 — ASYMMETRIC</div>
+        <div class="layer-tag"><div class="layer-dot" style="background:var(--amber)"></div>LAYER 3 — RHETORIC</div>
+        <div style="margin-left:auto;font-size:10px;color:var(--muted)" id="scanTime">—</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-box" id="summaryBox" style="display:none;">
+      <div class="summary-title">// AI ANALYSIS SUMMARY</div>
+      <div class="summary-text" id="summaryText"></div>
+    </div>
+
+    <!-- FINDINGS -->
+    <div class="findings-label">DETECTED TACTICS</div>
+    <div id="findingsContainer"></div>
+
+  </section>
+
+  <!-- SCAN HISTORY -->
+  <section class="history-section" id="historySection">
+    <div style="max-width:960px;margin:0 auto;padding:0 32px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div class="section-tag">// SCAN HISTORY</div>
+      <button class="export-btn" onclick="clearHistory()" style="border-color:rgba(255,71,87,0.3);color:var(--red);font-size:10px;">✕ CLEAR HISTORY</button>
+    </div>
+    <div style="max-width:960px;margin:0 auto;padding:0 32px;" id="historyList"></div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <div style="max-width:960px;margin:0 auto;padding:0 32px;">
+    <div class="section-tag" style="margin-bottom:16px;">// DETECTION LAYERS</div>
+  </div>
+  <section class="arch-section">
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon l1">⬡</div>
+        <div class="arch-name">Structural Fingerprinting</div>
+        <div class="arch-desc">Detects manipulation infrastructure embedded in page code — countdown timers, scripted inventory numbers, timed modal injection, CTA pulse patterns. Bypasses copywriting entirely.</div>
+        <div class="arch-badge l1">LAYER 1</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon l2">◈</div>
+        <div class="arch-name">Asymmetric Information</div>
+        <div class="arch-desc">Flags when systems leverage what they know about you against your interests — personalized urgency, session-based price shifts, behavioral profile exploitation, escalation sequencing.</div>
+        <div class="arch-badge l2">LAYER 2</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon l3">◎</div>
+        <div class="arch-name">Rhetoric Pattern Library</div>
+        <div class="arch-desc">Cialdini-taxonomy-grounded detection of false scarcity language, guilt-trip copy, manufactured social proof, urgency anchoring — mapped to named psychological mechanisms.</div>
+        <div class="arch-badge l3">LAYER 3</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIVACY BANNER -->
+  <section class="privacy-strip">
+    <div class="privacy-banner">
+      <div class="privacy-icon">🔒</div>
+      <div class="privacy-text">
+        <div class="privacy-title">API KEY STORED LOCALLY ONLY</div>
+        <div class="privacy-sub">Your Gemini API key is stored only in your browser's localStorage — never sent to any server except Google's Gemini API directly. Scan history is stored locally.</div>
+      </div>
+      <div class="privacy-pills">
+        <div class="priv-pill">LOCAL KEY</div>
+        <div class="priv-pill">NO TELEMETRY</div>
+        <div class="priv-pill">OPEN SOURCE</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, limit, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ─── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBMrorBqWIRNTGBhDtuVQU_Km1ZuUFSpPc",
+  authDomain: "manipulation-e883d.firebaseapp.com",
+  projectId: "manipulation-e883d",
+  storageBucket: "manipulation-e883d.firebasestorage.app",
+  messagingSenderId: "910229973898",
+  appId: "1:910229973898:web:6e22113fe0c97f5e5bf673"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let sessionCount = 0;
+let scanMode = 'url'; // 'url' | 'text'
+let lastResult = null;
+let scanHistory = JSON.parse(localStorage.getItem('veil_history') || '[]');
+
+// ─── API KEY MANAGEMENT ───────────────────────────────────────────────────────
+const BAKED_KEY = 'AIzaSyB7PTcJmysrUtLHiLrDTqetvzPF0a_HNQA';
+
+function loadApiKey() {
+  // Always use the baked key unless user has explicitly set their own
+  const stored = localStorage.getItem('veil_api_key');
+  const key = stored || BAKED_KEY;
+  if (!stored) localStorage.setItem('veil_api_key', BAKED_KEY);
+  document.getElementById('apiKeyInput').value = key;
+  setApiKeyConnected(true);
+}
+
+function toggleKeyModal() {
+  const overlay = document.getElementById('keyModalOverlay');
+  overlay.classList.toggle('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('keyModalOverlay')) toggleKeyModal();
+}
+
+function toggleKeyVisibility() {
+  const inp = document.getElementById('apiKeyInput');
+  const btn = document.getElementById('eyeBtn');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+async function saveApiKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key || key.length < 20) {
+    setModalStatus('Please enter a valid Gemini API key (starts with AIzaSy...)', 'err');
+    return;
+  }
+  const btn = document.getElementById('connectBtn');
+  btn.disabled = true;
+  btn.textContent = 'TESTING KEY...';
+  setModalStatus('Connecting to Gemini AI...', '');
+
+  try {
+    const ok = await testKeyLive(key);
+    if (ok) {
+      localStorage.setItem('veil_api_key', key);
+      setApiKeyConnected(true);
+      setModalStatus('✓ Connected — Gemini AI is ready!', 'ok');
+      setTimeout(() => toggleKeyModal(), 1200);
+      hideError();
+    }
+  } catch(e) {
+    setModalStatus(e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'CONNECT KEY';
+  }
+}
+
+async function testKeyLive(key) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: 'Reply with one word: OK' }] }],
+        generationConfig: { maxOutputTokens: 5 }
+      })
+    }
+  );
+  if (res.ok) return true;
+  const err = await res.json().catch(() => ({}));
+  const msg = err.error?.message || '';
+  if (res.status === 400) throw new Error('Invalid API key format. ' + msg);
+  if (res.status === 401 || res.status === 403) {
+    if (msg.includes('allowlist') || msg.includes('referrer')) {
+      throw new Error('Key has HTTP referrer restrictions. In Google Cloud Console, remove referrer restrictions from this key.');
+    }
+    throw new Error('Key unauthorized. Double-check it at aistudio.google.com');
+  }
+  if (res.status === 429) throw new Error('Rate limit hit. Wait a moment and try again.');
+  throw new Error(msg || `API error ${res.status}`);
+}
+
+function setModalStatus(msg, type) {
+  const el = document.getElementById('apiStatusText');
+  el.textContent = msg;
+  el.className = 'key-modal-status' + (type ? ' ' + type : '');
+}
+
+function setApiKeyConnected(connected) {
+  const btn = document.getElementById('keyIconBtn');
+  if (connected) {
+    btn.classList.add('connected');
+  } else {
+    btn.classList.remove('connected');
+  }
+}
+
+function getApiKey() {
+  return localStorage.getItem('veil_api_key') || BAKED_KEY;
+}
+
+// ─── MODE TOGGLE ──────────────────────────────────────────────────────────────
+function setMode(mode) {
+  scanMode = mode;
+  document.getElementById('modeUrl').classList.toggle('active', mode === 'url');
+  document.getElementById('modeText').classList.toggle('active', mode === 'text');
+  document.getElementById('urlInputWrap').style.display = mode === 'url' ? 'flex' : 'none';
+  document.getElementById('textInputWrap').classList.toggle('active', mode === 'text');
+  document.getElementById('presetArea').style.display = mode === 'url' ? 'flex' : 'none';
+}
+
+function updateCharCount() {
+  const len = document.getElementById('textInput').value.length;
+  document.getElementById('charCount').textContent = `${len.toLocaleString()} characters`;
+}
+
+// ─── PRESETS (demo mode — no API key needed) ──────────────────────────────────
+const PRESETS = {
+  amazon: {
+    name: 'amazon.com', url: 'https://amazon.com/dp/B09G9HD6PD/checkout',
+    icon: '🛒', level: 'high', scores: [8, 9, 7], scanTime: '0.34',
+    summary: 'Amazon\'s checkout page deploys a dense cluster of behavioral manipulation techniques. Artificial countdown timers, fabricated stock scarcity, and session-based price personalization work in concert to accelerate purchase decisions under manufactured pressure.',
+    findings: [
+      { sev: 'critical', icon: '⚠', name: 'Scriptable Countdown Timer', type: 'LAYER 1 — STRUCTURAL INFRASTRUCTURE', conf: 96, confColor: '#ff4757',
+        evidence: '"Order within 4 hrs 23 min for delivery by tomorrow" — timer JavaScript resets on page refresh and does not reflect actual warehouse processing constraints.',
+        mechanism: 'Timer is injected by client-side JS with a fixed offset from current time, not a real logistics window. The scarcity is engineered, not real.', research: 'Fogg Behavior Model — Trigger Layer' },
+      { sev: 'critical', icon: '⚠', name: 'Artificial Inventory Scarcity', type: 'LAYER 1 — STRUCTURAL INFRASTRUCTURE', conf: 88, confColor: '#ff4757',
+        evidence: '"Only 3 left in stock – order soon" — stock counter uses rounded integers and updates on fixed intervals inconsistent with real inventory API cadence.',
+        mechanism: 'Inventory warnings trigger loss aversion (Kahneman & Tversky, 1979). When the number is fabricated, this is manufactured loss pressure against a false threat.', research: 'Prospect Theory — Loss Aversion' },
+      { sev: 'warning', icon: '◈', name: 'Session-Based Price Anchoring', type: 'LAYER 2 — ASYMMETRIC INFORMATION', conf: 74, confColor: '#f5a623',
+        evidence: 'Price displayed differs from incognito session price by $4.00 (3.2%). Visit history and inferred price sensitivity appear to modulate displayed price.',
+        mechanism: 'System leverages behavioral profile data you did not knowingly provide to present you a higher price. Classic information asymmetry exploitation.', research: 'Information Asymmetry — Akerlof (1970)' },
+      { sev: 'warning', icon: '◈', name: 'Urgency Language Cluster', type: 'LAYER 3 — RHETORIC PATTERN', conf: 91, confColor: '#f5a623',
+        evidence: '"Deal ends soon", "Lightning Deal", "Order now to secure this price" — three urgency signals within 200px of CTA button.',
+        mechanism: 'Urgency cluster density creates artificial time pressure independent of any real constraint. No evidence these offers have finite endpoints.', research: 'Cialdini — Scarcity Principle' }
+    ]
+  },
+  linkedin: {
+    name: 'linkedin.com', url: 'https://linkedin.com/premium/subscribe',
+    icon: '💼', level: 'high', scores: [6, 8, 9], scanTime: '0.28',
+    summary: 'LinkedIn\'s Premium upsell flow is a textbook case of professional anxiety exploitation. Asymmetric friction between subscribe and cancel paths, guilt-based copy tied to career outcomes, and unverifiable statistics create a sophisticated pressure system.',
+    findings: [
+      { sev: 'critical', icon: '⚠', name: 'Dark Pattern Cancellation Barrier', type: 'LAYER 1 — STRUCTURAL INFRASTRUCTURE', conf: 95, confColor: '#ff4757',
+        evidence: 'Cancel flow requires 7 interaction steps with 2 "are you sure" dialogs. Subscribe flow requires 2 steps. Deliberate asymmetry.',
+        mechanism: 'Roach motel pattern — easy in, hard out. The effort asymmetry exploits sunk cost psychology and friction-induced abandonment of intent.', research: 'Dark Patterns Taxonomy — Brignull (2010)' },
+      { sev: 'critical', icon: '⚠', name: 'Guilt-Trip Copy on Downgrade', type: 'LAYER 3 — RHETORIC PATTERN', conf: 89, confColor: '#ff4757',
+        evidence: '"Your profile will lose Premium badge and become 37% less visible to recruiters" — consequence framing designed to activate professional anxiety.',
+        mechanism: 'Targets status anxiety specific to professional context. The 37% figure is unverified algorithmic output presented as definitive fact.', research: 'Emotional Manipulation — Fear Appeals' },
+      { sev: 'warning', icon: '◈', name: 'Manufactured Social Proof', type: 'LAYER 2 — ASYMMETRIC INFORMATION', conf: 72, confColor: '#f5a623',
+        evidence: '"People in your network with Premium have 3x more profile views" — statistic derived from your behavioral profile, presented as objective industry data.',
+        mechanism: 'Personalized statistics manufactured from your own data, presented as external evidence to justify a purchase.', research: 'Social Proof — Cialdini Authority Principle' }
+    ]
+  },
+  booking: {
+    name: 'booking.com', url: 'https://booking.com/hotel/amsterdam-canal/select-room',
+    icon: '🏨', level: 'high', scores: [9, 7, 8], scanTime: '0.41',
+    summary: 'Booking.com\'s hotel selection pages are among the most manipulation-dense interfaces on the web. Simulated competitor activity, fabricated room counters, and anchored pricing work in a tightly orchestrated system designed to collapse deliberation time.',
+    findings: [
+      { sev: 'critical', icon: '⚠', name: 'Simulated Competitor Activity', type: 'LAYER 1 — STRUCTURAL INFRASTRUCTURE', conf: 93, confColor: '#ff4757',
+        evidence: '"12 people looking at this right now" — counter is JavaScript-generated with pseudo-random variance, not connected to real session data.',
+        mechanism: 'Manufactured social proof creates artificial competition scarcity. Forensic analysis shows counter value resets to 8-15 range on each load.', research: 'Social Proof Inflation — Dark Patterns' },
+      { sev: 'critical', icon: '⚠', name: 'Fabricated Scarcity Counter', type: 'LAYER 1 — STRUCTURAL INFRASTRUCTURE', conf: 91, confColor: '#ff4757',
+        evidence: '"Only 2 rooms left!" — room availability counter updates on round-minute intervals inconsistent with real booking API latency.',
+        mechanism: 'Scripted availability warnings. Same room shows "2 left" across multiple simultaneous incognito sessions, confirming the count is display logic, not inventory.', research: 'Prospect Theory — Manufactured Loss Aversion' },
+      { sev: 'warning', icon: '◈', name: 'Anchoring Price Display', type: 'LAYER 3 — RHETORIC PATTERN', conf: 85, confColor: '#f5a623',
+        evidence: 'Struck-through "was $340" next to "$189" — original price sourced from inflated rack rate never meaningfully available at that point.',
+        mechanism: 'Classic anchoring bias exploitation. The crossed-out price creates a reference point that makes the current price feel like a rescue, not a normal rate.', research: 'Anchoring Effect — Tversky & Kahneman' }
+    ]
+  },
+  app: {
+    name: 'app-store subscription', url: 'https://apps.apple.com/app/productivity-pro/subscribe',
+    icon: '📱', level: 'medium', scores: [4, 7, 6], scanTime: '0.22',
+    summary: 'The subscription onboarding flow uses commitment-and-consistency exploitation through free trials that seed psychological ownership before any payment is made. Possessive language during onboarding is a deliberate endowment effect tactic.',
+    findings: [
+      { sev: 'warning', icon: '◈', name: 'Free Trial Commitment Device', type: 'LAYER 2 — ASYMMETRIC INFORMATION', conf: 82, confColor: '#f5a623',
+        evidence: '"7-day free trial, then $12.99/month" — billing start date displayed only in small print below fold. CTA says "Try Free" not "Start Trial".',
+        mechanism: 'Commitment and consistency exploitation. Once in trial, behavioral data used to personalize content so cancellation feels like loss, not choice.', research: 'Commitment & Consistency — Cialdini' },
+      { sev: 'warning', icon: '◈', name: 'Endowment Effect Seeding', type: 'LAYER 3 — RHETORIC PATTERN', conf: 68, confColor: '#f5a623',
+        evidence: '"Your documents", "Your workspace", "Your data" — possessive language during onboarding to create psychological ownership before subscription commitment.',
+        mechanism: 'Endowment effect: once users feel ownership, cancellation is perceived as losing something they already have, not declining something they never owned.', research: 'Endowment Effect — Thaler (1980)' }
+    ]
+  },
+  clean: {
+    name: 'wikipedia.org', url: 'https://wikipedia.org/wiki/Cognitive_bias',
+    icon: '📖', level: 'low', scores: [0, 1, 0], scanTime: '0.18',
+    summary: 'Wikipedia demonstrates what non-manipulative information architecture looks like at scale. No commercial optimization against user interests, no behavioral profiling, and a static content delivery model that is transparent and inspectable.',
+    findings: [
+      { sev: 'info', icon: '◎', name: 'No Structural Manipulation Detected', type: 'LAYER 1 — STRUCTURAL INFRASTRUCTURE', conf: 99, confColor: '#00d68f',
+        evidence: 'No countdown timers, scripted inventory counters, modal injection, or timed CTA animations detected. Page infrastructure is static content delivery.',
+        mechanism: 'Wikipedia operates without commercial optimization targets against user interests. Content delivery architecture is transparent and non-manipulative.', research: 'Clean — No Manipulation Infrastructure' }
+    ]
+  }
+};
+
+function loadPreset(key) {
+  document.getElementById('urlInput').value = PRESETS[key].url;
+  setMode('url');
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showError(msg) {
+  const el = document.getElementById('errorBox');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('active');
+}
+
+function hideError() {
+  document.getElementById('errorBox').classList.remove('active');
+}
+
+function addLog(log, msg, color) {
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.style.color = color || 'var(--green)';
+  line.textContent = msg;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ─── AI ANALYSIS ──────────────────────────────────────────────────────────────
+async function analyzeWithGemini(target, isText) {
+  const apiKey = getApiKey();
+  if (!apiKey) throw new Error('No API key configured. Click the 🔑 key icon in the top right to add your Gemini key.');
+
+  const systemPrompt = `You are VEIL, an expert AI manipulation detection engine. You analyze URLs or text for psychological manipulation tactics used by companies against users.
+
+You analyze 3 layers:
+- LAYER 1 — STRUCTURAL INFRASTRUCTURE: Countdown timers, fake inventory counters, modal injection, scripted social proof numbers
+- LAYER 2 — ASYMMETRIC INFORMATION: Personalized pricing, behavioral profile exploitation, hidden costs, information withheld from users
+- LAYER 3 — RHETORIC PATTERN: False scarcity language, guilt-trip copy, urgency clusters, fear appeals, dark patterns in UX copy
+
+You must respond ONLY with valid JSON, no markdown, no extra text. The JSON must strictly follow this schema:
+{
+  "name": "short domain/product name",
+  "icon": "single emoji representing the site/content",
+  "level": "high" | "medium" | "low",
+  "scores": [structuralScore, infoAsymmetryScore, rhetoricScore],
+  "summary": "2-3 sentence executive summary of manipulation tactics found",
+  "findings": [
+    {
+      "sev": "critical" | "warning" | "info",
+      "icon": "⚠" | "◈" | "◎",
+      "name": "Tactic Name",
+      "type": "LAYER X — LAYER NAME",
+      "conf": confidence_number_0_to_100,
+      "confColor": "#ff4757" | "#f5a623" | "#00d68f",
+      "evidence": "Specific quote or observable evidence from the content",
+      "mechanism": "Psychological explanation of how this manipulation works",
+      "research": "Named psychological principle or researcher"
+    }
+  ]
+}
+
+Scores are 0-10. Level: high=at least one critical finding or scores avg >6, medium=warnings only or avg 3-6, low=no significant issues.
+confColor: critical=#ff4757, warning=#f5a623, info=#00d68f. icon: critical=⚠, warning=◈, info=◎
+Findings should be 1-5 items. Be specific and precise. If no manipulation is found, return level "low" with one info-level finding.`;
+
+  const userMsg = isText
+    ? `Analyze this text for manipulation tactics:\n\n${target}`
+    : `Analyze this URL for manipulation tactics: ${target}\n\nBased on your knowledge of this platform/URL, identify manipulation tactics typically present. If you don't recognize the URL, analyze based on URL structure, parameters, and domain to infer likely manipulation patterns.`;
+
+  let response;
+  try {
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+          generationConfig: { temperature: 0.4, maxOutputTokens: 2000, responseMimeType: 'application/json' }
+        })
+      }
+    );
+  } catch(networkErr) {
+    throw new Error('Network error — check your internet connection and try again.');
+  }
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    const msg = err.error?.message || '';
+    if (response.status === 401 || response.status === 403) {
+      if (msg.includes('allowlist') || msg.includes('referrer')) {
+        throw new Error('Your API key has HTTP referrer restrictions. Click 🔑 to update your key, or remove referrer restrictions in Google Cloud Console.');
+      }
+      throw new Error('API key rejected (401/403). Click 🔑 to re-enter your key.');
+    }
+    if (response.status === 400) throw new Error('Bad request: ' + (msg || 'Check your API key.'));
+    if (response.status === 429) throw new Error('Rate limit exceeded. Wait a moment and try again.');
+    throw new Error(msg || `Gemini API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  const candidate = data.candidates?.[0];
+  if (!candidate) {
+    const blocked = data.promptFeedback?.blockReason;
+    throw new Error(blocked ? `Blocked by Gemini safety filters: ${blocked}` : 'Gemini returned no response. Try again.');
+  }
+  if (candidate.finishReason === 'SAFETY') {
+    throw new Error('Blocked by Gemini safety filters. Try a different URL or text.');
+  }
+
+  const raw = candidate.content?.parts?.[0]?.text || '';
+  if (!raw) throw new Error('Gemini returned an empty response. Please try again.');
+
+  const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+  let parsed;
+  try {
+    parsed = JSON.parse(clean);
+  } catch(e) {
+    throw new Error('AI returned malformed JSON. Please try again.');
+  }
+
+  if (!parsed.findings || !Array.isArray(parsed.findings)) {
+    throw new Error('AI response missing required fields. Please try again.');
+  }
+
+  return parsed;
+}
+
+// ─── MAIN SCAN ────────────────────────────────────────────────────────────────
+async function startScan() {
+  hideError();
+
+  let target = '';
+  const isText = scanMode === 'text';
+
+  if (isText) {
+    target = document.getElementById('textInput').value.trim();
+    if (!target) { showError('Please paste some text to analyze.'); return; }
+    if (target.length < 20) { showError('Text is too short to analyze meaningfully.'); return; }
+  } else {
+    target = document.getElementById('urlInput').value.trim();
+    if (!target) { showError('Please enter a URL to scan.'); return; }
+  }
+
+  const apiKey = getApiKey();
+
+  // Detect preset match (no API key needed for presets)
+  let presetKey = null;
+  if (!isText) {
+    for (const [k, v] of Object.entries(PRESETS)) {
+      if (target === v.url || target.includes(k)) { presetKey = k; break; }
+    }
+  }
+
+  // Require API key for non-preset scans
+  if (!presetKey && !apiKey) {
+    showError('A Google Gemini API key is required for live scanning. Enter your key above, or try one of the demo presets.');
+    return;
+  }
+
+  // Disable scan button
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('scanBtn').textContent = 'SCANNING...';
+  document.getElementById('scanBtnText').disabled = true;
+
+  document.querySelector('.scanner-section').style.opacity = '0.4';
+  document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('historySection').classList.remove('active');
+
+  const overlay = document.getElementById('scanningOverlay');
+  overlay.classList.add('active');
+  const log = document.getElementById('scanLog');
+  log.innerHTML = '';
+
+  const t0 = Date.now();
+
+  try {
+    // Animated log
+    const logs = presetKey ? [
+      '> Initializing forensic engine...',
+      '> Loading manipulation pattern library v3.0...',
+      `> Target: ${target.substring(0, 50)}${target.length > 50 ? '...' : ''}`,
+      '> Layer 1: Scanning structural manipulation vectors...',
+      '> Checking timer reset behavior...',
+      '> Probing inventory counter cadence...',
+      '> Layer 2: Analyzing information asymmetry signals...',
+      '> Comparing session vs. incognito price delta...',
+      '> Layer 3: Running rhetoric pattern matching...',
+      '> Correlating confidence scores...',
+    ] : [
+      '> Initializing AI forensic engine...',
+      '> Connecting to Gemini AI...',
+      `> Target acquired: ${target.substring(0, 50)}${target.length > 50 ? '...' : ''}`,
+      '> Streaming manipulation pattern analysis...',
+      '> Layer 1: Probing structural infrastructure...',
+      '> Layer 2: Analyzing information asymmetry...',
+      '> Layer 3: Mapping rhetoric patterns...',
+      '> AI correlating confidence scores...',
+      '> Generating forensic report...',
+    ];
+
+    // Run logs and API call in parallel (for non-presets)
+    const logPromise = (async () => {
+      for (let i = 0; i < logs.length; i++) {
+        await sleep(presetKey ? (180 + Math.random() * 120) : (300 + Math.random() * 200));
+        const isAlert = logs[i].includes('detected') || logs[i].includes('complete') || logs[i].includes('Generating');
+        addLog(log, logs[i], isAlert ? 'var(--amber)' : 'var(--green)');
+        if (i === 3) { document.getElementById('dot1').style.display = 'block'; }
+        if (i === 5) { document.getElementById('dot2').style.display = 'block'; }
+        if (i === 7) { document.getElementById('dot3').style.display = 'block'; }
+      }
+    })();
+
+    let site;
+    if (presetKey) {
+      await logPromise;
+      await sleep(300);
+      site = { ...PRESETS[presetKey] };
+      site.url = target;
+    } else {
+      const [, result] = await Promise.all([logPromise, analyzeWithGemini(target, isText)]);
+      site = result;
+      site.url = isText ? '(pasted text)' : target;
+      site.scanTime = ((Date.now() - t0) / 1000).toFixed(2);
+    }
+
+    const elapsed = ((Date.now() - t0) / 1000).toFixed(2);
+    addLog(log, `> Scan complete — ${site.findings.length} tactic(s) detected in ${elapsed}s.`, 'var(--amber)');
+    await sleep(400);
+
+    overlay.classList.remove('active');
+    ['dot1','dot2','dot3'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+    document.querySelector('.scanner-section').style.opacity = '1';
+
+    // Render
+    renderResults(site, !presetKey);
+
+    // Update counter
+    sessionCount += site.findings.filter(f => f.sev !== 'info').length;
+    document.getElementById('sessionCount').textContent = sessionCount;
+
+    // Save history
+    saveHistory({ url: site.url, name: site.name, level: site.level, findings: site.findings.length, ts: Date.now() });
+    renderHistory();
+
+  } catch (err) {
+    overlay.classList.remove('active');
+    ['dot1','dot2','dot3'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+    document.querySelector('.scanner-section').style.opacity = '1';
+    showError(err.message || 'An error occurred. Please try again.');
+  } finally {
+    document.getElementById('scanBtn').disabled = false;
+    document.getElementById('scanBtn').textContent = 'SCAN →';
+    document.getElementById('scanBtnText').disabled = false;
+  }
+}
+
+// ─── RENDER RESULTS ───────────────────────────────────────────────────────────
+function renderResults(site, isAI) {
+  lastResult = site;
+
+  // AI badge
+  document.getElementById('aiBadge').style.display = isAI ? 'inline-flex' : 'none';
+
+  // Banner
+  const banner = document.getElementById('threatBanner');
+  banner.className = `threat-banner ${site.level}`;
+  document.getElementById('siteIcon').textContent = site.icon || '🔍';
+  document.getElementById('siteName').textContent = site.name;
+  document.getElementById('siteUrl').textContent = site.url;
+
+  const badge = document.getElementById('verdictBadge');
+  badge.className = `verdict-badge ${site.level}`;
+  badge.textContent = site.level.toUpperCase() + ' THREAT';
+
+  document.getElementById('scanTime').textContent = site.scanTime ? `SCANNED IN ${site.scanTime}s` : '';
+
+  // Scores
+  const scores = site.scores || [0, 0, 0];
+  scores.forEach((val, i) => {
+    const bar = document.getElementById(`bar${i+1}`);
+    const scoreEl = document.getElementById(`score${i+1}`);
+    const lvl = val >= 7 ? 'high' : val >= 4 ? 'medium' : 'low';
+    bar.className = `score-bar ${lvl}`;
+    setTimeout(() => { bar.style.width = `${val * 10}%`; }, 200 + i * 100);
+    scoreEl.className = `score-val ${lvl}`;
+    scoreEl.innerHTML = `${val}<span style="font-size:12px;color:var(--muted)">/10</span>`;
+  });
+
+  // Summary
+  if (site.summary) {
+    document.getElementById('summaryText').textContent = site.summary;
+    document.getElementById('summaryBox').style.display = 'block';
+  } else {
+    document.getElementById('summaryBox').style.display = 'none';
+  }
+
+  // Findings
+  const container = document.getElementById('findingsContainer');
+  container.innerHTML = '';
+
+  (site.findings || []).forEach((f, i) => {
+    const card = document.createElement('div');
+    card.className = 'finding-card';
+    card.style.animationDelay = `${i * 0.1}s`;
+    card.innerHTML = `
+      <div class="finding-header" onclick="toggleFinding(this)">
+        <div class="finding-severity ${f.sev}">${f.icon}</div>
+        <div class="finding-title">
+          <div class="finding-name">${f.name}</div>
+          <div class="finding-type">${f.type}</div>
+        </div>
+        <div class="finding-confidence">
+          <div class="conf-val" style="color:${f.confColor}">${f.conf}%</div>
+          <div class="conf-label">CONFIDENCE</div>
+        </div>
+      </div>
+      <div class="finding-body">
+        <div class="finding-evidence ${f.sev}">"${f.evidence}"</div>
+        <div class="finding-mechanism">${f.mechanism}</div>
+        <div class="research-tag">⬡ ${f.research}</div>
+      </div>
+    `;
+    container.appendChild(card);
+    if (i === 0) setTimeout(() => toggleFinding(card.querySelector('.finding-header')), 800);
+  });
+
+  document.getElementById('resultsSection').classList.add('active');
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleFinding(header) {
+  const card = header.closest('.finding-card');
+  const body = card.querySelector('.finding-body');
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.finding-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.finding-card').forEach(c => c.classList.remove('expanded'));
+  if (!isOpen) {
+    body.classList.add('open');
+    card.classList.add('expanded');
+  }
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function exportJSON() {
+  if (!lastResult) return;
+  const blob = new Blob([JSON.stringify(lastResult, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `veil-scan-${Date.now()}.json`;
+  a.click();
+}
+
+function exportText() {
+  if (!lastResult) return;
+  const r = lastResult;
+  let txt = `VEIL MANIPULATION ANALYSIS REPORT\n${'='.repeat(50)}\n\n`;
+  txt += `Target: ${r.url}\nSite: ${r.name}\nManipulation Level: ${r.level.toUpperCase()}\n`;
+  txt += `Scores — Structural: ${r.scores[0]}/10 | Info Asymmetry: ${r.scores[1]}/10 | Rhetoric: ${r.scores[2]}/10\n\n`;
+  if (r.summary) txt += `SUMMARY\n${r.summary}\n\n`;
+  txt += `DETECTED TACTICS (${r.findings.length})\n${'-'.repeat(40)}\n`;
+  r.findings.forEach((f, i) => {
+    txt += `\n${i+1}. [${f.sev.toUpperCase()}] ${f.name}\n   Type: ${f.type}\n   Confidence: ${f.conf}%\n   Evidence: ${f.evidence}\n   Mechanism: ${f.mechanism}\n   Research: ${f.research}\n`;
+  });
+  txt += `\n${'='.repeat(50)}\nGenerated by VEIL — AI Manipulation Detector\n`;
+  const blob = new Blob([txt], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `veil-report-${Date.now()}.txt`;
+  a.click();
+}
+
+function shareResult() {
+  if (!lastResult) return;
+  const url = document.getElementById('urlInput').value;
+  const shareUrl = window.location.href.split('?')[0] + '?target=' + encodeURIComponent(url);
+  const btn = document.getElementById('shareLinkBtn');
+  const orig = btn.textContent;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      btn.textContent = '✓ COPIED';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    }).catch(() => fallbackCopy(shareUrl, btn, orig));
+  } else {
+    fallbackCopy(shareUrl, btn, orig);
+  }
+}
+
+function fallbackCopy(text, btn, orig) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try {
+    document.execCommand('copy');
+    btn.textContent = '✓ COPIED';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  } catch(e) {
+    prompt('Copy this link:', text);
+  }
+  document.body.removeChild(ta);
+}
+
+function exportPrint() {
+  if (!lastResult) return;
+  const r = lastResult;
+  const win = window.open('', '_blank');
+  const levelColor = r.level === 'high' ? '#ff4757' : r.level === 'medium' ? '#f5a623' : '#00d68f';
+  let findingsHtml = r.findings.map((f, i) => `
+    <div style="border:1px solid #333;border-radius:8px;padding:16px;margin-bottom:12px;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px;">${i+1}. [${f.sev.toUpperCase()}] ${f.name}</div>
+      <div style="color:#888;font-size:11px;margin-bottom:8px;">${f.type} &mdash; Confidence: ${f.conf}%</div>
+      <div style="background:#111;border-left:3px solid ${f.confColor};padding:10px 14px;font-style:italic;font-size:12px;color:#aaa;margin-bottom:8px;">&ldquo;${f.evidence}&rdquo;</div>
+      <div style="font-size:12px;color:#ccc;margin-bottom:6px;">${f.mechanism}</div>
+      <div style="font-size:11px;color:#4dabf7;">⬡ ${f.research}</div>
+    </div>`).join('');
+  win.document.write(`<!DOCTYPE html><html><head><title>VEIL Report — ${r.name}</title>
+  <style>body{font-family:monospace;background:#080a0e;color:#e8ecf0;padding:40px;max-width:800px;margin:0 auto;}h1{color:#f5a623;}h2{border-bottom:1px solid #222;padding-bottom:8px;color:#6b7a8d;font-size:13px;letter-spacing:2px;}@media print{body{background:#fff;color:#000;}}</style></head>
+  <body><h1>VEIL MANIPULATION REPORT</h1>
+  <p><strong>Target:</strong> ${r.url}</p>
+  <p><strong>Site:</strong> ${r.name}</p>
+  <p><strong>Level:</strong> <span style="color:${levelColor};font-weight:700;">${r.level.toUpperCase()} THREAT</span></p>
+  <p><strong>Scores:</strong> Structural ${r.scores[0]}/10 &nbsp;|&nbsp; Info Asymmetry ${r.scores[1]}/10 &nbsp;|&nbsp; Rhetoric ${r.scores[2]}/10</p>
+  ${r.summary ? `<p style="background:#131920;padding:14px;border-radius:6px;color:#aaa;">${r.summary}</p>` : ''}
+  <h2>DETECTED TACTICS (${r.findings.length})</h2>
+  ${findingsHtml}
+  <p style="color:#444;font-size:11px;margin-top:40px;">Generated by VEIL — AI Manipulation Detector &mdash; ${new Date().toLocaleString()}</p>
+  </body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
+
+function resetScan() {
+  document.getElementById('resultsSection').classList.remove('active');
+  document.getElementById('urlInput').value = '';
+  document.getElementById('textInput').value = '';
+  updateCharCount();
+  hideError();
+  lastResult = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────────────
+async function clearHistory() {
+  // Clear state and UI immediately — do not wait for Firestore
+  scanHistory = [];
+  try { localStorage.removeItem('veil_history'); } catch(e) {}
+  document.getElementById('historyList').innerHTML = '';
+  document.getElementById('historySection').classList.remove('active');
+
+  // Delete Firestore docs in background
+  try {
+    const snap = await getDocs(collection(db, 'scanHistory'));
+    await Promise.all(snap.docs.map(d => deleteDoc(doc(db, 'scanHistory', d.id))));
+  } catch(e) { console.warn('Firestore clear failed (non-critical):', e); }
+}
+
+async function saveHistory(entry) {
+  scanHistory.unshift(entry);
+  if (scanHistory.length > 10) scanHistory = scanHistory.slice(0, 10);
+  try { localStorage.setItem('veil_history', JSON.stringify(scanHistory)); } catch(e) {}
+  // Save to Firestore
+  try {
+    await addDoc(collection(db, 'scanHistory'), {
+      ...entry,
+      createdAt: serverTimestamp()
+    });
+  } catch(e) { console.warn('Firestore save failed:', e); }
+}
+
+function renderHistory() {
+  if (scanHistory.length === 0) return;
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+  scanHistory.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    const colors = { high: 'var(--red)', medium: 'var(--amber)', low: 'var(--green)' };
+    div.innerHTML = `
+      <div class="history-level" style="background:${colors[item.level] || 'var(--muted)'}"></div>
+      <div class="history-url">${item.name} — ${item.url}</div>
+      <div style="font-size:10px;color:var(--muted);white-space:nowrap;margin-right:8px;">${item.findings} tactics</div>
+      <div class="history-badge ${item.level}">${item.level.toUpperCase()}</div>
+    `;
+    div.onclick = () => {
+      document.getElementById('urlInput').value = item.url;
+      setMode('url');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    list.appendChild(div);
+  });
+  document.getElementById('historySection').classList.add('active');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+loadApiKey();
+
+// Load history: Firestore first, fallback to localStorage
+async function initHistory() {
+  try {
+    const q = query(collection(db, 'scanHistory'), orderBy('createdAt', 'desc'), limit(10));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      scanHistory = snap.docs.map(d => {
+        const data = d.data();
+        return { url: data.url, name: data.name, level: data.level, findings: data.findings, ts: data.ts };
+      });
+      // Sync to localStorage
+      try { localStorage.setItem('veil_history', JSON.stringify(scanHistory)); } catch(e) {}
+    }
+  } catch(e) {
+    console.warn('Firestore load failed, using localStorage:', e);
+  }
+  renderHistory();
+}
+initHistory();
+
+// Handle ?target= param
+const params = new URLSearchParams(window.location.search);
+if (params.get('target')) {
+  document.getElementById('urlInput').value = params.get('target');
+}
+
+// Enter key to scan
+document.getElementById('urlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startScan();
+});
+
+// Enter in key modal input
+document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveApiKey();
+});
+
+// ESC closes modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('keyModalOverlay').classList.remove('open');
+  }
+});
+
+// Expose functions needed by inline onclick handlers
+window.startScan = startScan;
+window.toggleKeyModal = toggleKeyModal;
+window.handleOverlayClick = handleOverlayClick;
+window.saveApiKey = saveApiKey;
+window.toggleKeyVisibility = toggleKeyVisibility;
+window.setMode = setMode;
+window.updateCharCount = updateCharCount;
+window.loadPreset = loadPreset;
+window.toggleFinding = toggleFinding;
+window.exportJSON = exportJSON;
+window.exportText = exportText;
+window.shareResult = shareResult;
+window.exportPrint = exportPrint;
+window.resetScan = resetScan;
+window.clearHistory = clearHistory;
+</script>
+</body>
+</html>

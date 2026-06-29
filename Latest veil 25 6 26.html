@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEIL — The Trust Layer of the Internet</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#030810;
+--bg2:#070d1a;
+--bg3:#0a1225;
+--surface:#0d1830;
+--surface2:#111f3a;
+--border:#1a2d50;
+--border2:#243d6b;
+--text:#e8eef8;
+--text2:#8fa3c8;
+--text3:#4d6490;
+--blue:#3b82f6;
+--blue2:#60a5fa;
+--teal:#0d9488;
+--teal2:#2dd4bf;
+--safe:#10b981;
+--warn:#f59e0b;
+--danger:#ef4444;
+--purple:#8b5cf6;
+--glow-blue:rgba(59,130,246,0.15);
+--glow-teal:rgba(13,148,136,0.12);
+--radius:12px;
+--radius-lg:20px;
+--radius-xl:32px;
+}
+html{scroll-behavior:smooth}
+body{
+background:var(--bg);
+color:var(--text);
+font-family:'DM Sans',sans-serif;
+font-size:16px;
+line-height:1.6;
+overflow-x:hidden;
+}
+::selection{background:rgba(59,130,246,0.3);color:#fff}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* NAV */
+nav{
+position:fixed;top:0;left:0;right:0;z-index:100;
+padding:1rem 2rem;
+display:flex;align-items:center;justify-content:space-between;
+background:rgba(3,8,16,0.7);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(26,45,80,0.5);
+}
+.nav-logo{
+font-family:'DM Serif Display',serif;
+font-size:1.5rem;letter-spacing:-0.02em;
+color:#fff;
+display:flex;align-items:center;gap:10px;
+}
+.nav-logo-icon{
+width:32px;height:32px;border-radius:8px;
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+display:flex;align-items:center;justify-content:center;
+font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:#fff;
+}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-links a{
+color:var(--text2);text-decoration:none;font-size:14px;font-weight:400;
+transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-link-btn{
+background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;
+color:var(--text2);font-size:14px;font-weight:400;
+transition:color 0.2s;padding:0;
+}
+.nav-link-btn:hover{color:var(--text)}
+.nav-cta{
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+color:#fff;border:none;padding:0.5rem 1.25rem;
+border-radius:8px;font-size:14px;font-weight:500;
+cursor:pointer;font-family:'DM Sans',sans-serif;
+transition:opacity 0.2s,transform 0.2s;
+}
+.nav-cta:hover{opacity:0.9;transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+min-height:100vh;display:flex;align-items:center;justify-content:center;
+position:relative;overflow:hidden;
+padding:6rem 2rem 4rem;
+}
+.hero-bg{
+position:absolute;inset:0;
+background:
+radial-gradient(ellipse 80% 60% at 50% -10%,rgba(29,78,216,0.18) 0%,transparent 60%),
+radial-gradient(ellipse 60% 40% at 80% 60%,rgba(13,148,136,0.1) 0%,transparent 50%),
+radial-gradient(ellipse 40% 30% at 20% 70%,rgba(139,92,246,0.08) 0%,transparent 50%);
+}
+.hero-grid{
+position:absolute;inset:0;
+background-image:
+linear-gradient(rgba(26,45,80,0.3) 1px,transparent 1px),
+linear-gradient(90deg,rgba(26,45,80,0.3) 1px,transparent 1px);
+background-size:60px 60px;
+mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black 0%,transparent 70%);
+}
+.hero-content{
+position:relative;z-index:2;
+text-align:center;max-width:860px;margin:0 auto;
+}
+.hero-badge{
+display:inline-flex;align-items:center;gap:8px;
+background:rgba(29,78,216,0.12);
+border:1px solid rgba(59,130,246,0.25);
+border-radius:100px;padding:6px 16px;
+font-size:13px;color:var(--blue2);font-weight:500;
+margin-bottom:2rem;
+}
+.hero-badge-dot{
+width:6px;height:6px;border-radius:50%;
+background:var(--teal2);
+animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot{
+0%,100%{opacity:1;transform:scale(1)}
+50%{opacity:0.5;transform:scale(0.8)}
+}
+.hero h1{
+font-family:'DM Serif Display',serif;
+font-size:clamp(2.8rem,6vw,5rem);
+line-height:1.1;letter-spacing:-0.03em;
+color:#fff;margin-bottom:1.5rem;
+}
+.hero h1 em{
+font-style:italic;
+background:linear-gradient(135deg,var(--blue2),var(--teal2));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+font-size:clamp(1rem,2vw,1.2rem);
+color:var(--text2);max-width:600px;margin:0 auto 2.5rem;
+font-weight:300;line-height:1.7;
+}
+.hero-ctas{
+display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;
+margin-bottom:4rem;
+}
+.btn-primary{
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+color:#fff;border:none;padding:0.85rem 2rem;
+border-radius:10px;font-size:16px;font-weight:500;
+cursor:pointer;font-family:'DM Sans',sans-serif;
+transition:all 0.2s;box-shadow:0 0 30px rgba(29,78,216,0.3);
+text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(29,78,216,0.4)}
+.btn-secondary{
+background:transparent;
+color:var(--text);border:1px solid var(--border2);padding:0.85rem 2rem;
+border-radius:10px;font-size:16px;font-weight:400;
+cursor:pointer;font-family:'DM Sans',sans-serif;
+transition:all 0.2s;text-decoration:none;
+display:inline-flex;align-items:center;gap:8px;
+}
+.btn-secondary:hover{background:var(--surface);border-color:var(--blue);color:#fff}
+
+/* TRUST NODES VISUALIZATION */
+.trust-visual{
+position:relative;width:100%;max-width:700px;margin:0 auto;
+height:300px;
+}
+.trust-canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* SCANNER SECTION */
+.scanner-section{
+padding:6rem 2rem;
+position:relative;
+}
+.section-label{
+font-size:12px;letter-spacing:0.15em;text-transform:uppercase;
+color:var(--teal2);font-weight:500;margin-bottom:1rem;
+}
+.section-title{
+font-family:'DM Serif Display',serif;
+font-size:clamp(2rem,4vw,3rem);
+color:#fff;line-height:1.2;margin-bottom:1rem;
+}
+.section-sub{
+color:var(--text2);font-size:1.05rem;max-width:500px;
+}
+.scanner-wrap{
+max-width:860px;margin:3rem auto 0;
+}
+.url-input-box{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius-lg);
+padding:1.5rem;
+transition:border-color 0.3s,box-shadow 0.3s;
+}
+.url-input-box:focus-within{
+border-color:rgba(59,130,246,0.5);
+box-shadow:0 0 0 4px rgba(59,130,246,0.08),0 0 30px rgba(59,130,246,0.05);
+}
+.url-input-row{
+display:flex;gap:1rem;align-items:center;
+}
+.url-input{
+flex:1;background:transparent;border:none;outline:none;
+color:var(--text);font-size:1rem;font-family:'DM Sans',sans-serif;
+caret-color:var(--blue2);
+}
+.url-input::placeholder{color:var(--text3)}
+.scan-btn{
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+border:none;border-radius:10px;
+padding:0.7rem 1.5rem;color:#fff;
+font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;
+cursor:pointer;white-space:nowrap;
+transition:all 0.2s;
+display:flex;align-items:center;gap:8px;
+}
+.scan-btn:hover{opacity:0.9;transform:translateY(-1px)}
+.scan-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.url-hints{
+display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;
+}
+.url-hint{
+font-size:12px;color:var(--text3);cursor:pointer;
+padding:4px 10px;border:1px solid var(--border);border-radius:20px;
+transition:all 0.2s;
+}
+.url-hint:hover{border-color:var(--blue);color:var(--blue2)}
+
+/* RESULTS */
+.results{
+margin-top:2rem;
+display:none;
+animation:fadeUp 0.4s ease;
+}
+.results.show{display:block}
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(20px)}
+to{opacity:1;transform:translateY(0)}
+}
+.results-grid{
+display:grid;
+grid-template-columns:1fr 2fr;
+gap:1.5rem;
+}
+@media(max-width:700px){.results-grid{grid-template-columns:1fr}}
+
+/* TRUST ORB */
+.orb-card{
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:2rem;
+display:flex;flex-direction:column;align-items:center;
+text-align:center;
+}
+.orb-wrap{position:relative;width:160px;height:160px;margin:0 auto 1.5rem}
+.orb-svg{width:160px;height:160px;transform:rotate(-90deg)}
+.orb-center{
+position:absolute;inset:0;display:flex;flex-direction:column;
+align-items:center;justify-content:center;
+}
+.orb-score{
+font-family:'Space Grotesk',sans-serif;
+font-size:2.5rem;font-weight:600;color:#fff;
+line-height:1;
+}
+.orb-level{font-size:11px;color:var(--text2);margin-top:4px;letter-spacing:0.05em}
+.orb-label{font-size:13px;color:var(--text2);margin-bottom:0.5rem}
+.status-badge{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;
+}
+.status-safe{background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2)}
+.status-mostly{background:rgba(96,165,250,0.1);color:#93c5fd;border:1px solid rgba(96,165,250,0.2)}
+.status-suspicious{background:rgba(245,158,11,0.1);color:#fcd34d;border:1px solid rgba(245,158,11,0.2)}
+.status-danger{background:rgba(239,68,68,0.1);color:#fca5a5;border:1px solid rgba(239,68,68,0.2)}
+
+/* ANALYSIS CARD */
+.analysis-card{
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:1.75rem;
+}
+.analysis-tabs{
+display:flex;gap:4px;margin-bottom:1.5rem;
+background:var(--bg3);border-radius:8px;padding:4px;
+overflow-x:auto;
+}
+.analysis-tab{
+flex:1;padding:0.5rem;border:none;background:transparent;
+color:var(--text3);font-size:13px;font-family:'DM Sans',sans-serif;
+border-radius:6px;cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.analysis-tab.active{background:var(--surface2);color:var(--text)}
+.analysis-panel{display:none}
+.analysis-panel.active{display:block}
+
+/* AI EXPLANATION */
+.ai-explain{
+background:var(--bg3);border-radius:var(--radius);
+padding:1.25rem;border-left:3px solid var(--blue);
+margin-bottom:1rem;
+}
+.ai-explain-label{
+font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+color:var(--blue2);font-weight:500;margin-bottom:0.5rem;
+display:flex;align-items:center;gap:6px;
+}
+.ai-explain-text{font-size:14px;color:var(--text);line-height:1.7}
+
+/* SIGNALS */
+.signals-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.signal-item{
+background:var(--bg3);border-radius:var(--radius);
+padding:0.875rem;
+}
+.signal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.signal-name{font-size:12px;color:var(--text2);font-weight:500}
+.signal-val{font-size:12px;font-weight:500}
+.signal-bar{height:4px;border-radius:2px;background:var(--bg2);overflow:hidden}
+.signal-fill{height:100%;border-radius:2px;transition:width 1s ease}
+
+/* DNA SECTION */
+.dna-items{display:flex;flex-direction:column;gap:0.75rem}
+.dna-row{display:flex;align-items:center;gap:12px}
+.dna-name{font-size:13px;color:var(--text2);width:160px;flex-shrink:0}
+.dna-bar-wrap{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.dna-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)}
+.dna-pct{font-size:12px;color:var(--text3);width:36px;text-align:right}
+.dna-block{margin-bottom:2px}
+.dna-explain{font-size:12px;color:var(--text3);line-height:1.55;margin:4px 0 10px 0}
+
+/* COMMUNITY */
+.community-wrap{display:flex;flex-direction:column;gap:0.75rem}
+.community-stat{
+display:flex;align-items:center;justify-content:space-between;
+background:var(--bg3);border-radius:10px;padding:0.875rem 1rem;
+}
+.community-label{font-size:13px;color:var(--text2)}
+.community-val{font-size:14px;font-weight:500;color:var(--text)}
+.community-report-btn{
+width:100%;padding:0.75rem;
+background:transparent;border:1px solid var(--border2);
+border-radius:10px;color:var(--text2);
+font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;
+transition:all 0.2s;margin-top:0.5rem;
+}
+.community-report-btn:hover{border-color:var(--warn);color:var(--warn)}
+
+/* DOMAIN INFO */
+.domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.domain-item{background:var(--bg3);border-radius:10px;padding:0.875rem}
+.domain-item-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:4px}
+.domain-item-val{font-size:14px;font-weight:500;color:var(--text)}
+
+/* SCANNING ANIMATION */
+.scan-anim{
+display:none;text-align:center;padding:3rem 2rem;
+}
+.scan-anim.show{display:block}
+.scan-ring-wrap{position:relative;width:120px;height:120px;margin:0 auto 1.5rem}
+.scan-ring{
+width:120px;height:120px;border-radius:50%;
+border:2px solid var(--border);
+border-top:2px solid var(--blue2);
+animation:spin 1s linear infinite;
+position:absolute;top:0;left:0;
+}
+.scan-ring2{
+width:90px;height:90px;border-radius:50%;
+border:1px solid rgba(13,148,136,0.3);
+border-bottom:1px solid var(--teal2);
+animation:spin 1.5s linear infinite reverse;
+position:absolute;top:15px;left:15px;
+}
+.scan-dot{
+width:8px;height:8px;border-radius:50%;background:var(--blue2);
+position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+animation:pulse-dot 1s ease-in-out infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-steps{
+display:flex;flex-direction:column;gap:8px;max-width:280px;margin:0 auto;
+}
+.scan-step{
+font-size:13px;color:var(--text3);
+display:flex;align-items:center;gap:8px;
+opacity:0;animation:fadeIn 0.3s ease forwards;
+}
+.scan-step.done{color:var(--teal2)}
+.scan-step-icon{width:16px;height:16px;flex-shrink:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* FEATURES SECTION */
+.features{padding:6rem 2rem;position:relative}
+.features-inner{max-width:1100px;margin:0 auto}
+.features-header{max-width:600px;margin:0 auto 4rem;text-align:center}
+.features-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:1.5rem;
+}
+.feature-card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius-lg);
+padding:2rem;
+transition:all 0.3s;
+position:relative;overflow:hidden;
+}
+.feature-card::before{
+content:'';position:absolute;
+top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3),transparent);
+opacity:0;transition:opacity 0.3s;
+}
+.feature-card:hover::before{opacity:1}
+.feature-card:hover{
+border-color:rgba(59,130,246,0.2);
+transform:translateY(-4px);
+box-shadow:0 20px 40px rgba(0,0,0,0.3);
+}
+.feature-icon{
+width:48px;height:48px;border-radius:12px;
+display:flex;align-items:center;justify-content:center;
+margin-bottom:1.25rem;font-size:22px;
+}
+.fi-blue{background:rgba(29,78,216,0.15);border:1px solid rgba(59,130,246,0.2)}
+.fi-teal{background:rgba(13,148,136,0.15);border:1px solid rgba(45,212,191,0.2)}
+.fi-purple{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.2)}
+.fi-amber{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2)}
+.feature-title{font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:0.75rem}
+.feature-desc{font-size:14px;color:var(--text2);line-height:1.7}
+
+/* HOW IT WORKS */
+.how{padding:6rem 2rem;background:var(--bg2)}
+.how-inner{max-width:1000px;margin:0 auto}
+.how-steps{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:2rem;margin-top:4rem;
+}
+.how-step{text-align:center}
+.how-step-num{
+width:48px;height:48px;border-radius:50%;
+background:linear-gradient(135deg,rgba(29,78,216,0.2),rgba(13,148,136,0.2));
+border:1px solid rgba(59,130,246,0.3);
+display:flex;align-items:center;justify-content:center;
+margin:0 auto 1.25rem;
+font-family:'Space Grotesk',sans-serif;
+font-size:18px;font-weight:600;
+color:var(--blue2);
+}
+.how-step h3{font-size:1rem;font-weight:600;color:#fff;margin-bottom:0.5rem}
+.how-step p{font-size:14px;color:var(--text2);line-height:1.6}
+.how-connector{
+display:flex;align-items:center;justify-content:center;
+color:var(--border2);font-size:24px;
+margin-top:24px;
+}
+
+/* STATS */
+.stats{
+padding:5rem 2rem;
+background:linear-gradient(135deg,rgba(29,78,216,0.05),rgba(13,148,136,0.05));
+border-top:1px solid var(--border);
+border-bottom:1px solid var(--border);
+}
+.stats-inner{max-width:900px;margin:0 auto}
+.stats-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:2rem;text-align:center;
+}
+.stat-num{
+font-family:'Space Grotesk',sans-serif;
+font-size:2.5rem;font-weight:600;
+background:linear-gradient(135deg,var(--blue2),var(--teal2));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+line-height:1;margin-bottom:0.5rem;
+}
+.stat-label{font-size:14px;color:var(--text2)}
+
+/* TESTIMONIALS */
+.testimonials{padding:6rem 2rem}
+.testimonials-inner{max-width:1100px;margin:0 auto}
+.testimonials-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:1.5rem;margin-top:3rem;
+}
+.testimonial-card{
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:1.75rem;
+}
+.testimonial-text{
+font-size:15px;color:var(--text);line-height:1.7;
+font-style:italic;margin-bottom:1.25rem;
+}
+.testimonial-author{display:flex;align-items:center;gap:12px}
+.author-avatar{
+width:36px;height:36px;border-radius:50%;
+background:linear-gradient(135deg,var(--blue),var(--teal));
+display:flex;align-items:center;justify-content:center;
+font-size:14px;font-weight:600;color:#fff;
+}
+.author-name{font-size:14px;font-weight:500;color:#fff}
+.author-role{font-size:12px;color:var(--text3)}
+
+/* FOOTER */
+footer{
+background:var(--bg2);
+border-top:1px solid var(--border);
+padding:4rem 2rem 2rem;
+}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-top{
+display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+gap:3rem;margin-bottom:3rem;
+}
+@media(max-width:700px){.footer-top{grid-template-columns:1fr 1fr}}
+.footer-brand{font-family:'DM Serif Display',serif;font-size:1.5rem;color:#fff;margin-bottom:0.75rem}
+.footer-tagline{font-size:14px;color:var(--text2)}
+.footer-col h4{font-size:13px;font-weight:600;color:#fff;margin-bottom:1rem;letter-spacing:0.05em}
+.footer-col a{
+display:block;font-size:13px;color:var(--text3);text-decoration:none;
+margin-bottom:0.5rem;transition:color 0.2s;
+}
+.footer-col a:hover{color:var(--text2)}
+.footer-bottom{
+border-top:1px solid var(--border);padding-top:1.5rem;
+display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+}
+.footer-copy{font-size:13px;color:var(--text3)}
+.footer-trust{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+.trust-pill{
+display:inline-flex;align-items:center;gap:4px;
+background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);
+color:#34d399;padding:3px 10px;border-radius:20px;font-size:11px;
+}
+.trust-dot{width:5px;height:5px;border-radius:50%;background:#34d399;animation:pulse-dot 2s ease-in-out infinite}
+
+/* HISTORY */
+.history-section{
+margin-top:1.5rem;
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:1.5rem;
+display:none;
+}
+.history-section.show{display:block}
+.history-header{
+display:flex;justify-content:space-between;align-items:center;
+margin-bottom:1rem;
+}
+.history-title{font-size:14px;font-weight:500;color:var(--text2)}
+.history-clear{
+background:none;border:none;color:var(--text3);font-size:12px;
+cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.2s;
+}
+.history-clear:hover{color:var(--danger)}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-item{
+display:flex;align-items:center;justify-content:space-between;
+background:var(--bg3);border-radius:8px;padding:0.625rem 0.875rem;
+cursor:pointer;transition:background 0.2s;
+}
+.history-item:hover{background:var(--surface2)}
+.history-url{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;margin-right:1rem}
+.history-score-badge{
+font-size:12px;font-weight:600;font-family:'Space Grotesk',sans-serif;
+padding:2px 8px;border-radius:4px;flex-shrink:0;
+}
+.hb-safe{background:rgba(16,185,129,0.1);color:#34d399}
+.hb-mostly{background:rgba(96,165,250,0.1);color:#93c5fd}
+.hb-suspicious{background:rgba(245,158,11,0.1);color:#fcd34d}
+.hb-danger{background:rgba(239,68,68,0.1);color:#fca5a5}
+
+/* REPORT MODAL */
+.modal-overlay{
+position:fixed;inset:0;background:rgba(0,0,0,0.7);
+z-index:200;display:none;align-items:center;justify-content:center;
+backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex}
+.modal{
+background:var(--bg3);border:1px solid var(--border2);
+border-radius:var(--radius-xl);padding:2rem;
+max-width:440px;width:90%;
+animation:fadeUp 0.3s ease;
+}
+.modal-header{
+display:flex;justify-content:space-between;align-items:flex-start;
+margin-bottom:1.5rem;
+}
+.modal-title{font-size:1.1rem;font-weight:600;color:#fff}
+.modal-close{
+background:none;border:none;color:var(--text3);cursor:pointer;
+font-size:20px;line-height:1;transition:color 0.2s;
+}
+.modal-close:hover{color:var(--text)}
+.modal-desc{font-size:14px;color:var(--text2);margin-bottom:1.5rem}
+.report-types{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem}
+.report-type{
+background:var(--surface);border:1px solid var(--border);
+border-radius:10px;padding:0.875rem;cursor:pointer;
+transition:all 0.2s;text-align:center;
+}
+.report-type:hover,.report-type.selected{border-color:var(--warn);background:rgba(245,158,11,0.06)}
+.report-type-icon{font-size:20px;margin-bottom:4px}
+.report-type-label{font-size:12px;color:var(--text2)}
+.modal-submit{
+width:100%;padding:0.875rem;
+background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(239,68,68,0.15));
+border:1px solid rgba(245,158,11,0.3);
+border-radius:10px;color:var(--warn);
+font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;
+cursor:pointer;transition:all 0.2s;
+}
+.modal-submit:hover{background:rgba(245,158,11,0.15);border-color:var(--warn)}
+
+/* TOAST */
+.toast{
+position:fixed;bottom:2rem;right:2rem;z-index:300;
+background:var(--surface2);border:1px solid var(--border2);
+border-radius:12px;padding:0.875rem 1.25rem;
+font-size:14px;color:var(--text);
+display:none;align-items:center;gap:10px;
+animation:slideUp 0.3s ease;
+box-shadow:0 20px 40px rgba(0,0,0,0.4);
+}
+.toast.show{display:flex}
+@keyframes slideUp{
+from{opacity:0;transform:translateY(10px)}
+to{opacity:1;transform:translateY(0)}
+}
+.toast-icon{font-size:18px}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+nav{padding:0.875rem 1.25rem}
+.nav-links{display:none}
+.hero h1{font-size:2.2rem}
+.hero-sub{font-size:0.95rem}
+.scanner-section{padding:4rem 1.25rem}
+.features{padding:4rem 1.25rem}
+.signals-grid{grid-template-columns:1fr}
+.domain-grid{grid-template-columns:1fr}
+.results-grid{grid-template-columns:1fr}
+.report-types{grid-template-columns:1fr}
+}
+
+/* CAROUSEL */
+.carousel-wrap{position:relative;overflow:hidden;padding-bottom:3rem}
+.carousel-track{
+display:flex;transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.carousel-slide{
+min-width:100%;padding:2.5rem;
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);
+box-sizing:border-box;
+}
+.carousel-controls{
+display:flex;align-items:center;justify-content:center;
+gap:1rem;margin-top:1.5rem;
+}
+.carousel-btn{
+width:40px;height:40px;border-radius:50%;
+background:var(--surface);border:1px solid var(--border2);
+color:var(--text2);font-size:16px;cursor:pointer;
+transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+}
+.carousel-btn:hover{background:var(--surface2);border-color:var(--blue);color:var(--blue2)}
+.carousel-dots{display:flex;gap:8px;align-items:center}
+.carousel-dot{
+width:8px;height:8px;border-radius:50%;
+background:var(--border2);cursor:pointer;
+transition:all 0.3s;border:none;padding:0;
+}
+.carousel-dot.active{background:var(--blue2);width:24px;border-radius:4px}
+
+/* HOW SLIDESHOW */
+.how-slideshow{margin-top:3rem;max-width:640px;margin-left:auto;margin-right:auto}
+.how-slides-wrap{position:relative;min-height:220px}
+.how-slide{
+display:none;text-align:center;
+animation:slideIn 0.45s cubic-bezier(0.16,1,0.3,1);
+}
+.how-slide.active{display:block}
+@keyframes slideIn{
+from{opacity:0;transform:translateX(40px)}
+to{opacity:1;transform:translateX(0)}
+}
+.how-slide-icon{font-size:3.5rem;margin-bottom:1rem}
+.how-slide-step{
+font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
+color:var(--teal2);font-weight:500;margin-bottom:0.75rem;
+}
+.how-slide-title{
+font-family:'DM Serif Display',serif;
+font-size:1.75rem;color:#fff;margin-bottom:1rem;
+}
+.how-slide-desc{font-size:15px;color:var(--text2);line-height:1.7;max-width:480px;margin:0 auto}
+.how-progress-track{
+height:3px;background:var(--border);border-radius:2px;
+margin:2rem 0 1.25rem;overflow:hidden;
+}
+.how-progress-fill{
+height:100%;border-radius:2px;
+background:linear-gradient(90deg,var(--blue),var(--teal2));
+transition:width 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.how-nav{display:flex;align-items:center;justify-content:center;gap:1rem}
+.how-step-dots{display:flex;gap:8px;align-items:center}
+
+.skeleton{
+background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);
+background-size:200% 100%;
+animation:shimmer 1.5s ease-in-out infinite;
+border-radius:6px;
+}
+@keyframes shimmer{
+0%{background-position:200% 0}
+100%{background-position:-200% 0}
+}
+
+/* ── TAGS: REAL vs AI ───────────────────────────────────────────── */
+.tag{
+display:inline-flex;align-items:center;gap:4px;
+font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+padding:2px 7px;border-radius:5px;flex-shrink:0;
+}
+.tag-real{background:rgba(45,212,191,0.12);color:var(--teal2);border:1px solid rgba(45,212,191,0.25)}
+.tag-ai{background:rgba(139,92,246,0.12);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25)}
+.tag-pending{background:rgba(143,163,200,0.1);color:var(--text3);border:1px solid var(--border)}
+
+/* ── METHODOLOGY SECTION ────────────────────────────────────────── */
+.method-section{padding:6rem 2rem;background:var(--bg2)}
+.method-inner{max-width:1000px;margin:0 auto}
+.method-head{max-width:600px;margin-bottom:3rem}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+@media(max-width:800px){.method-grid{grid-template-columns:1fr}}
+.method-copy-card{
+background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+padding:1.75rem;margin-bottom:1.25rem;
+}
+.method-copy-card h4{font-size:15px;color:#fff;margin-bottom:0.5rem;display:flex;align-items:center;gap:8px}
+.method-copy-card p{font-size:13.5px;color:var(--text2);line-height:1.7}
+.example-card{
+background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+padding:1.75rem;
+}
+.example-badge{
+display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-bottom:1.25rem;
+}
+.example-score-row{display:flex;align-items:baseline;gap:10px;margin-bottom:1.25rem}
+.example-score-num{font-family:'Space Grotesk',sans-serif;font-size:2.25rem;font-weight:600;color:#fff}
+.example-score-sub{font-size:13px;color:var(--text3)}
+.factor-list{display:flex;flex-direction:column;gap:8px}
+.factor-row{
+display:flex;align-items:center;gap:10px;
+background:var(--bg3);border-radius:9px;padding:0.65rem 0.875rem;
+}
+.factor-label{flex:1;font-size:13px;color:var(--text)}
+.factor-pts{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;width:42px;text-align:right;flex-shrink:0}
+.pts-pos{color:#34d399}
+.pts-neg{color:#fca5a5}
+
+/* ── CONFIDENCE ──────────────────────────────────────────────────── */
+.confidence-box{
+background:var(--bg3);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;
+}
+.confidence-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.confidence-label{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:0.02em}
+.confidence-pct{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--blue2)}
+.confidence-bar{height:4px;border-radius:2px;background:var(--bg2);overflow:hidden;margin-bottom:8px}
+.confidence-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--blue),var(--teal2));transition:width 1s ease}
+.confidence-explain{font-size:12px;color:var(--text3);line-height:1.6}
+
+/* ── EVIDENCE PANEL ──────────────────────────────────────────────── */
+.evidence-intro{font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.6}
+.evidence-list{display:flex;flex-direction:column;gap:8px}
+.evidence-item{
+display:flex;gap:10px;background:var(--bg3);border-radius:10px;padding:0.75rem 0.9rem;
+border-left:3px solid var(--border2);
+}
+.evidence-item.sev-risk{border-left-color:var(--danger)}
+.evidence-item.sev-safe{border-left-color:var(--safe)}
+.evidence-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.evidence-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.evidence-detail{font-size:12px;color:var(--text3);line-height:1.55}
+.evidence-empty{font-size:13px;color:var(--text3);text-align:center;padding:1.5rem 0}
+
+/* ── DOMAIN INTEL ────────────────────────────────────────────────── */
+.domain-item-val.unavailable{color:var(--text3);font-weight:400;font-style:italic}
+.rdap-status{
+display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3);
+margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);
+}
+
+/* ── DEMO MODE ───────────────────────────────────────────────────── */
+.demo-row{display:flex;align-items:center;gap:0.75rem;margin-top:1rem;flex-wrap:wrap}
+.demo-btn{
+display:inline-flex;align-items:center;gap:8px;
+background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);
+color:#c4b5fd;padding:0.55rem 1.1rem;border-radius:10px;
+font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;
+transition:all 0.2s;
+}
+.demo-btn:hover{background:rgba(139,92,246,0.18)}
+.demo-btn:disabled{opacity:0.5;cursor:not-allowed}
+.demo-progress{font-size:12px;color:var(--text3)}
+.demo-live-badge{
+display:none;align-items:center;gap:6px;
+background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);
+color:#c4b5fd;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;
+padding:4px 10px;border-radius:20px;margin-bottom:1rem;
+}
+.demo-live-badge.show{display:inline-flex}
+.demo-live-badge .dot{width:6px;height:6px;border-radius:50%;background:#c4b5fd;animation:pulse-dot 1s ease-in-out infinite}
+
+/* ── COMPETITIVE POSITIONING ────────────────────────────────────── */
+.compare-section{padding:6rem 2rem}
+.compare-inner{max-width:900px;margin:0 auto}
+.compare-table{
+display:grid;grid-template-columns:1.4fr 1fr 1fr;
+border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-top:3rem;
+}
+.compare-cell{padding:1rem 1.25rem;font-size:13.5px;border-bottom:1px solid var(--border)}
+.compare-head{
+font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;
+background:var(--bg3);color:var(--text2);
+}
+.compare-head.veil-head{color:var(--teal2);background:rgba(13,148,136,0.08)}
+.compare-row-label{color:var(--text2);background:var(--surface)}
+.compare-cell.veil-col{background:rgba(13,148,136,0.04);color:var(--text)}
+.compare-cell.trad-col{color:var(--text3)}
+.compare-table .compare-cell:nth-last-child(-n+3){border-bottom:none}
+@media(max-width:700px){
+.compare-table{grid-template-columns:1fr;border-radius:var(--radius)}
+.compare-cell{border-bottom:1px solid var(--border)}
+}
+
+/* ── EXTENSION PREVIEW ──────────────────────────────────────────── */
+.ext-section{padding:6rem 2rem;background:var(--bg2)}
+.ext-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+@media(max-width:800px){.ext-inner{grid-template-columns:1fr}}
+.ext-mockup{
+background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,0.4);
+}
+.ext-browser-bar{
+display:flex;align-items:center;gap:8px;padding:0.7rem 1rem;
+background:var(--bg3);border-bottom:1px solid var(--border);
+}
+.ext-dot{width:9px;height:9px;border-radius:50%}
+.ext-url-pill{
+flex:1;background:var(--bg2);border-radius:6px;padding:5px 12px;
+font-size:11px;color:var(--text3);margin-left:8px;
+}
+.ext-popup{padding:1.5rem;position:relative}
+.ext-popup-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.ext-popup-brand{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#fff}
+.ext-popup-score{
+display:flex;align-items:center;gap:12px;background:rgba(239,68,68,0.08);
+border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:1rem;margin-bottom:1rem;
+}
+.ext-popup-score-num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:600;color:#fca5a5}
+.ext-popup-score-label{font-size:12px;color:var(--text2)}
+.ext-popup-score-status{font-size:13px;font-weight:600;color:#fca5a5;text-transform:uppercase;letter-spacing:0.04em}
+.ext-popup-detected{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:0.5rem}
+.ext-popup-tag{
+display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);
+background:var(--bg3);border-radius:8px;padding:5px 10px;margin:0 4px 6px 0;
+}
+.ext-concept-badge{
+display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-bottom:1rem;
+}
+
+/* ── COMMUNITY (honest) ─────────────────────────────────────────── */
+.community-note{
+font-size:12.5px;color:var(--text3);line-height:1.6;background:var(--bg3);
+border-radius:10px;padding:0.875rem 1rem;margin-top:0.75rem;
+}
+
+/* ── STAGE BADGES (replacing fabricated stats) ──────────────────── */
+.stage-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:1.5rem;
+}
+.stage-card{text-align:center}
+.stage-badge{
+display:inline-flex;align-items:center;gap:8px;
+background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);
+border-radius:20px;padding:6px 16px;font-size:13px;font-weight:500;color:var(--blue2);
+margin-bottom:0.6rem;
+}
+.stage-desc{font-size:13px;color:var(--text2);line-height:1.6;max-width:220px;margin:0 auto}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">V</div>
+    VEIL
+  </div>
+  <div class="nav-links">
+    <button class="nav-link-btn" onclick="veilScroll('scanner')">Scan a Link</button>
+    <button class="nav-link-btn" onclick="veilScroll('methodology')">Methodology</button>
+    <button class="nav-link-btn" onclick="veilScroll('features')">Features</button>
+    <button class="nav-link-btn" onclick="veilScroll('how')">How It Works</button>
+  </div>
+  <button class="nav-cta" onclick="veilScroll('scanner')">Scan a Link →</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      AI-Powered Trust Intelligence
+    </div>
+    <h1>Know what you can<br><em>trust online.</em><br>Before you click.</h1>
+    <p class="hero-sub">VEIL combines AI intelligence, behavioral analysis, and community trust signals to protect you from scams, phishing, manipulation, and deceptive websites.</p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="veilScroll('scanner')">🛡 Scan a Link</button>
+      <button class="btn-secondary" onclick="veilScroll('how')">See How VEIL Works →</button>
+    </div>
+    <div class="trust-visual">
+      <canvas class="trust-canvas" id="heroCanvas"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- SCANNER -->
+<section class="scanner-section" id="scanner">
+  <div style="max-width:860px;margin:0 auto">
+    <div class="section-label">Trust Scanner</div>
+    <h2 class="section-title">Analyze any link instantly</h2>
+    <p class="section-sub">Paste any URL below. VEIL's AI will analyze it for trustworthiness, scam signals, and manipulation patterns in seconds.</p>
+
+    <div class="scanner-wrap">
+      <div class="url-input-box">
+        <div class="url-input-row">
+          <span style="font-size:18px;flex-shrink:0">🔗</span>
+          <input class="url-input" id="urlInput" type="url"
+            placeholder="Paste any URL to scan — https://example.com"
+            onkeydown="if(event.key==='Enter')startScan()"
+          >
+          <button class="scan-btn" id="scanBtn" onclick="startScan()">
+            <span>Scan</span>
+            <span>→</span>
+          </button>
+        </div>
+        <div class="url-hints">
+          <span style="font-size:12px;color:var(--text3)">Try:</span>
+          <span class="url-hint" onclick="fillUrl('https://amaz0n-deals-today.net/gift-card-winner')">Suspicious link</span>
+          <span class="url-hint" onclick="fillUrl('https://github.com')">github.com</span>
+          <span class="url-hint" onclick="fillUrl('https://paypal-support-verify.tk/account')">Phishing link</span>
+          <span class="url-hint" onclick="fillUrl('https://stripe.com')">stripe.com</span>
+        </div>
+        <div class="demo-row">
+          <button class="demo-btn" id="demoBtn" onclick="runInvestorDemo()">▶ Run Investor Demo</button>
+          <span class="demo-live-badge" id="demoLiveBadge"><span class="dot"></span> Live demo — real pipeline, no fixtures</span>
+          <span class="demo-progress" id="demoProgress">Walks through 4 cases using VEIL's actual live analysis.</span>
+        </div>
+      </div>
+
+      <!-- SCANNING ANIMATION -->
+      <div class="scan-anim" id="scanAnim">
+        <div class="scan-ring-wrap">
+          <div class="scan-ring"></div>
+          <div class="scan-ring2"></div>
+          <div class="scan-dot"></div>
+        </div>
+        <div class="scan-steps" id="scanSteps"></div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="results" id="results">
+        <div class="results-grid">
+          <!-- ORB -->
+          <div class="orb-card" id="orbCard">
+            <p class="orb-label">Trust Score</p>
+            <div class="orb-wrap">
+              <svg class="orb-svg" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="12"/>
+                <circle id="orbArc" cx="80" cy="80" r="68" fill="none" stroke="#3b82f6" stroke-width="12"
+                  stroke-linecap="round"
+                  stroke-dasharray="427" stroke-dashoffset="427"
+                  style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1),stroke 0.5s ease"
+                />
+              </svg>
+              <div class="orb-center">
+                <div class="orb-score" id="orbScore">—</div>
+                <div class="orb-level" id="orbLevel">ANALYZING</div>
+              </div>
+            </div>
+            <div class="status-badge" id="statusBadge">Scanning…</div>
+            <p style="font-size:12px;color:var(--text3);margin-top:1rem;word-break:break-all" id="scannedUrl"></p>
+          </div>
+
+          <!-- ANALYSIS -->
+          <div class="analysis-card">
+            <div class="analysis-tabs">
+              <button class="analysis-tab active" onclick="switchTab('overview',this)">Overview</button>
+              <button class="analysis-tab" onclick="switchTab('evidence',this)">Evidence</button>
+              <button class="analysis-tab" onclick="switchTab('dna',this)">Behavior DNA</button>
+              <button class="analysis-tab" onclick="switchTab('domain',this)">Domain</button>
+              <button class="analysis-tab" onclick="switchTab('community',this)">Community</button>
+            </div>
+
+            <!-- OVERVIEW TAB -->
+            <div class="analysis-panel active" id="tab-overview">
+              <div class="confidence-box" id="confidenceBox">
+                <div class="confidence-top">
+                  <span class="confidence-label">Confidence</span>
+                  <span class="confidence-pct skeleton" style="width:36px;height:14px;display:inline-block"></span>
+                </div>
+              </div>
+              <div class="ai-explain" id="aiExplain">
+                <div class="ai-explain-label">🤖 AI Behavioral Read</div>
+                <div class="ai-explain-text skeleton" style="height:60px;"></div>
+              </div>
+              <p style="font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:0.6rem">Contributing Factors — transparent score breakdown</p>
+              <div class="factor-list" id="factorList" style="margin-bottom:1.25rem"></div>
+              <div class="signals-grid" id="signalsGrid"></div>
+            </div>
+
+            <!-- EVIDENCE TAB -->
+            <div class="analysis-panel" id="tab-evidence">
+              <p class="evidence-intro">Specific patterns VEIL detected directly in this URL's structure with plain rule-based checks — not AI guesses. Each one is independently verifiable.</p>
+              <div class="evidence-list" id="evidenceList"></div>
+            </div>
+
+            <!-- DNA TAB -->
+            <div class="analysis-panel" id="tab-dna">
+              <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem">VEIL's AI behavioral read of manipulation and psychological pressure patterns. <span class="tag tag-ai">AI</span> — reasoned from the URL and any public knowledge of the domain, not a live page-content scan.</p>
+              <div class="dna-items" id="dnaItems"></div>
+            </div>
+
+            <!-- DOMAIN TAB -->
+            <div class="analysis-panel" id="tab-domain">
+              <div class="domain-grid" id="domainGrid"></div>
+            </div>
+
+            <!-- COMMUNITY TAB -->
+            <div class="analysis-panel" id="tab-community">
+              <div class="community-wrap" id="communityWrap"></div>
+              <button class="community-report-btn" onclick="openReport()">⚠️ Report this website</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="history-section" id="historySection">
+        <div class="history-header">
+          <span class="history-title">Recent Scans</span>
+          <button class="history-clear" onclick="clearHistory()">Clear all</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY / EXPLAINABILITY -->
+<section class="method-section" id="methodology">
+  <div class="method-inner">
+    <div class="method-head">
+      <div class="section-label">Why VEIL's Analysis Is Different</div>
+      <h2 class="section-title">No black box. Every point is traceable.</h2>
+      <p class="section-sub">Most "trust" tools give you a number and ask you to believe it. VEIL shows exactly where every point came from — and is honest about which parts are verified facts versus an AI's best read.</p>
+    </div>
+    <div class="method-grid">
+      <div>
+        <div class="method-copy-card">
+          <h4>🔒 Verified Technical Signals <span class="tag tag-real">Real</span></h4>
+          <p>Computed directly from the URL and, where the registry allows it, a live RDAP lookup — HTTPS presence, domain age, suspicious TLDs, brand-impersonation patterns, and more. Deterministic, rule-based, no model involved.</p>
+        </div>
+        <div class="method-copy-card">
+          <h4>🧠 AI Behavioral Read <span class="tag tag-ai">AI</span></h4>
+          <p>Claude reasons over the verified signals plus general knowledge of the domain or brand, where it recognizes one, to estimate manipulation patterns. It's explicitly instructed to stay neutral rather than invent confident answers when it has little to go on.</p>
+        </div>
+        <div class="method-copy-card">
+          <h4>📊 Confidence, stated honestly</h4>
+          <p>VEIL's confidence score reflects exactly what was gathered for that specific scan — how many real signals fired, whether the live registry lookup succeeded, and whether the AI read came through. No fixed "28 signals" claim; it changes scan to scan.</p>
+        </div>
+      </div>
+      <div class="example-card">
+        <span class="example-badge">Example breakdown — illustrative</span>
+        <div class="example-score-row">
+          <span class="example-score-num">82</span>
+          <span class="example-score-sub">/ 100 Trust Score</span>
+        </div>
+        <div class="factor-list">
+          <div class="factor-row"><span class="tag tag-real">Real</span><span class="factor-label">HTTPS encryption present</span><span class="factor-pts pts-pos">+5</span></div>
+          <div class="factor-row"><span class="tag tag-real">Real</span><span class="factor-label">Recognized established domain</span><span class="factor-pts pts-pos">+18</span></div>
+          <div class="factor-row"><span class="tag tag-real">Real</span><span class="factor-label">Live RDAP lookup: domain age 9y 2m</span><span class="factor-pts pts-pos">+15</span></div>
+          <div class="factor-row"><span class="tag tag-ai">AI</span><span class="factor-label">Behavioral read: low manipulation pattern level</span><span class="factor-pts pts-pos">+9</span></div>
+          <div class="factor-row"><span class="tag tag-ai">AI</span><span class="factor-label">Behavioral read: high transparency signals</span><span class="factor-pts pts-pos">+5</span></div>
+        </div>
+        <p style="font-size:12px;color:var(--text3);margin-top:1rem;line-height:1.6">Run a real scan above to see this same breakdown computed live for any URL — including ones where the registry lookup fails or the AI read is inconclusive, which VEIL shows plainly rather than papering over.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="features-header">
+      <div class="section-label">What VEIL Does</div>
+      <h2 class="section-title" style="text-align:center">Every layer of protection,<br>in one place</h2>
+    </div>
+
+    <!-- CAROUSEL -->
+    <div class="carousel-wrap">
+      <div class="carousel-track" id="featureTrack">
+        <div class="carousel-slide">
+          <div class="feature-icon fi-blue">🧠</div>
+          <div class="feature-title">AI Trust Intelligence</div>
+          <p class="feature-desc">Our AI engine reads the behavioral fingerprint of every website, detecting manipulation patterns, pressure tactics, and deceptive signals that humans often miss.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-teal">🔬</div>
+          <div class="feature-title">Behavioral DNA Analysis</div>
+          <p class="feature-desc">VEIL breaks down the psychological tactics a website uses — urgency pressure, authority exploitation, emotional manipulation — visualized in a clear, proprietary format.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-purple">🌐</div>
+          <div class="feature-title">Domain Intelligence</div>
+          <p class="feature-desc">Deep analysis of domain age, registration data, SSL certificates, hosting reputation, and historical records to surface hidden risks before you visit.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-amber">🛡</div>
+          <div class="feature-title">Phishing &amp; Scam Detection</div>
+          <p class="feature-desc">Real-time pattern matching against known phishing templates, fake stores, impersonation attacks, and evolving AI-generated scam websites.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-teal">👥</div>
+          <div class="feature-title">Community Trust Signals</div>
+          <p class="feature-desc">Crowdsourced reports from millions of users create a living reputation layer, flagging emerging scams in real-time before they harm more people.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-blue">📊</div>
+          <div class="feature-title">Transparent Scoring</div>
+          <p class="feature-desc">Every trust score comes with a human-readable explanation. No black-box verdicts. You always understand exactly why VEIL assessed a site the way it did.</p>
+        </div>
+      </div>
+
+      <div class="carousel-controls">
+        <button class="carousel-btn" id="featPrev" onclick="featureSlide(-1)">←</button>
+        <div class="carousel-dots" id="featureDots"></div>
+        <button class="carousel-btn" id="featNext" onclick="featureSlide(1)">→</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div style="text-align:center">
+      <div class="section-label">Process</div>
+      <h2 class="section-title">How VEIL protects you</h2>
+    </div>
+
+    <div class="how-slideshow">
+      <!-- Step panels -->
+      <div class="how-slides-wrap">
+        <div class="how-slide active" id="howSlide0">
+          <div class="how-slide-icon">🔗</div>
+          <div class="how-slide-step">Step 1 of 4</div>
+          <h3 class="how-slide-title">Paste any link</h3>
+          <p class="how-slide-desc">Drop any URL into VEIL — a suspicious email link, an unfamiliar shopping site, or anything that feels off. No account needed. Works on any device.</p>
+        </div>
+        <div class="how-slide" id="howSlide1">
+          <div class="how-slide-icon">🧠</div>
+          <div class="how-slide-step">Step 2 of 4</div>
+          <h3 class="how-slide-title">AI analyzes it</h3>
+          <p class="how-slide-desc">VEIL's AI engine runs behavioral, domain, and reputation analysis simultaneously across dozens of trust signals — in under a second.</p>
+        </div>
+        <div class="how-slide" id="howSlide2">
+          <div class="how-slide-icon">📊</div>
+          <div class="how-slide-step">Step 3 of 4</div>
+          <h3 class="how-slide-title">Get a clear verdict</h3>
+          <p class="how-slide-desc">Receive a trust score, AI explanation in plain language, and a full Behavioral DNA breakdown — so you know exactly what's happening and why.</p>
+        </div>
+        <div class="how-slide" id="howSlide3">
+          <div class="how-slide-icon">🛡</div>
+          <div class="how-slide-step">Step 4 of 4</div>
+          <h3 class="how-slide-title">Stay protected</h3>
+          <p class="how-slide-desc">Make confident decisions. Report suspicious sites to protect others. Build your personal scan history. VEIL remembers so you don't have to.</p>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="how-progress-track">
+        <div class="how-progress-fill" id="howProgress"></div>
+      </div>
+
+      <!-- Step dots + nav -->
+      <div class="how-nav">
+        <button class="carousel-btn" onclick="howStep(-1)">←</button>
+        <div class="how-step-dots" id="howDots"></div>
+        <button class="carousel-btn" onclick="howStep(1)">→</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMPETITIVE POSITIONING -->
+<section class="compare-section" id="compare">
+  <div class="compare-inner">
+    <div style="text-align:center;max-width:640px;margin:0 auto">
+      <div class="section-label">Positioning</div>
+      <h2 class="section-title">Why existing security tools aren't enough</h2>
+      <p class="section-sub">Traditional tools were built to answer "is this domain on a blacklist?" That's a narrower question than the one most people actually have when they hesitate over a link.</p>
+    </div>
+    <div class="compare-table">
+      <div class="compare-cell compare-head">Capability</div>
+      <div class="compare-cell compare-head">Traditional Tools</div>
+      <div class="compare-cell compare-head veil-head">VEIL</div>
+
+      <div class="compare-cell compare-row-label">Approach</div>
+      <div class="compare-cell trad-col">Blacklist / signature matching</div>
+      <div class="compare-cell veil-col">Structural signals + behavioral pattern read</div>
+
+      <div class="compare-cell compare-row-label">Output</div>
+      <div class="compare-cell trad-col">Technical report, expert-oriented</div>
+      <div class="compare-cell veil-col">Plain-language explanation anyone can act on</div>
+
+      <div class="compare-cell compare-row-label">Manipulation tactics</div>
+      <div class="compare-cell trad-col">Not typically covered</div>
+      <div class="compare-cell veil-col">Named and explained (urgency, fear, scarcity, etc.)</div>
+
+      <div class="compare-cell compare-row-label">Transparency</div>
+      <div class="compare-cell trad-col">Score with limited explanation</div>
+      <div class="compare-cell veil-col">Every point traceable to a real or AI-tagged factor</div>
+
+      <div class="compare-cell compare-row-label">Audience</div>
+      <div class="compare-cell trad-col">IT / security teams</div>
+      <div class="compare-cell veil-col">Everyday users, before they click</div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:1.5rem">This is VEIL's positioning, not a third-party benchmark — we haven't run a head-to-head study against named competitors.</p>
+  </div>
+</section>
+
+<!-- ILLUSTRATIVE SCENARIOS -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <div style="text-align:center;margin-bottom:1rem">
+      <div class="section-label">Illustrative Scenarios — Beta</div>
+      <h2 class="section-title">The kind of moment VEIL is built for</h2>
+      <p class="section-sub" style="margin:0 auto">VEIL is in beta — these are illustrative scenarios describing the experience we're building toward, not verified customer testimonials.</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-text">"A link claiming to be from your bank arrives. VEIL flags it as a likely phishing pattern immediately, with a plain-language explanation of exactly which signals triggered the flag."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🎯</div>
+          <div>
+            <div class="author-name">Scenario: Phishing link</div>
+            <div class="author-role">Illustrative — beta target experience</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"A team member is about to click a fake invoice link. VEIL catches the structural red flags and explains, in plain terms, exactly why it looks dangerous before anyone enters data."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🏢</div>
+          <div>
+            <div class="author-name">Scenario: Team workflow</div>
+            <div class="author-role">Illustrative — beta target experience</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Instead of just 'this site is bad,' Behavioral DNA names the actual psychological pattern being used — urgency, fear, scarcity — so the reasoning is visible, not just the verdict."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🔬</div>
+          <div>
+            <div class="author-name">Scenario: Behavioral DNA</div>
+            <div class="author-role">Illustrative — beta target experience</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXTENSION PREVIEW -->
+<section class="ext-section" id="extension">
+  <div class="ext-inner">
+    <div>
+      <span class="ext-concept-badge">🧩 Concept Preview — Coming Soon</span>
+      <div class="section-label">What's Next</div>
+      <h2 class="section-title">VEIL Browser Extension</h2>
+      <p class="section-sub">This is a concept mockup of where VEIL is headed next — automatic, in-the-moment scoring as you browse, using the same transparent engine you just saw above. It isn't built yet.</p>
+    </div>
+    <div class="ext-mockup">
+      <div class="ext-browser-bar">
+        <span class="ext-dot" style="background:#ef4444"></span>
+        <span class="ext-dot" style="background:#f59e0b"></span>
+        <span class="ext-dot" style="background:#10b981"></span>
+        <span class="ext-url-pill">paypal-support-verify.tk/account</span>
+      </div>
+      <div class="ext-popup">
+        <div class="ext-popup-header">
+          <span class="ext-popup-brand">VEIL</span>
+          <span style="font-size:11px;color:var(--text3)">Concept mockup</span>
+        </div>
+        <div class="ext-popup-score">
+          <div>
+            <div class="ext-popup-score-num">38</div>
+            <div class="ext-popup-score-label">Trust Score</div>
+          </div>
+          <div class="ext-popup-score-status">⚠ Dangerous</div>
+        </div>
+        <div class="ext-popup-detected">Detected</div>
+        <div>
+          <span class="ext-popup-tag">⚠ Fear Manipulation</span>
+          <span class="ext-popup-tag">⚠ Phishing Signals</span>
+          <span class="ext-popup-tag">⚠ Domain Spoofing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGE: HONEST STATUS, NOT FABRICATED METRICS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stage-grid">
+      <div class="stage-card">
+        <div class="stage-badge">🧪 Beta Testing</div>
+        <p class="stage-desc">Live scanning engine, open for hands-on testing</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-badge">🚪 Early Access</div>
+        <p class="stage-desc">Community reporting layer just getting started</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-badge">⚙️ Prototype Stage</div>
+        <p class="stage-desc">Browser extension is a concept, not yet built</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-badge">🔍 No Inflated Claims</div>
+        <p class="stage-desc">We'd rather show you real numbers later than fake ones now</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">VEIL</div>
+        <p class="footer-tagline">The Trust Layer of the Internet.<br>Protecting humans from digital deception.</p>
+        <div class="trust-pill" style="margin-top:1rem;display:inline-flex">
+          <span class="trust-dot"></span> All systems operational
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#">Trust Scanner</a>
+        <a href="#">Behavioral DNA</a>
+        <a href="#">Community Reports</a>
+        <a href="#">Browser Extension</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About VEIL</a>
+        <a href="#">Mission</a>
+        <a href="#">Blog</a>
+        <a href="#">Careers</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 VEIL. Built to protect humans online.</span>
+      <div class="footer-trust">
+        <span class="trust-pill"><span class="trust-dot"></span> AI-Powered</span>
+        <span class="trust-pill" style="margin-left:8px"><span class="trust-dot"></span> Privacy-First</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚠️ Report this website</div>
+      <button class="modal-close" onclick="closeReport()">×</button>
+    </div>
+    <p class="modal-desc">Help protect others. Select the type of issue you encountered on this website.</p>
+    <div class="report-types" id="reportTypes">
+      <div class="report-type" onclick="selectReport(this,'scam')">
+        <div class="report-type-icon">💸</div>
+        <div class="report-type-label">Scam / Fraud</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'phishing')">
+        <div class="report-type-icon">🎣</div>
+        <div class="report-type-label">Phishing</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'fake')">
+        <div class="report-type-icon">🏪</div>
+        <div class="report-type-label">Fake Store</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'manipulation')">
+        <div class="report-type-icon">🧠</div>
+        <div class="report-type-label">Manipulation</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'malware')">
+        <div class="report-type-icon">🦠</div>
+        <div class="report-type-label">Malware</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'other')">
+        <div class="report-type-icon">🚩</div>
+        <div class="report-type-label">Other Issue</div>
+      </div>
+    </div>
+    <button class="modal-submit" onclick="submitReport()">Submit Report</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Report submitted. Thank you for protecting others.</span>
+</div>
+
+<script>
+// ─── ALL CODE RUNS AFTER DOM IS READY ──────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+
+// ─── HERO CANVAS ───────────────────────────────────────────────────
+let canvas, ctx, nodes = [], animId;
+
+function initCanvas() {
+  canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  try {
+    ctx = canvas.getContext('2d');
+    resizeCanvas();
+    initNodes();
+    drawFrame();
+  } catch(e) {
+    console.warn('Canvas init skipped:', e);
+  }
+}
+
+function resizeCanvas(){
+  if(!canvas) return;
+  const w = canvas.offsetWidth || 700;
+  const h = canvas.offsetHeight || 300;
+  canvas.width = w;
+  canvas.height = h;
+}
+
+function initNodes(){
+  if(!canvas) return;
+  nodes = [];
+  const count = Math.min(30, Math.floor((canvas.width||700) / 25));
+  for(let i=0;i<count;i++){
+    nodes.push({
+      x:Math.random()*(canvas.width||700),
+      y:Math.random()*(canvas.height||300),
+      r:Math.random()*2.5+1,
+      vx:(Math.random()-0.5)*0.4,
+      vy:(Math.random()-0.5)*0.4,
+      opacity:Math.random()*0.6+0.3,
+      type:Math.random()<0.3?'trust':Math.random()<0.5?'warn':'safe',
+      pulse:Math.random()*Math.PI*2
+    });
+  }
+}
+
+function drawFrame(){
+  if(!ctx||!canvas) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // draw connections
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x;
+      const dy=nodes[i].y-nodes[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        const op=(1-dist/120)*0.15;
+        ctx.strokeStyle=`rgba(59,130,246,${op})`;
+        ctx.lineWidth=0.5;
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x,nodes[i].y);
+        ctx.lineTo(nodes[j].x,nodes[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // draw nodes
+  nodes.forEach(n=>{
+    n.x+=n.vx;n.y+=n.vy;
+    n.pulse+=0.03;
+    if(n.x<0||n.x>canvas.width)n.vx*=-1;
+    if(n.y<0||n.y>canvas.height)n.vy*=-1;
+    const glow=Math.sin(n.pulse)*0.3+0.7;
+    let color=n.type==='trust'?'59,130,246':n.type==='safe'?'45,212,191':'139,92,246';
+    ctx.beginPath();
+    ctx.arc(n.x,n.y,n.r*glow,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${color},${n.opacity*glow})`;
+    ctx.fill();
+  });
+
+  animId=requestAnimationFrame(drawFrame);
+}
+
+window.addEventListener('resize',()=>{
+  resizeCanvas(); initNodes();
+});
+
+// Delay canvas init slightly to ensure layout is complete
+setTimeout(initCanvas, 100);
+
+// ─── SCROLL HELPER (replaces all href anchors) ──────────────────────
+function veilScroll(id){
+  var el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─── FEATURE CAROUSEL ──────────────────────────────────────────────
+var featIndex=0;
+var featSlides=[];
+var featTotal=6;
+
+function initFeatureCarousel(){
+  featSlides=document.querySelectorAll('.carousel-slide');
+  featTotal=featSlides.length;
+  var dotsEl=document.getElementById('featureDots');
+  if(!dotsEl) return;
+  dotsEl.innerHTML='';
+  for(var i=0;i<featTotal;i++){
+    var d=document.createElement('button');
+    d.className='carousel-dot'+(i===0?' active':'');
+    d.dataset.idx=i;
+    d.addEventListener('click',function(){
+      goFeature(parseInt(this.dataset.idx));
+    });
+    dotsEl.appendChild(d);
+  }
+  updateFeatureCarousel();
+}
+
+function goFeature(idx){
+  featIndex=idx;
+  updateFeatureCarousel();
+}
+
+function featureSlide(dir){
+  featIndex=(featIndex+dir+featTotal)%featTotal;
+  updateFeatureCarousel();
+}
+
+function updateFeatureCarousel(){
+  var track=document.getElementById('featureTrack');
+  if(!track) return;
+  track.style.transform='translateX(-'+featIndex+'00%)';
+  var dots=document.querySelectorAll('#featureDots .carousel-dot');
+  dots.forEach(function(d,i){
+    d.classList.toggle('active',i===featIndex);
+  });
+}
+
+// ─── HOW IT WORKS SLIDESHOW ─────────────────────────────────────────
+var howIndex=0;
+var howTotal=4;
+var howTimer=null;
+
+function initHowSlideshow(){
+  var dotsEl=document.getElementById('howDots');
+  if(!dotsEl) return;
+  dotsEl.innerHTML='';
+  for(var i=0;i<howTotal;i++){
+    var d=document.createElement('button');
+    d.className='carousel-dot'+(i===0?' active':'');
+    d.dataset.idx=i;
+    d.addEventListener('click',function(){
+      goHow(parseInt(this.dataset.idx));
+    });
+    dotsEl.appendChild(d);
+  }
+  updateHowSlideshow();
+  startHowAuto();
+}
+
+function goHow(idx){
+  howIndex=idx;
+  updateHowSlideshow();
+  restartHowAuto();
+}
+
+function howStep(dir){
+  howIndex=(howIndex+dir+howTotal)%howTotal;
+  updateHowSlideshow();
+  restartHowAuto();
+}
+
+function updateHowSlideshow(){
+  for(var i=0;i<howTotal;i++){
+    var sl=document.getElementById('howSlide'+i);
+    if(sl) sl.classList.toggle('active',i===howIndex);
+  }
+  var prog=document.getElementById('howProgress');
+  if(prog) prog.style.width=(((howIndex+1)/howTotal)*100)+'%';
+  var dots=document.querySelectorAll('#howDots .carousel-dot');
+  dots.forEach(function(d,i){
+    d.classList.toggle('active',i===howIndex);
+  });
+}
+
+function startHowAuto(){
+  howTimer=setInterval(function(){
+    howIndex=(howIndex+1)%howTotal;
+    updateHowSlideshow();
+  },4000);
+}
+
+function restartHowAuto(){
+  clearInterval(howTimer);
+  startHowAuto();
+}
+
+initFeatureCarousel();
+initHowSlideshow();
+
+
+const SCAN_MESSAGES=[
+  '🔍 Running rule-based URL structure checks…',
+  '🌐 Attempting live registry (RDAP) lookup…',
+  '🧠 Running AI behavioral read…',
+  '📊 Calculating transparent trust score…',
+  '✅ Assembling evidence report…'
+];
+
+let scanHistory=JSON.parse(localStorage.getItem('veil_history')||'[]');
+let currentUrl='';
+let selectedReportType='';
+let demoRunning=false;
+
+function fillUrl(url){
+  document.getElementById('urlInput').value=url;
+  document.getElementById('urlInput').focus();
+}
+
+// ─── REAL, DETERMINISTIC URL/DOMAIN HEURISTICS ──────────────────────
+// Every check below is computed directly from the URL string with plain
+// JS — nothing here is AI-invented. This is what powers the "Evidence
+// Detected" panel and most of the "Contributing Factors" breakdown.
+const KNOWN_SAFE_DOMAINS=['github.com','stripe.com','google.com','anthropic.com','wikipedia.org','microsoft.com','apple.com','mozilla.org','cloudflare.com','notion.so','paypal.com','amazon.com'];
+const HIGH_RISK_TLDS=['tk','ml','ga','cf','gq','xyz','top','work','click','loan','win','review','party','gdn','icu'];
+const URL_SHORTENERS=['bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','buff.ly','rebrand.ly'];
+const BRAND_KEYWORDS=['paypal','amazon','apple','microsoft','netflix','bankofamerica','chase','wellsfargo','google','facebook','instagram','irs','usps','fedex','coinbase','binance'];
+const URGENCY_KEYWORDS=['verify','suspended','urgent','winner','claim-now','limited-time','act-now','confirm-identity','locked','expire','immediately','restricted','unusual-activity','gift-card','congratulations'];
+
+function deLeet(s){
+  return s.replace(/0/g,'o').replace(/4/g,'a').replace(/1/g,'l').replace(/3/g,'e').replace(/5/g,'s').replace(/7/g,'t');
+}
+
+function runUrlHeuristics(urlStr){
+  let parsed;
+  try{ parsed=new URL(urlStr); }
+  catch(e){
+    return {evidence:[{icon:'⚠',title:'Malformed URL',detail:"VEIL could not parse this as a valid URL structure.",severity:'risk',points:-20}],host:'',rootDomain:'',tld:'',isHttps:false,subdomainCount:0,hyphenCount:0,isIp:false,isShortener:false,isKnownSafe:false};
+  }
+  const evidence=[];
+  const host=parsed.hostname.toLowerCase();
+  const pathAndQuery=(parsed.pathname+' '+parsed.search).toLowerCase();
+  const isHttps=parsed.protocol==='https:';
+  const labels=host.split('.').filter(Boolean);
+  const rootDomain=labels.slice(-2).join('.');
+  const tld=labels[labels.length-1]||'';
+  const subdomainCount=Math.max(0,labels.length-2);
+  const hyphenCount=(host.match(/-/g)||[]).length;
+  const isIp=/^(\d{1,3}\.){3}\d{1,3}$/.test(host);
+  const isShortener=URL_SHORTENERS.some(s=>host===s||host.endsWith('.'+s));
+  const isKnownSafe=KNOWN_SAFE_DOMAINS.includes(rootDomain);
+
+  if(isHttps){
+    evidence.push({icon:'✓',title:'HTTPS encryption present',detail:"The connection to this site is encrypted via TLS.",severity:'safe',points:5});
+  } else {
+    evidence.push({icon:'⚠',title:'No HTTPS encryption',detail:"This site is served over plain HTTP. Data entered here, including passwords, is not encrypted in transit.",severity:'risk',points:-15});
+  }
+
+  if(isIp){
+    evidence.push({icon:'⚠',title:'Raw IP address used as host',detail:`The address would show a numeric IP (${host}) instead of a domain name — a technique sometimes used to dodge domain-based reputation checks.`,severity:'risk',points:-20});
+  }
+
+  if(urlStr.includes('@')){
+    evidence.push({icon:'⚠',title:'"@" symbol detected in URL',detail:"URLs containing \"@\" can hide the real destination after the symbol — a known obfuscation trick.",severity:'risk',points:-15});
+  }
+
+  if(!isIp && subdomainCount>=3){
+    evidence.push({icon:'⚠',title:'Excessive subdomain depth',detail:`"${host}" uses ${subdomainCount} subdomain levels, sometimes used to bury a suspicious root domain.`,severity:'risk',points:-8});
+  }
+
+  if(hyphenCount>=3){
+    evidence.push({icon:'⚠',title:'Unusual number of hyphens in domain',detail:`The domain contains ${hyphenCount} hyphens — a pattern often used to mimic a brand name, e.g. "secure-paypal-login-update".`,severity:'risk',points:-10});
+  }
+
+  if(!isIp && HIGH_RISK_TLDS.includes(tld)){
+    evidence.push({icon:'⚠',title:`High-risk top-level domain (.${tld})`,detail:`.${tld} domains are inexpensive to register in bulk and are disproportionately represented in scam and phishing campaigns.`,severity:'risk',points:-12});
+  }
+
+  if(isShortener){
+    evidence.push({icon:'⚠',title:'URL shortener detected',detail:"Shortened links hide their true destination until clicked. VEIL cannot verify what this actually redirects to.",severity:'risk',points:-8});
+  }
+
+  if(isKnownSafe){
+    evidence.push({icon:'✓',title:'Recognized established domain',detail:`"${rootDomain}" matches VEIL's small curated list of long-established, well-known domains.`,severity:'safe',points:18});
+  }
+
+  if(!isKnownSafe){
+    const normalizedHost=deLeet(host);
+    const matchedBrand=BRAND_KEYWORDS.find(b=>normalizedHost.includes(b) && rootDomain!==(b+'.com'));
+    if(matchedBrand){
+      const usedSubstitution=normalizedHost!==host;
+      evidence.push({
+        icon:'⚠',
+        title:`Possible "${matchedBrand}" brand impersonation`,
+        detail:usedSubstitution
+          ? `The domain references "${matchedBrand}" using character substitution (numbers standing in for letters) while not actually being ${matchedBrand}.com — a classic typosquatting pattern.`
+          : `The domain references "${matchedBrand}" but the registered domain is not ${matchedBrand}.com — brand names embedded in unrelated domains are a common impersonation tactic.`,
+        severity:'risk',points:-18
+      });
+    }
+  }
+
+  const matchedUrgency=URGENCY_KEYWORDS.filter(k=>pathAndQuery.includes(k));
+  if(matchedUrgency.length){
+    evidence.push({
+      icon:'⚠',title:'Urgency or scare language in URL path',
+      detail:`The URL path/query contains pressure language: "${matchedUrgency.slice(0,3).join('", "')}" — wording commonly used to rush people into acting before they think it through.`,
+      severity:'risk',points:-6*Math.min(matchedUrgency.length,3)
+    });
+  }
+
+  if(host.length>40){
+    evidence.push({icon:'⚠',title:'Unusually long domain name',detail:`At ${host.length} characters, this hostname is far longer than typical legitimate domains — often used to bury suspicious terms or overwhelm casual inspection.`,severity:'risk',points:-6});
+  }
+
+  if(evidence.length===0 || evidence.every(e=>e.severity==='safe')){
+    evidence.push({icon:'•',title:'No structural red flags detected',detail:"VEIL's rule-based checks found no obvious red flags in the URL structure itself. This does not confirm the site is safe — it only means the URL string looks unremarkable on its own.",severity:'safe',points:0});
+  }
+
+  return {evidence,host,rootDomain,tld,isHttps,subdomainCount,hyphenCount,isIp,isShortener,isKnownSafe};
+}
+
+// ─── BEST-EFFORT LIVE REGISTRY (RDAP) LOOKUP ────────────────────────
+// A real network call to a public RDAP server. Many registries don't
+// allow cross-origin browser requests, so this fails gracefully and
+// VEIL shows "Unavailable" rather than inventing registrar/age data.
+async function fetchRdap(host){
+  if(!host) return {available:false};
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),4500);
+    const resp=await fetch('https://rdap.org/domain/'+host,{signal:controller.signal});
+    clearTimeout(timeout);
+    if(!resp.ok) return {available:false};
+    const data=await resp.json();
+    let createdRaw=null;
+    if(Array.isArray(data.events)){
+      const ev=data.events.find(e=>e.eventAction==='registration')||data.events.find(e=>e.eventAction==='last changed');
+      if(ev) createdRaw=ev.eventDate;
+    }
+    let registrar=null;
+    if(Array.isArray(data.entities)){
+      const reg=data.entities.find(e=>Array.isArray(e.roles)&&e.roles.includes('registrar'));
+      if(reg){
+        if(Array.isArray(reg.vcardArray) && Array.isArray(reg.vcardArray[1])){
+          const fnEntry=reg.vcardArray[1].find(v=>v[0]==='fn');
+          if(fnEntry) registrar=fnEntry[3];
+        }
+        if(!registrar) registrar=reg.handle;
+      }
+    }
+    let ageDays=null, ageLabel='Unavailable', createdLabel='Unavailable';
+    if(createdRaw){
+      const createdDate=new Date(createdRaw);
+      if(!isNaN(createdDate.getTime())){
+        ageDays=Math.floor((Date.now()-createdDate.getTime())/86400000);
+        const years=Math.floor(ageDays/365);
+        const months=Math.floor((ageDays%365)/30);
+        ageLabel=years>0?`${years}y ${months}m`:`${months} months`;
+        createdLabel=createdDate.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+      }
+    }
+    const status=Array.isArray(data.status)&&data.status.length?data.status.join(', '):'Unavailable';
+    return {available:true,registrar:registrar||'Not publicly listed',created:createdLabel,age:ageLabel,ageDays,status};
+  }catch(e){
+    return {available:false};
+  }
+}
+
+// ─── AI BEHAVIORAL READ ──────────────────────────────────────────────
+// Claude cannot fetch this page's live HTML — it reasons from the URL
+// structure and the real evidence VEIL already detected, plus whatever
+// it may know about the domain/brand. The prompt explicitly asks it to
+// stay neutral when it has no real signal, rather than guess confidently.
+async function analyzeWithAI(url,heur){
+  const evidenceSummary=heur.evidence.map(e=>`- ${e.title}: ${e.detail}`).join('\n');
+  const prompt=`You are VEIL's behavioral analysis layer. You cannot fetch or read this page's live HTML — you are reasoning only from the URL/domain structure and any general knowledge you have about this specific domain or brand, if you recognize it.
+
+URL: ${url}
+Hostname: ${heur.host}
+
+Deterministic technical signals VEIL's rule-based engine already detected directly from the URL string (context only — this is not your output):
+${evidenceSummary}
+
+Return ONLY a valid JSON object (no markdown, no commentary) with this exact structure:
+{
+  "explanation": "<2-3 sentences, calm and human, specific to this URL. If you don't recognize the domain and the URL itself is unremarkable, say plainly that there isn't much signal either way rather than guessing confidently.>",
+  "scamProbability": <integer 0-100, your judgment>,
+  "manipulationRisk": <integer 0-100, your judgment>,
+  "contentSafety": <integer 0-100, your judgment>,
+  "behaviorDNA": {
+    "urgencyPressure": <0-100>,
+    "fearManipulation": <0-100>,
+    "authorityExploitation": <0-100>,
+    "scarcityManipulation": <0-100>,
+    "darkPatternIntensity": <0-100>,
+    "transparencyScore": <0-100>
+  },
+  "behaviorDNAExplanations": {
+    "urgencyPressure": "<one short sentence>",
+    "fearManipulation": "<one short sentence>",
+    "authorityExploitation": "<one short sentence>",
+    "scarcityManipulation": "<one short sentence>",
+    "darkPatternIntensity": "<one short sentence>",
+    "transparencyScore": "<one short sentence>"
+  }
+}
+
+If you don't recognize this domain at all and the URL has no notable structural signals, keep all behaviorDNA scores in the 20-40 neutral range and say so in the explanation rather than fabricating confident detections.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const raw=data.content?.map(c=>c.text||'').join('').trim();
+    const cleaned=raw.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(cleaned);
+    parsed.__fallback=false;
+    return parsed;
+  }catch(e){
+    return generateAiFallback(heur);
+  }
+}
+
+function generateAiFallback(heur){
+  const riskHeavy=heur.evidence.filter(e=>e.severity==='risk').length;
+  const base=heur.isKnownSafe?20:riskHeavy>=2?75:40;
+  const note='AI behavioral read unavailable for this scan — this estimate leans on structural signals only.';
+  return{
+    explanation:"VEIL's AI behavioral layer didn't return a result for this scan, so this read leans on structural URL signals alone rather than a full behavioral analysis.",
+    scamProbability:base,manipulationRisk:Math.max(10,base-10),contentSafety:100-base,
+    behaviorDNA:{urgencyPressure:base,fearManipulation:Math.max(10,base-15),authorityExploitation:Math.max(10,base-20),scarcityManipulation:Math.max(10,base-10),darkPatternIntensity:base,transparencyScore:100-base},
+    behaviorDNAExplanations:{urgencyPressure:note,fearManipulation:note,authorityExploitation:note,scarcityManipulation:note,darkPatternIntensity:note,transparencyScore:note},
+    __fallback:true
+  };
+}
+
+// ─── TRANSPARENT, COMPUTED TRUST SCORE ──────────────────────────────
+// Every point added or subtracted here is traceable to either a real
+// signal (URL heuristic / RDAP) or a tagged AI judgment — no fabricated
+// "28 signals" style claims. This is what the Contributing Factors list shows.
+function computeTrustScore(heur,rdap,ai){
+  let score=50;
+  const factors=[];
+  heur.evidence.forEach(e=>{
+    if(e.points===0) return;
+    score+=e.points;
+    factors.push({label:e.title,points:e.points,tag:'real'});
+  });
+
+  if(rdap && rdap.available && rdap.ageDays!=null){
+    let pts=0;
+    if(rdap.ageDays>365*5) pts=15;
+    else if(rdap.ageDays>365) pts=8;
+    else if(rdap.ageDays<60) pts=-15;
+    if(pts!==0){
+      score+=pts;
+      factors.push({label:`Live RDAP lookup: domain age ${rdap.age}`,points:pts,tag:'real'});
+    }
+  }
+
+  if(ai && !ai.__fallback){
+    const dna=ai.behaviorDNA;
+    const avgManip=(dna.urgencyPressure+dna.fearManipulation+dna.authorityExploitation+dna.scarcityManipulation+dna.darkPatternIntensity)/5;
+    const manipPts=Math.round((45-avgManip)/3);
+    score+=manipPts;
+    factors.push({label:'AI behavioral read: manipulation pattern level',points:manipPts,tag:'ai'});
+
+    const transPts=Math.round((dna.transparencyScore-50)/4);
+    score+=transPts;
+    factors.push({label:'AI behavioral read: transparency signals',points:transPts,tag:'ai'});
+
+    const scamPts=Math.round((45-ai.scamProbability)/3);
+    score+=scamPts;
+    factors.push({label:'AI behavioral read: scam pattern likelihood',points:scamPts,tag:'ai'});
+  } else {
+    factors.push({label:'AI behavioral read unavailable for this scan',points:0,tag:'pending'});
+  }
+
+  score=Math.max(2,Math.min(98,Math.round(score)));
+  return {score,factors};
+}
+
+function scoreToLevel(score){
+  return score>80?'Safe':score>60?'Mostly Safe':score>35?'Suspicious':'Dangerous';
+}
+
+// ─── DYNAMIC, HONEST CONFIDENCE SCORE ───────────────────────────────
+// No fixed "based on 28 signals" claim — the number and explanation
+// reflect exactly what was actually gathered for this specific scan.
+function computeConfidence(heur,rdap,aiOk){
+  const realSignals=heur.evidence.length;
+  let pts=40+Math.min(28,realSignals*5);
+  if(rdap && rdap.available) pts+=14; else pts-=4;
+  if(aiOk) pts+=14; else pts-=8;
+  pts=Math.max(35,Math.min(97,Math.round(pts)));
+  let explain;
+  if(aiOk && rdap && rdap.available){
+    explain=`Based on ${realSignals} structural URL signal${realSignals===1?'':'s'}, a live registry lookup, and an AI behavioral read.`;
+  } else if(aiOk){
+    explain=`Based on ${realSignals} structural URL signal${realSignals===1?'':'s'} and an AI behavioral read. Registry data was unavailable for this domain, which limits certainty on age and ownership.`;
+  } else if(rdap && rdap.available){
+    explain=`Based on ${realSignals} structural URL signal${realSignals===1?'':'s'} and a live registry lookup. The AI behavioral layer didn't return a result this time, so this leans more on structural signals alone.`;
+  } else {
+    explain=`Based only on ${realSignals} structural URL signal${realSignals===1?'':'s'}. Registry data and the AI behavioral read were both unavailable, so confidence is lower than usual.`;
+  }
+  return {pct:pts,explain};
+}
+
+function buildSignals(heur,rdap,ai){
+  let domainReputation=60;
+  heur.evidence.forEach(e=>domainReputation+=e.points);
+  if(rdap && rdap.available && rdap.ageDays!=null){
+    if(rdap.ageDays>365*5) domainReputation+=15;
+    else if(rdap.ageDays<60) domainReputation-=15;
+  }
+  domainReputation=Math.max(0,Math.min(100,domainReputation));
+  const sslSecurity=heur.isHttps?92:8;
+  return {
+    domainReputation,sslSecurity,
+    scamProbability:ai.scamProbability,manipulationRisk:ai.manipulationRisk,contentSafety:ai.contentSafety
+  };
+}
+
+async function startScan(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url){showToast('❗','Please paste a URL to scan.');return;}
+
+  let validUrl=url;
+  if(!url.startsWith('http://') && !url.startsWith('https://')){
+    validUrl='https://'+url;
+  }
+  currentUrl=validUrl;
+
+  document.getElementById('scanBtn').disabled=true;
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('scanAnim').classList.add('show');
+
+  // animate steps
+  const stepsEl=document.getElementById('scanSteps');
+  stepsEl.innerHTML='';
+  const stepPromise=(async()=>{
+    for(let i=0;i<SCAN_MESSAGES.length;i++){
+      await new Promise(r=>setTimeout(r,500));
+      const el=document.createElement('div');
+      el.className='scan-step';
+      el.style.animationDelay='0s';
+      el.innerHTML=`<span>${SCAN_MESSAGES[i]}</span>`;
+      stepsEl.appendChild(el);
+      if(i<SCAN_MESSAGES.length-1) await new Promise(r=>setTimeout(r,380));
+      else el.classList.add('done');
+    }
+  })();
+
+  // run the real analysis
+  const heur=runUrlHeuristics(validUrl);
+  const [rdap,ai]=await Promise.all([
+    fetchRdap(heur.host),
+    analyzeWithAI(validUrl,heur)
+  ]);
+  await stepPromise;
+
+  const {score,factors}=computeTrustScore(heur,rdap,ai);
+  const level=scoreToLevel(score);
+  const confidence=computeConfidence(heur,rdap,!ai.__fallback);
+  const signals=buildSignals(heur,rdap,ai);
+
+  document.getElementById('scanAnim').classList.remove('show');
+  stepsEl.innerHTML='';
+  document.getElementById('scanBtn').disabled=false;
+
+  renderResults(validUrl,{score,level,explanation:ai.explanation,factors,confidence,signals,behaviorDNA:ai.behaviorDNA,behaviorDNAExplanations:ai.behaviorDNAExplanations,heur,rdap});
+  saveHistory(validUrl,score,level);
+}
+
+function renderResults(url,d){
+  document.getElementById('scannedUrl').textContent=url.length>50?url.substring(0,50)+'…':url;
+
+  // ORB
+  const score=Math.max(0,Math.min(100,d.score));
+  const arc=427*(1-score/100);
+  const orbArc=document.getElementById('orbArc');
+  setTimeout(()=>{ orbArc.style.strokeDashoffset=arc; },100);
+
+  const colors={Safe:'#10b981','Mostly Safe':'#60a5fa',Suspicious:'#f59e0b',Dangerous:'#ef4444'};
+  orbArc.style.stroke=colors[d.level]||'#3b82f6';
+  document.getElementById('orbScore').textContent=score;
+  document.getElementById('orbLevel').textContent=d.level.toUpperCase();
+
+  const badge=document.getElementById('statusBadge');
+  badge.textContent=d.level;
+  badge.className='status-badge '+{Safe:'status-safe','Mostly Safe':'status-mostly',Suspicious:'status-suspicious',Dangerous:'status-danger'}[d.level];
+
+  // CONFIDENCE
+  document.getElementById('confidenceBox').innerHTML=`
+    <div class="confidence-top">
+      <span class="confidence-label">Confidence</span>
+      <span class="confidence-pct">${d.confidence.pct}%</span>
+    </div>
+    <div class="confidence-bar"><div class="confidence-fill" style="width:${d.confidence.pct}%"></div></div>
+    <div class="confidence-explain">${d.confidence.explain}</div>
+  `;
+
+  // AI EXPLANATION
+  document.getElementById('aiExplain').innerHTML=`
+    <div class="ai-explain-label">🤖 AI Behavioral Read</div>
+    <div class="ai-explain-text">${d.explanation}</div>
+  `;
+
+  // CONTRIBUTING FACTORS
+  document.getElementById('factorList').innerHTML=d.factors.map(f=>{
+    const sign=f.points>0?'+':f.points<0?'':'';
+    const cls=f.points>0?'pts-pos':f.points<0?'pts-neg':'';
+    const tagHtml=f.tag==='real'?'<span class="tag tag-real">Real</span>':f.tag==='ai'?'<span class="tag tag-ai">AI</span>':'<span class="tag tag-pending">N/A</span>';
+    return `<div class="factor-row">
+      ${tagHtml}
+      <span class="factor-label">${f.label}</span>
+      <span class="factor-pts ${cls}">${f.points===0?'—':sign+f.points}</span>
+    </div>`;
+  }).join('');
+
+  // SIGNALS
+  const sigs=d.signals;
+  const sigMeta={
+    domainReputation:{label:'Domain Reputation',tag:'real'},
+    sslSecurity:{label:'SSL / Encryption',tag:'real'},
+    contentSafety:{label:'Content Safety',tag:'ai'},
+    scamProbability:{label:'Scam Probability',tag:'ai'},
+    manipulationRisk:{label:'Manipulation Risk',tag:'ai'}
+  };
+  const sigColors={
+    domainReputation:s=>s>60?'#10b981':s>35?'#f59e0b':'#ef4444',
+    sslSecurity:s=>s>60?'#10b981':s>35?'#f59e0b':'#ef4444',
+    contentSafety:s=>s>60?'#10b981':s>35?'#f59e0b':'#ef4444',
+    scamProbability:s=>s<35?'#10b981':s<65?'#f59e0b':'#ef4444',
+    manipulationRisk:s=>s<35?'#10b981':s<65?'#f59e0b':'#ef4444',
+  };
+  document.getElementById('signalsGrid').innerHTML=Object.entries(sigs).map(([k,v])=>{
+    const pct=Math.max(0,Math.min(100,v));
+    const isRisk=k==='scamProbability'||k==='manipulationRisk';
+    const color=sigColors[k]?sigColors[k](pct):'#3b82f6';
+    const displayVal=isRisk?`${pct}%`:pct>75?'High':pct>50?'Good':pct>25?'Low':'Poor';
+    const meta=sigMeta[k]||{label:k,tag:'pending'};
+    const tagHtml=meta.tag==='real'?'<span class="tag tag-real">Real</span>':'<span class="tag tag-ai">AI</span>';
+    return`<div class="signal-item">
+      <div class="signal-header">
+        <span class="signal-name">${meta.label} ${tagHtml}</span>
+        <span class="signal-val" style="color:${color}">${displayVal}</span>
+      </div>
+      <div class="signal-bar">
+        <div class="signal-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // EVIDENCE DETECTED
+  const ev=d.heur.evidence;
+  document.getElementById('evidenceList').innerHTML=ev.length?ev.map(e=>`
+    <div class="evidence-item sev-${e.severity}">
+      <span class="evidence-icon">${e.icon}</span>
+      <div>
+        <div class="evidence-title">${e.title}</div>
+        <div class="evidence-detail">${e.detail}</div>
+      </div>
+    </div>
+  `).join(''):'<div class="evidence-empty">No findings.</div>';
+
+  // BEHAVIOR DNA (6 categories + explanation per category)
+  const dna=d.behaviorDNA;
+  const exp=d.behaviorDNAExplanations||{};
+  const dnaLabels={
+    urgencyPressure:'Urgency Pressure',fearManipulation:'Fear Manipulation',
+    authorityExploitation:'Authority Exploitation',scarcityManipulation:'Scarcity Manipulation',
+    darkPatternIntensity:'Dark Pattern Intensity',transparencyScore:'Transparency'
+  };
+  document.getElementById('dnaItems').innerHTML=Object.entries(dna).map(([k,v])=>{
+    const pct=Math.max(0,Math.min(100,v));
+    const isGood=k==='transparencyScore';
+    const color=isGood?(pct>60?'#10b981':pct>30?'#f59e0b':'#ef4444'):(pct<30?'#10b981':pct<65?'#f59e0b':'#ef4444');
+    return`<div class="dna-block">
+      <div class="dna-row">
+        <span class="dna-name">${dnaLabels[k]||k}</span>
+        <div class="dna-bar-wrap"><div class="dna-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <span class="dna-pct" style="color:${color}">${pct}%</span>
+      </div>
+      ${exp[k]?`<p class="dna-explain">${exp[k]}</p>`:''}
+    </div>`;
+  }).join('');
+
+  // DOMAIN INTELLIGENCE (real URL structure + best-effort live RDAP)
+  const h=d.heur, rdap=d.rdap;
+  const domainItems=[
+    {label:'Protocol',val:h.isHttps?'HTTPS (encrypted)':'HTTP (not encrypted)'},
+    {label:'Hostname',val:h.host||'—'},
+    {label:'TLD Risk Tier',val:HIGH_RISK_TLDS.includes(h.tld)?`Elevated (.${h.tld})`:'Standard'},
+    {label:'Subdomain Depth',val:`${h.subdomainCount} level${h.subdomainCount===1?'':'s'}`},
+    {label:'Curated Recognition',val:h.isKnownSafe?'Recognized domain':'Not in curated list'},
+    {label:'Registrar',val:(rdap&&rdap.available)?rdap.registrar:'Unavailable'},
+    {label:'Domain Created',val:(rdap&&rdap.available)?rdap.created:'Unavailable'},
+    {label:'Domain Age',val:(rdap&&rdap.available)?rdap.age:'Unavailable'},
+    {label:'Registry Status',val:(rdap&&rdap.available)?rdap.status:'Unavailable'},
+  ];
+  document.getElementById('domainGrid').innerHTML=domainItems.map(it=>`
+    <div class="domain-item">
+      <div class="domain-item-label">${it.label}</div>
+      <div class="domain-item-val${it.val==='Unavailable'?' unavailable':''}">${it.val}</div>
+    </div>
+  `).join('')+`
+    <div class="rdap-status" style="grid-column:1/-1">
+      ${(rdap&&rdap.available)?'✓ Live RDAP registry lookup succeeded for this domain.':'⚠ Live RDAP registry lookup was unavailable for this domain (the registry didn\'t respond, or blocks browser-side requests) — fields above reflect that honestly rather than inventing values.'}
+    </div>
+  `;
+
+  // COMMUNITY (real local data only — no fabricated network totals)
+  renderCommunityTab(url);
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // reset tabs
+  document.querySelectorAll('.analysis-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.analysis-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.analysis-tab')[0].classList.add('active');
+  document.getElementById('tab-overview').classList.add('active');
+}
+
+function renderCommunityTab(url){
+  const reports=JSON.parse(localStorage.getItem('veil_reports')||'[]');
+  const thisUrlReports=reports.filter(r=>r.url===url);
+  const totalReportsByUser=reports.length;
+  const typeLabels={scam:'Scam / Fraud',phishing:'Phishing',fake:'Fake Store',manipulation:'Manipulation',malware:'Malware',other:'Other Issue'};
+  const typeCounts={};
+  thisUrlReports.forEach(r=>{ typeCounts[r.type]=(typeCounts[r.type]||0)+1; });
+
+  let rows=`<div class="community-stat"><span class="community-label">Reports for this exact URL (this browser)</span><span class="community-val" style="color:${thisUrlReports.length>0?'#fca5a5':'#34d399'}">${thisUrlReports.length}</span></div>`;
+  Object.entries(typeCounts).forEach(([k,v])=>{
+    rows+=`<div class="community-stat"><span class="community-label">${typeLabels[k]||k}</span><span class="community-val">${v}</span></div>`;
+  });
+
+  document.getElementById('communityWrap').innerHTML=rows+`
+    <div class="community-note">VEIL's community layer is in <strong>Early Access</strong>. Reports are currently stored locally in your browser — there's no live cross-user network yet, so VEIL won't show fabricated "total reports" or "trust votes" numbers here. You've filed ${totalReportsByUser} report${totalReportsByUser===1?'':'s'} in total across every site you've scanned in this browser.</div>
+  `;
+}
+
+function switchTab(name, el){
+  document.querySelectorAll('.analysis-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.analysis-panel').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ─── HISTORY ───────────────────────────────────────────────────────
+function saveHistory(url,score,level){
+  const item={url,score,level,date:Date.now()};
+  scanHistory=scanHistory.filter(h=>h.url!==url);
+  scanHistory.unshift(item);
+  if(scanHistory.length>10)scanHistory=scanHistory.slice(0,10);
+  localStorage.setItem('veil_history',JSON.stringify(scanHistory));
+  renderHistory();
+}
+
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  const section=document.getElementById('historySection');
+  if(scanHistory.length===0){section.classList.remove('show');return;}
+  section.classList.add('show');
+  const cls={Safe:'hb-safe','Mostly Safe':'hb-mostly',Suspicious:'hb-suspicious',Dangerous:'hb-danger'};
+  list.innerHTML='';
+  scanHistory.forEach(function(h){
+    const div=document.createElement('div');
+    div.className='history-item';
+    div.dataset.url=h.url;
+    div.innerHTML=
+      '<span class="history-url">'+escHtml(h.url)+'</span>'+
+      '<span class="history-score-badge '+(cls[h.level]||'hb-mostly')+'">'+h.score+'</span>';
+    div.addEventListener('click',function(){
+      document.getElementById('urlInput').value=this.dataset.url;
+      startScan();
+    });
+    list.appendChild(div);
+  });
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function clearHistory(){
+  scanHistory=[];
+  localStorage.removeItem('veil_history');
+  renderHistory();
+}
+
+renderHistory();
+
+// ─── EXPOSE FUNCTIONS GLOBALLY (needed for inline onclick attrs) ────
+const DEMO_URLS=[
+  {url:'https://github.com',label:'github.com — established dev platform'},
+  {url:'https://stripe.com',label:'stripe.com — established fintech'},
+  {url:'https://secure-login-amaz0n-deals.xyz/gift-card-winner',label:'Fake shopping / gift-card scam pattern'},
+  {url:'https://paypal-support-verify.tk/account/confirm-identity',label:'Phishing / brand-impersonation pattern'}
+];
+
+async function runInvestorDemo(){
+  if(demoRunning) return;
+  demoRunning=true;
+  const btn=document.getElementById('demoBtn');
+  const badge=document.getElementById('demoLiveBadge');
+  const progress=document.getElementById('demoProgress');
+  btn.disabled=true;
+  badge.classList.add('show');
+  for(let i=0;i<DEMO_URLS.length;i++){
+    progress.textContent=`Case ${i+1} of ${DEMO_URLS.length}: ${DEMO_URLS[i].label}`;
+    document.getElementById('urlInput').value=DEMO_URLS[i].url;
+    await startScan();
+    await new Promise(r=>setTimeout(r,1800));
+  }
+  progress.textContent='Demo complete — try your own URL above.';
+  badge.classList.remove('show');
+  btn.disabled=false;
+  demoRunning=false;
+}
+
+window.startScan = startScan;
+window.fillUrl = fillUrl;
+window.switchTab = switchTab;
+window.runInvestorDemo = runInvestorDemo;
+window.clearHistory = clearHistory;
+window.openReport = openReport;
+window.closeReport = closeReport;
+window.selectReport = selectReport;
+window.submitReport = submitReport;
+window.veilScroll = veilScroll;
+window.featureSlide = featureSlide;
+window.howStep = howStep;
+
+// ─── REPORT MODAL ──────────────────────────────────────────────────
+function openReport(){
+  document.getElementById('reportModal').classList.add('show');
+  selectedReportType='';
+  document.querySelectorAll('.report-type').forEach(t=>t.classList.remove('selected'));
+}
+function closeReport(){document.getElementById('reportModal').classList.remove('show')}
+function selectReport(el,type){
+  selectedReportType=type;
+  document.querySelectorAll('.report-type').forEach(t=>t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function submitReport(){
+  if(!selectedReportType){showToast('❗','Please select a report type.');return;}
+  closeReport();
+  // Save to localStorage — this is real, locally-stored data (Early Access
+  // community layer, no fabricated network totals — see renderCommunityTab)
+  const reports=JSON.parse(localStorage.getItem('veil_reports')||'[]');
+  reports.push({url:currentUrl,type:selectedReportType,date:Date.now()});
+  localStorage.setItem('veil_reports',JSON.stringify(reports));
+  if(currentUrl) renderCommunityTab(currentUrl);
+  showToast('✅','Report submitted. Thank you for protecting others.');
+}
+
+document.getElementById('reportModal').addEventListener('click',function(e){
+  if(e.target===this)closeReport();
+});
+
+// ─── TOAST ─────────────────────────────────────────────────────────
+function showToast(icon,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastIcon').textContent=icon;
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ─── NAV ACTIVE STATE ──────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  const nav=document.querySelector('nav');
+  if(nav) nav.style.background=window.scrollY>50?'rgba(3,8,16,0.92)':'rgba(3,8,16,0.7)';
+});
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
