@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veil Web Command Center - Enhanced Intelligence</title>
+  <style>
+    /* VEIL CINEMATIC AESTHETIC */
+    :root {
+      --bg-darker: #05070a;
+      --bg-card: #0d1117;
+      --border-glow: #1f2937;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-cyan: #00f0ff;
+      --accent-amber: #ffb700;
+      --accent-critical: #ff3b3b;
+      --accent-clean: #00e676;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-darker);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05) 0%, transparent 50%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 24px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 8px;
+      text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+    }
+
+    .sub-logo {
+      font-size: 12px;
+      color: var(--accent-cyan);
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    input[type="url"] {
+      flex: 1;
+      padding: 14px 16px;
+      background: #020305;
+      border: 1px solid var(--border-glow);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    input[type="url"]:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+    }
+
+    button {
+      padding: 14px 24px;
+      background: var(--accent-cyan);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      background: var(--border-glow);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Dashboard Results */
+    .hidden { display: none !important; }
+
+    .score-wrapper {
+      text-align: center;
+      margin: 32px 0;
+    }
+
+    .score-number {
+      font-size: 72px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 30px;
+      letter-spacing: 1px;
+      margin-right: 12px;
+    }
+
+    .summary {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 8px;
+    }
+
+    .vector-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .vector-item {
+      background: rgba(255,255,255,0.03);
+      padding: 16px;
+      border-radius: 8px;
+      border-left: 3px solid var(--border-glow);
+      font-size: 13px;
+    }
+
+    .vector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .vector-name {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 14px;
+    }
+
+    .vector-score {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .vector-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .vector-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+
+    .vector-desc {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* Tabs */
+    .tabs-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-glow);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 12px 16px;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      border-bottom-color: var(--accent-cyan);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Recommendations */
+    .recommendations {
+      background: rgba(255, 183, 0, 0.08);
+      border: 1px solid rgba(255, 183, 0, 0.2);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .rec-title {
+      font-weight: 700;
+      color: var(--accent-amber);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rec-item {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .rec-item:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent-amber);
+    }
+
+    .rec-item:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Metadata Card */
+    .metadata-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .meta-item {
+      background: rgba(255,255,255,0.02);
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-value {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Loader */
+    .loader-container {
+      text-align: center;
+      padding: 40px 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-glow);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px auto;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .category-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .category-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+    }
+
+    .risk-breakdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .risk-stat {
+      text-align: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 6px;
+    }
+
+    .risk-stat-val {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .risk-stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="logo">V E I L</div>
+      <div class="sub-logo">ADVANCED WEB INTELLIGENCE MESH v2.0</div>
+    </div>
+
+    <div class="card">
+      <div class="input-group">
+        <input type="url" id="target-url" placeholder="Paste product or store link here (e.g., https://store.com/item)" required />
+        <button id="scan-btn">Initiate Scan</button>
+      </div>
+
+      <div id="loader" class="loader-container hidden">
+        <div class="spinner"></div>
+        <div style="color: var(--accent-cyan); font-weight: 600; letter-spacing: 1px;">ANALYZING TARGET NODE...</div>
+        <div style="color: var(--text-muted); font-size: 12px; margin-top: 12px;">Processing 10-parameter risk matrix...</div>
+      </div>
+
+      <div id="results-dashboard" class="hidden">
+        <div class="score-wrapper">
+          <div id="score-val" class="score-number">--</div>
+          <div style="margin-top: 8px;">
+            <span id="tier-badge" class="badge">PENDING</span>
+            <span id="confidence-badge" class="badge" style="background: rgba(0, 230, 118, 0.1); color: var(--accent-clean); border-color: rgba(0, 230, 118, 0.2);">CONFIDENCE: --</span>
+          </div>
+        </div>
+
+        <div id="summary-text" class="summary"></div>
+
+        <div class="category-badges" id="category-badges"></div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+          <button class="tab-btn active" onclick="switchTab('risk-vectors')">Risk Vectors</button>
+          <button class="tab-btn" onclick="switchTab('metadata')">Domain Metadata</button>
+          <button class="tab-btn" onclick="switchTab('insights')">Insights & Alerts</button>
+        </div>
+
+        <!-- Tab: Risk Vectors -->
+        <div id="risk-vectors" class="tab-content active">
+          <div id="vector-grid" class="vector-grid"></div>
+          <div class="risk-breakdown">
+            <div class="risk-stat">
+              <div class="risk-stat-val" id="high-risk-count">0</div>
+              <div class="risk-stat-label">High Risk Factors</div>
+            </div>
+            <div class="risk-stat">
+              <div class="risk-stat-val" id="med-risk-count">0</div>
+              <div class="risk-stat-label">Medium Risk Factors</div>
+            </div>
+            <div class="risk-stat">
+              <div class="risk-stat-val" id="low-risk-count">0</div>
+              <div class="risk-stat-label">Low Risk Factors</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Metadata -->
+        <div id="metadata" class="tab-content">
+          <div class="metadata-grid" id="metadata-grid"></div>
+        </div>
+
+        <!-- Tab: Insights -->
+        <div id="insights" class="tab-content">
+          <div id="recommendations-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // CONFIGURATION: PASTE YOUR OBFUSCATED KEY
+    // ==========================================
+    const HARDCODED_OBFUSCATED_KEY = "a3sEa0gSeGQcZmwfHhpYbEBTWXV/ZkdSHHBwenUTUx5JU0htQEJTekF7GUJpR3lFUlhBS2s=";
+
+    // Tab switching
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected tab
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function deobfuscateKey(encodedStr) {
+      if (!encodedStr || encodedStr.includes("PASTE_YOUR")) return null;
+      try {
+        const rawBinary = atob(encodedStr.replace(/\s/g, ''));
+        const shiftKey = 42;
+        let output = "";
+        for (let i = 0; i < rawBinary.length; i++) {
+          output += String.fromCharCode(rawBinary.charCodeAt(i) ^ shiftKey);
+        }
+        return output;
+      } catch (e) {
+        console.error("Crypto Layer Fault:", e);
+        return null;
+      }
+    }
+
+    const scanBtn = document.getElementById('scan-btn');
+    const targetUrl = document.getElementById('target-url');
+    const loader = document.getElementById('loader');
+    const resultsDashboard = document.getElementById('results-dashboard');
+
+    scanBtn.addEventListener('click', async () => {
+      const url = targetUrl.value.trim();
+      if (!url) {
+        alert("Enter a target URL first.");
+        return;
+      }
+
+      const apiKey = deobfuscateKey(HARDCODED_OBFUSCATED_KEY);
+      if (!apiKey) {
+        alert("API Key is missing or invalid. Check your HARDCODED_OBFUSCATED_KEY variable.");
+        return;
+      }
+
+      // UI State Management
+      scanBtn.disabled = true;
+      resultsDashboard.classList.add('hidden');
+      loader.classList.remove('hidden');
+
+      try {
+        const result = await runGeminiAnalysis(url, apiKey);
+        renderResults(result);
+      } catch (error) {
+        alert(`Scan Failed: ${error.message}`);
+      } finally {
+        scanBtn.disabled = false;
+        loader.classList.add('hidden');
+      }
+    });
+
+    async function runGeminiAnalysis(targetUrl, apiKey) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+      const systemPrompt = `
+You are the 'Veil' advanced web intelligence engine v2.0.
+
+Analyze this URL: ${targetUrl}
+
+Perform a comprehensive 10-parameter risk assessment:
+1. DOMAIN HISTORY - Domain age, registration recency, registrant privacy, historical changes
+2. VISUAL ORIGINALITY - Unique assets, design patterns, copied elements, template usage
+3. PRICE DISCREPANCY - Comparison to market rates, unusual pricing anomalies
+4. REVIEW VELOCITY - Fake vs authentic reviews, review patterns, velocity spikes
+5. MERCHANT TRANSPARENCY - Contact info completeness, business registration verification
+6. SSL/HTTPS POSTURE - Certificate validity, issuer credibility, expiration dates
+7. SOCIAL PROOF AUTHENTICITY - Social media presence, verification status, audience engagement
+8. RETURN POLICY CLARITY - Policy transparency, terms clarity, restocking fees
+9. CHECKOUT SECURITY - Payment gateway reputable, PCI compliance signals, form security
+10. TRACKER EXCESS & PRIVACY - Excessive analytics, data harvesting signals, privacy violations
+
+CRITICAL IMPROVEMENTS FOR ACCURACY:
+- Use domain structure patterns to infer ecommerce legitimacy
+- Analyze URL patterns for homoglyph attacks or typosquatting
+- Consider brand consistency indicators
+- Evaluate threat patterns from known fraud databases
+- Account for industry-specific risk factors
+- Cross-reference with common scam indicators
+
+Return ONLY a raw JSON object. No markdown, no backticks.
+
+Schema:
+{
+  "riskScore": (0-100. 100=max threat),
+  "confidenceLevel": (0-100. How confident in this assessment),
+  "trustTier": "SAFE" | "CAUTION" | "CRITICAL",
+  "summary": "Detailed 3-4 sentence threat analysis.",
+  "categories": ["category1", "category2"] (types: ecommerce, dropshipping, marketplace, niche-retail, marketplace-seller, unknown),
+  "vectors": [
+    {
+      "id": 1,
+      "name": "Domain History",
+      "score": 0-100,
+      "finding": "Specific finding about this vector",
+      "detail": "Deeper explanation"
+    },
+    {
+      "id": 2,
+      "name": "Visual Originality",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 3,
+      "name": "Price Discrepancy",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 4,
+      "name": "Review Velocity",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 5,
+      "name": "Merchant Transparency",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 6,
+      "name": "SSL Posture",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 7,
+      "name": "Social Proof",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 8,
+      "name": "Return Policy",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 9,
+      "name": "Checkout Security",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    },
+    {
+      "id": 10,
+      "name": "Privacy & Trackers",
+      "score": 0-100,
+      "finding": "...",
+      "detail": "..."
+    }
+  ],
+  "metadata": {
+    "domainAge": "months/years or recent",
+    "countryOrigin": "estimated country",
+    "merchantType": "B2C/B2B/Marketplace",
+    "certificateIssuer": "issuer name or unknown",
+    "paymentProviders": "common providers detected"
+  },
+  "alerts": [
+    {"severity": "high|medium|low", "alert": "Specific alert message"}
+  ],
+  "recommendations": [
+    "Recommendation 1",
+    "Recommendation 2"
+  ]
+}
+      `;
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt }] }],
+          generationConfig: { responseMimeType: "application/json" }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini Server Error ${response.status}`);
+      }
+
+      const jsonResult = await response.json();
+      let rawText = jsonResult.candidates[0].content.parts[0].text.trim();
+
+      if (rawText.startsWith("```json")) {
+        rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+      }
+
+      return JSON.parse(rawText);
+    }
+
+    function renderResults(data) {
+      resultsDashboard.classList.remove('hidden');
+
+      const scoreVal = document.getElementById('score-val');
+      const tierBadge = document.getElementById('tier-badge');
+      const confidenceBadge = document.getElementById('confidence-badge');
+      const summaryText = document.getElementById('summary-text');
+      const vectorGrid = document.getElementById('vector-grid');
+      const categoryBadges = document.getElementById('category-badges');
+      const metadataGrid = document.getElementById('metadata-grid');
+
+      // Main Score and Tier
+      scoreVal.innerText = data.riskScore;
+      tierBadge.innerText = data.trustTier;
+      confidenceBadge.innerText = `CONFIDENCE: ${data.confidenceLevel}%`;
+      summaryText.innerText = data.summary;
+
+      // Color mapping
+      const getTierColor = (tier) => {
+        switch(tier) {
+          case "SAFE": return { text: "var(--accent-clean)", bg: "rgba(0, 230, 118, 0.15)" };
+          case "CAUTION": return { text: "var(--accent-amber)", bg: "rgba(255, 183, 0, 0.15)" };
+          case "CRITICAL": return { text: "var(--accent-critical)", bg: "rgba(255, 59, 59, 0.15)" };
+          default: return { text: "var(--text-muted)", bg: "rgba(255,255,255,0.05)" };
+        }
+      };
+
+      const tierColor = getTierColor(data.trustTier);
+      scoreVal.style.color = tierColor.text;
+      tierBadge.style.backgroundColor = tierColor.bg;
+      tierBadge.style.color = tierColor.text;
+
+      // Category Badges
+      categoryBadges.innerHTML = "";
+      if (data.categories && data.categories.length > 0) {
+        data.categories.forEach(cat => {
+          const badge = document.createElement('span');
+          badge.className = 'category-badge';
+          badge.innerText = cat.toUpperCase();
+          categoryBadges.appendChild(badge);
+        });
+      }
+
+      // Render all 10 vectors
+      vectorGrid.innerHTML = "";
+      let highRisk = 0, medRisk = 0, lowRisk = 0;
+
+      data.vectors.forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'vector-item';
+
+        // Categorize risk levels
+        if (v.score > 70) highRisk++;
+        else if (v.score > 35) medRisk++;
+        else lowRisk++;
+
+        // Determine color based on score
+        let fillColor = 'var(--accent-clean)';
+        if (v.score > 70) fillColor = 'var(--accent-critical)';
+        else if (v.score > 35) fillColor = 'var(--accent-amber)';
+
+        const scoreColor = v.score > 70 ? 'var(--accent-critical)' : v.score > 35 ? 'var(--accent-amber)' : 'var(--accent-clean)';
+
+        div.innerHTML = `
+          <div class="vector-header">
+            <span class="vector-name">${v.name}</span>
+            <span class="vector-score" style="color: ${scoreColor}">${v.score}/100</span>
+          </div>
+          <div class="vector-bar">
+            <div class="vector-fill" style="width: ${v.score}%; background-color: ${fillColor};"></div>
+          </div>
+          <div style="font-weight: 600; color: var(--text-main); margin-bottom: 4px; font-size: 13px;">${v.finding}</div>
+          <div class="vector-desc">${v.detail}</div>
+        `;
+        vectorGrid.appendChild(div);
+      });
+
+      // Update risk breakdown
+      document.getElementById('high-risk-count').innerText = highRisk;
+      document.getElementById('med-risk-count').innerText = medRisk;
+      document.getElementById('low-risk-count').innerText = lowRisk;
+
+      // Render Metadata
+      metadataGrid.innerHTML = "";
+      if (data.metadata) {
+        Object.entries(data.metadata).forEach(([key, value]) => {
+          const item = document.createElement('div');
+          item.className = 'meta-item';
+          const label = key.replace(/([A-Z])/g, ' $1').trim();
+          item.innerHTML = `
+            <div class="meta-label">${label}</div>
+            <div class="meta-value">${value}</div>
+          `;
+          metadataGrid.appendChild(item);
+        });
+      }
+
+      // Render Recommendations and Alerts
+      const recsContainer = document.getElementById('recommendations-container');
+      recsContainer.innerHTML = "";
+
+      if (data.alerts && data.alerts.length > 0) {
+        const alertsDiv = document.createElement('div');
+        alertsDiv.className = 'recommendations';
+        alertsDiv.style.borderColor = 'rgba(255, 59, 59, 0.2)';
+        alertsDiv.style.background = 'rgba(255, 59, 59, 0.05)';
+
+        const alertTitle = document.createElement('div');
+        alertTitle.className = 'rec-title';
+        alertTitle.style.color = 'var(--accent-critical)';
+        alertTitle.innerHTML = '⚠️ Security Alerts';
+        alertsDiv.appendChild(alertTitle);
+
+        data.alerts.forEach(alert => {
+          const item = document.createElement('div');
+          item.className = 'rec-item';
+          item.innerText = alert.alert;
+          alertsDiv.appendChild(item);
+        });
+
+        recsContainer.appendChild(alertsDiv);
+      }
+
+      if (data.recommendations && data.recommendations.length > 0) {
+        const recsDiv = document.createElement('div');
+        recsDiv.className = 'recommendations';
+
+        const recTitle = document.createElement('div');
+        recTitle.className = 'rec-title';
+        recTitle.innerHTML = '💡 Recommended Actions';
+        recsDiv.appendChild(recTitle);
+
+        data.recommendations.forEach(rec => {
+          const item = document.createElement('div');
+          item.className = 'rec-item';
+          item.innerText = rec;
+          recsDiv.appendChild(item);
+        });
+
+        recsContainer.appendChild(recsDiv);
+      }
+    }
+  </script>
+</body>
+</html>
