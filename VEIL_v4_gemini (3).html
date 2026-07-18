@@ -1,0 +1,3302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEIL v4 — The Trust Layer of the Internet</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#030810;
+--bg2:#070d1a;
+--bg3:#0a1225;
+--surface:#0d1830;
+--surface2:#111f3a;
+--border:#1a2d50;
+--border2:#243d6b;
+--text:#e8eef8;
+--text2:#8fa3c8;
+--text3:#4d6490;
+--blue:#3b82f6;
+--blue2:#60a5fa;
+--teal:#0d9488;
+--teal2:#2dd4bf;
+--safe:#10b981;
+--warn:#f59e0b;
+--danger:#ef4444;
+--purple:#8b5cf6;
+--glow-blue:rgba(59,130,246,0.15);
+--glow-teal:rgba(13,148,136,0.12);
+--radius:12px;
+--radius-lg:20px;
+--radius-xl:32px;
+}
+html{scroll-behavior:smooth}
+body{
+background:var(--bg);
+color:var(--text);
+font-family:'DM Sans',sans-serif;
+font-size:16px;
+line-height:1.6;
+overflow-x:hidden;
+}
+::selection{background:rgba(59,130,246,0.3);color:#fff}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* NAV */
+nav{
+position:fixed;top:0;left:0;right:0;z-index:100;
+height:64px;
+padding:0 2rem;
+display:flex;align-items:center;justify-content:space-between;
+background:rgba(3,8,16,0.7);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(26,45,80,0.5);
+}
+.nav-logo{
+font-family:'DM Serif Display',serif;
+font-size:1.5rem;letter-spacing:-0.02em;
+color:#fff;
+display:flex;align-items:center;gap:10px;
+}
+.nav-logo-icon{
+width:32px;height:32px;border-radius:8px;
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+display:flex;align-items:center;justify-content:center;
+font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;color:#fff;
+}
+.nav-links{display:flex;align-items:center;gap:1.75rem}
+.nav-links a{
+color:var(--text2);text-decoration:none;font-size:14px;font-weight:400;
+transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-link-btn{
+background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;
+color:var(--text2);font-size:14px;font-weight:400;white-space:nowrap;
+transition:color 0.2s;padding:0;
+}
+.nav-link-btn:hover{color:var(--text)}
+.nav-actions{display:flex;align-items:center;gap:0.75rem}
+.nav-key-btn{
+display:inline-flex;align-items:center;justify-content:center;
+background:none;border:1px solid var(--border2);border-radius:50%;
+color:var(--text2);width:36px;height:36px;flex:none;
+cursor:pointer;padding:0;
+transition:color 0.2s,border-color 0.2s,background 0.2s;
+}
+.nav-key-btn svg{display:block}
+.nav-key-btn:hover{color:var(--blue2);border-color:var(--blue);background:rgba(59,130,246,0.08)}
+.nav-cta{
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+color:#fff;border:none;padding:0 1.25rem;height:36px;
+border-radius:8px;font-size:14px;font-weight:500;white-space:nowrap;
+cursor:pointer;font-family:'DM Sans',sans-serif;
+display:inline-flex;align-items:center;
+transition:opacity 0.2s,transform 0.2s;
+}
+.nav-cta:hover{opacity:0.9;transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+min-height:100vh;display:flex;align-items:center;justify-content:center;
+position:relative;overflow:hidden;
+padding:6rem 2rem 4rem;
+}
+.hero-bg{
+position:absolute;inset:0;
+background:
+radial-gradient(ellipse 80% 60% at 50% -10%,rgba(29,78,216,0.18) 0%,transparent 60%),
+radial-gradient(ellipse 60% 40% at 80% 60%,rgba(13,148,136,0.1) 0%,transparent 50%),
+radial-gradient(ellipse 40% 30% at 20% 70%,rgba(139,92,246,0.08) 0%,transparent 50%);
+}
+.hero-grid{
+position:absolute;inset:0;
+background-image:
+linear-gradient(rgba(26,45,80,0.3) 1px,transparent 1px),
+linear-gradient(90deg,rgba(26,45,80,0.3) 1px,transparent 1px);
+background-size:60px 60px;
+mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black 0%,transparent 70%);
+}
+.hero-content{
+position:relative;z-index:2;
+text-align:center;max-width:860px;margin:0 auto;
+}
+.hero-badge{
+display:inline-flex;align-items:center;gap:8px;
+background:rgba(29,78,216,0.12);
+border:1px solid rgba(59,130,246,0.25);
+border-radius:100px;padding:6px 16px;
+font-size:13px;color:var(--blue2);font-weight:500;
+margin-bottom:2rem;
+}
+.hero-badge-dot{
+width:6px;height:6px;border-radius:50%;
+background:var(--teal2);
+animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot{
+0%,100%{opacity:1;transform:scale(1)}
+50%{opacity:0.5;transform:scale(0.8)}
+}
+.hero h1{
+font-family:'DM Serif Display',serif;
+font-size:clamp(2.8rem,6vw,5rem);
+line-height:1.1;letter-spacing:-0.03em;
+color:#fff;margin-bottom:1.5rem;
+}
+.hero h1 em{
+font-style:italic;
+background:linear-gradient(135deg,var(--blue2),var(--teal2));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+font-size:clamp(1rem,2vw,1.2rem);
+color:var(--text2);max-width:600px;margin:0 auto 2.5rem;
+font-weight:300;line-height:1.7;
+}
+.hero-ctas{
+display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;
+margin-bottom:4rem;
+}
+.btn-primary{
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+color:#fff;border:none;padding:0.85rem 2rem;
+border-radius:10px;font-size:16px;font-weight:500;
+cursor:pointer;font-family:'DM Sans',sans-serif;
+transition:all 0.2s;box-shadow:0 0 30px rgba(29,78,216,0.3);
+text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(29,78,216,0.4)}
+.btn-secondary{
+background:transparent;
+color:var(--text);border:1px solid var(--border2);padding:0.85rem 2rem;
+border-radius:10px;font-size:16px;font-weight:400;
+cursor:pointer;font-family:'DM Sans',sans-serif;
+transition:all 0.2s;text-decoration:none;
+display:inline-flex;align-items:center;gap:8px;
+}
+.btn-secondary:hover{background:var(--surface);border-color:var(--blue);color:#fff}
+
+/* TRUST NODES VISUALIZATION */
+.trust-visual{
+position:relative;width:100%;max-width:700px;margin:0 auto;
+height:300px;
+}
+.trust-canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* SCANNER SECTION */
+.scanner-section{
+padding:6rem 2rem;
+position:relative;
+}
+.section-label{
+font-size:12px;letter-spacing:0.15em;text-transform:uppercase;
+color:var(--teal2);font-weight:500;margin-bottom:1rem;
+}
+.section-title{
+font-family:'DM Serif Display',serif;
+font-size:clamp(2rem,4vw,3rem);
+color:#fff;line-height:1.2;margin-bottom:1rem;
+}
+.section-sub{
+color:var(--text2);font-size:1.05rem;max-width:500px;
+}
+.scanner-wrap{
+max-width:860px;margin:3rem auto 0;
+}
+.url-input-box{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius-lg);
+padding:1.5rem;
+transition:border-color 0.3s,box-shadow 0.3s;
+}
+.url-input-box:focus-within{
+border-color:rgba(59,130,246,0.5);
+box-shadow:0 0 0 4px rgba(59,130,246,0.08),0 0 30px rgba(59,130,246,0.05);
+}
+.url-input-row{
+display:flex;gap:1rem;align-items:center;
+}
+.url-input{
+flex:1;background:transparent;border:none;outline:none;
+color:var(--text);font-size:1rem;font-family:'DM Sans',sans-serif;
+caret-color:var(--blue2);
+}
+.url-input::placeholder{color:var(--text3)}
+.scan-btn{
+background:linear-gradient(135deg,#1d4ed8,#0d9488);
+border:none;border-radius:10px;
+padding:0.7rem 1.5rem;color:#fff;
+font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;
+cursor:pointer;white-space:nowrap;
+transition:all 0.2s;
+display:flex;align-items:center;gap:8px;
+}
+.scan-btn:hover{opacity:0.9;transform:translateY(-1px)}
+.scan-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.url-hints{
+display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;
+}
+.url-hint{
+font-size:12px;color:var(--text3);cursor:pointer;
+padding:4px 10px;border:1px solid var(--border);border-radius:20px;
+transition:all 0.2s;
+}
+.url-hint:hover{border-color:var(--blue);color:var(--blue2)}
+
+/* RESULTS */
+.results{
+margin-top:2rem;
+display:none;
+animation:fadeUp 0.4s ease;
+}
+.results.show{display:block}
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(20px)}
+to{opacity:1;transform:translateY(0)}
+}
+.results-grid{
+display:grid;
+grid-template-columns:1fr 2fr;
+gap:1.5rem;
+}
+@media(max-width:700px){.results-grid{grid-template-columns:1fr}}
+
+/* TRUST ORB */
+.orb-card{
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:2rem;
+display:flex;flex-direction:column;align-items:center;
+text-align:center;
+}
+.orb-wrap{position:relative;width:160px;height:160px;margin:0 auto 1.5rem}
+.orb-svg{width:160px;height:160px;transform:rotate(-90deg)}
+.orb-center{
+position:absolute;inset:0;display:flex;flex-direction:column;
+align-items:center;justify-content:center;
+}
+.orb-score{
+font-family:'Space Grotesk',sans-serif;
+font-size:2.5rem;font-weight:600;color:#fff;
+line-height:1;
+}
+.orb-level{font-size:11px;color:var(--text2);margin-top:4px;letter-spacing:0.05em}
+.orb-label{font-size:13px;color:var(--text2);margin-bottom:0.5rem}
+.status-badge{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;
+}
+.status-safe{background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.2)}
+.status-mostly{background:rgba(96,165,250,0.1);color:#93c5fd;border:1px solid rgba(96,165,250,0.2)}
+.status-suspicious{background:rgba(245,158,11,0.1);color:#fcd34d;border:1px solid rgba(245,158,11,0.2)}
+.status-danger{background:rgba(239,68,68,0.1);color:#fca5a5;border:1px solid rgba(239,68,68,0.2)}
+
+/* ANALYSIS CARD */
+.analysis-card{
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:1.75rem;
+}
+.analysis-tabs{
+display:flex;gap:4px;margin-bottom:1.5rem;
+background:var(--bg3);border-radius:8px;padding:4px;
+overflow-x:auto;
+}
+.analysis-tab{
+flex:1;padding:0.5rem;border:none;background:transparent;
+color:var(--text3);font-size:13px;font-family:'DM Sans',sans-serif;
+border-radius:6px;cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.analysis-tab.active{background:var(--surface2);color:var(--text)}
+.analysis-panel{display:none}
+.analysis-panel.active{display:block}
+
+/* AI EXPLANATION */
+.ai-explain{
+background:var(--bg3);border-radius:var(--radius);
+padding:1.25rem;border-left:3px solid var(--blue);
+margin-bottom:1rem;
+}
+.ai-explain-label{
+font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+color:var(--blue2);font-weight:500;margin-bottom:0.5rem;
+display:flex;align-items:center;gap:6px;
+}
+.ai-explain-text{font-size:14px;color:var(--text);line-height:1.7}
+
+/* SIGNALS */
+.signals-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.signal-item{
+background:var(--bg3);border-radius:var(--radius);
+padding:0.875rem;
+}
+.signal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.signal-name{font-size:12px;color:var(--text2);font-weight:500}
+.signal-val{font-size:12px;font-weight:500}
+.signal-bar{height:4px;border-radius:2px;background:var(--bg2);overflow:hidden}
+.signal-fill{height:100%;border-radius:2px;transition:width 1s ease}
+
+/* DNA SECTION */
+.dna-items{display:flex;flex-direction:column;gap:0.75rem}
+.dna-row{display:flex;align-items:center;gap:12px}
+.dna-name{font-size:13px;color:var(--text2);width:160px;flex-shrink:0}
+.dna-bar-wrap{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.dna-bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)}
+.dna-pct{font-size:12px;color:var(--text3);width:36px;text-align:right}
+.dna-block{margin-bottom:2px}
+.dna-explain{font-size:12px;color:var(--text3);line-height:1.55;margin:4px 0 10px 0}
+
+/* COMMUNITY */
+.community-wrap{display:flex;flex-direction:column;gap:0.75rem}
+.community-stat{
+display:flex;align-items:center;justify-content:space-between;
+background:var(--bg3);border-radius:10px;padding:0.875rem 1rem;
+}
+.community-label{font-size:13px;color:var(--text2)}
+.community-val{font-size:14px;font-weight:500;color:var(--text)}
+.community-report-btn{
+width:100%;padding:0.75rem;
+background:transparent;border:1px solid var(--border2);
+border-radius:10px;color:var(--text2);
+font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;
+transition:all 0.2s;margin-top:0.5rem;
+}
+.community-report-btn:hover{border-color:var(--warn);color:var(--warn)}
+
+/* DOMAIN INFO */
+.domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+.domain-item{background:var(--bg3);border-radius:10px;padding:0.875rem}
+.domain-item-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);margin-bottom:4px}
+.domain-item-val{font-size:14px;font-weight:500;color:var(--text)}
+
+/* SCANNING ANIMATION */
+.scan-anim{
+display:none;text-align:center;padding:3rem 2rem;
+}
+.scan-anim.show{display:block}
+.scan-ring-wrap{position:relative;width:120px;height:120px;margin:0 auto 1.5rem}
+.scan-ring{
+width:120px;height:120px;border-radius:50%;
+border:2px solid var(--border);
+border-top:2px solid var(--blue2);
+animation:spin 1s linear infinite;
+position:absolute;top:0;left:0;
+}
+.scan-ring2{
+width:90px;height:90px;border-radius:50%;
+border:1px solid rgba(13,148,136,0.3);
+border-bottom:1px solid var(--teal2);
+animation:spin 1.5s linear infinite reverse;
+position:absolute;top:15px;left:15px;
+}
+.scan-dot{
+width:8px;height:8px;border-radius:50%;background:var(--blue2);
+position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+animation:pulse-dot 1s ease-in-out infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-steps{
+display:flex;flex-direction:column;gap:8px;max-width:280px;margin:0 auto;
+}
+.scan-step{
+font-size:13px;color:var(--text3);
+display:flex;align-items:center;gap:8px;
+opacity:0;animation:fadeIn 0.3s ease forwards;
+}
+.scan-step.done{color:var(--teal2)}
+.scan-step-icon{width:16px;height:16px;flex-shrink:0}
+@keyframes fadeIn{to{opacity:1}}
+
+/* FEATURES SECTION */
+.features{padding:6rem 2rem;position:relative}
+.features-inner{max-width:1100px;margin:0 auto}
+.features-header{max-width:600px;margin:0 auto 4rem;text-align:center}
+.features-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:1.5rem;
+}
+.feature-card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--radius-lg);
+padding:2rem;
+transition:all 0.3s;
+position:relative;overflow:hidden;
+}
+.feature-card::before{
+content:'';position:absolute;
+top:0;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3),transparent);
+opacity:0;transition:opacity 0.3s;
+}
+.feature-card:hover::before{opacity:1}
+.feature-card:hover{
+border-color:rgba(59,130,246,0.2);
+transform:translateY(-4px);
+box-shadow:0 20px 40px rgba(0,0,0,0.3);
+}
+.feature-icon{
+width:48px;height:48px;border-radius:12px;
+display:flex;align-items:center;justify-content:center;
+margin-bottom:1.25rem;font-size:22px;
+}
+.fi-blue{background:rgba(29,78,216,0.15);border:1px solid rgba(59,130,246,0.2)}
+.fi-teal{background:rgba(13,148,136,0.15);border:1px solid rgba(45,212,191,0.2)}
+.fi-purple{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.2)}
+.fi-amber{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2)}
+.feature-title{font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:0.75rem}
+.feature-desc{font-size:14px;color:var(--text2);line-height:1.7}
+
+/* HOW IT WORKS */
+.how{padding:6rem 2rem;background:var(--bg2)}
+.how-inner{max-width:1000px;margin:0 auto}
+.how-steps{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:2rem;margin-top:4rem;
+}
+.how-step{text-align:center}
+.how-step-num{
+width:48px;height:48px;border-radius:50%;
+background:linear-gradient(135deg,rgba(29,78,216,0.2),rgba(13,148,136,0.2));
+border:1px solid rgba(59,130,246,0.3);
+display:flex;align-items:center;justify-content:center;
+margin:0 auto 1.25rem;
+font-family:'Space Grotesk',sans-serif;
+font-size:18px;font-weight:600;
+color:var(--blue2);
+}
+.how-step h3{font-size:1rem;font-weight:600;color:#fff;margin-bottom:0.5rem}
+.how-step p{font-size:14px;color:var(--text2);line-height:1.6}
+.how-connector{
+display:flex;align-items:center;justify-content:center;
+color:var(--border2);font-size:24px;
+margin-top:24px;
+}
+
+/* STATS */
+.stats{
+padding:5rem 2rem;
+background:linear-gradient(135deg,rgba(29,78,216,0.05),rgba(13,148,136,0.05));
+border-top:1px solid var(--border);
+border-bottom:1px solid var(--border);
+}
+.stats-inner{max-width:900px;margin:0 auto}
+.stats-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:2rem;text-align:center;
+}
+.stat-num{
+font-family:'Space Grotesk',sans-serif;
+font-size:2.5rem;font-weight:600;
+background:linear-gradient(135deg,var(--blue2),var(--teal2));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+line-height:1;margin-bottom:0.5rem;
+}
+.stat-label{font-size:14px;color:var(--text2)}
+
+/* TESTIMONIALS */
+.testimonials{padding:6rem 2rem}
+.testimonials-inner{max-width:1100px;margin:0 auto}
+.testimonials-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:1.5rem;margin-top:3rem;
+}
+.testimonial-card{
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:1.75rem;
+}
+.testimonial-text{
+font-size:15px;color:var(--text);line-height:1.7;
+font-style:italic;margin-bottom:1.25rem;
+}
+.testimonial-author{display:flex;align-items:center;gap:12px}
+.author-avatar{
+width:36px;height:36px;border-radius:50%;
+background:linear-gradient(135deg,var(--blue),var(--teal));
+display:flex;align-items:center;justify-content:center;
+font-size:14px;font-weight:600;color:#fff;
+}
+.author-name{font-size:14px;font-weight:500;color:#fff}
+.author-role{font-size:12px;color:var(--text3)}
+
+/* FOOTER */
+footer{
+background:var(--bg2);
+border-top:1px solid var(--border);
+padding:4rem 2rem 2rem;
+}
+.footer-inner{max-width:1100px;margin:0 auto}
+.footer-top{
+display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+gap:3rem;margin-bottom:3rem;
+}
+@media(max-width:700px){.footer-top{grid-template-columns:1fr 1fr}}
+.footer-brand{font-family:'DM Serif Display',serif;font-size:1.5rem;color:#fff;margin-bottom:0.75rem}
+.footer-tagline{font-size:14px;color:var(--text2)}
+.footer-col h4{font-size:13px;font-weight:600;color:#fff;margin-bottom:1rem;letter-spacing:0.05em}
+.footer-col a{
+display:block;font-size:13px;color:var(--text3);text-decoration:none;
+margin-bottom:0.5rem;transition:color 0.2s;
+}
+.footer-col a:hover{color:var(--text2)}
+.footer-bottom{
+border-top:1px solid var(--border);padding-top:1.5rem;
+display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;
+}
+.footer-copy{font-size:13px;color:var(--text3)}
+.footer-trust{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+.trust-pill{
+display:inline-flex;align-items:center;gap:4px;
+background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);
+color:#34d399;padding:3px 10px;border-radius:20px;font-size:11px;
+}
+.trust-dot{width:5px;height:5px;border-radius:50%;background:#34d399;animation:pulse-dot 2s ease-in-out infinite}
+
+/* HISTORY */
+.history-section{
+margin-top:1.5rem;
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);padding:1.5rem;
+display:none;
+}
+.history-section.show{display:block}
+.history-header{
+display:flex;justify-content:space-between;align-items:center;
+margin-bottom:1rem;
+}
+.history-title{font-size:14px;font-weight:500;color:var(--text2)}
+.history-clear{
+background:none;border:none;color:var(--text3);font-size:12px;
+cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.2s;
+}
+.history-clear:hover{color:var(--danger)}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-item{
+display:flex;align-items:center;justify-content:space-between;
+background:var(--bg3);border-radius:8px;padding:0.625rem 0.875rem;
+cursor:pointer;transition:background 0.2s;
+}
+.history-item:hover{background:var(--surface2)}
+.history-url{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;margin-right:1rem}
+.history-score-badge{
+font-size:12px;font-weight:600;font-family:'Space Grotesk',sans-serif;
+padding:2px 8px;border-radius:4px;flex-shrink:0;
+}
+.hb-safe{background:rgba(16,185,129,0.1);color:#34d399}
+.hb-mostly{background:rgba(96,165,250,0.1);color:#93c5fd}
+.hb-suspicious{background:rgba(245,158,11,0.1);color:#fcd34d}
+.hb-danger{background:rgba(239,68,68,0.1);color:#fca5a5}
+
+/* REPORT MODAL */
+.modal-overlay{
+position:fixed;inset:0;background:rgba(0,0,0,0.7);
+z-index:200;display:none;align-items:center;justify-content:center;
+backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex}
+.modal{
+background:var(--bg3);border:1px solid var(--border2);
+border-radius:var(--radius-xl);padding:2rem;
+max-width:440px;width:90%;
+animation:fadeUp 0.3s ease;
+}
+.modal-header{
+display:flex;justify-content:space-between;align-items:flex-start;
+margin-bottom:1.5rem;
+}
+.modal-title{font-size:1.1rem;font-weight:600;color:#fff}
+.modal-close{
+background:none;border:none;color:var(--text3);cursor:pointer;
+font-size:20px;line-height:1;transition:color 0.2s;
+}
+.modal-close:hover{color:var(--text)}
+.modal-desc{font-size:14px;color:var(--text2);margin-bottom:1.5rem}
+.report-types{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem}
+.report-type{
+background:var(--surface);border:1px solid var(--border);
+border-radius:10px;padding:0.875rem;cursor:pointer;
+transition:all 0.2s;text-align:center;
+}
+.report-type:hover,.report-type.selected{border-color:var(--warn);background:rgba(245,158,11,0.06)}
+.report-type-icon{font-size:20px;margin-bottom:4px}
+.report-type-label{font-size:12px;color:var(--text2)}
+.modal-submit{
+width:100%;padding:0.875rem;
+background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(239,68,68,0.15));
+border:1px solid rgba(245,158,11,0.3);
+border-radius:10px;color:var(--warn);
+font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;
+cursor:pointer;transition:all 0.2s;
+}
+.modal-submit:hover{background:rgba(245,158,11,0.15);border-color:var(--warn)}
+
+/* TOAST */
+.toast{
+position:fixed;bottom:2rem;right:2rem;z-index:300;
+background:var(--surface2);border:1px solid var(--border2);
+border-radius:12px;padding:0.875rem 1.25rem;
+font-size:14px;color:var(--text);
+display:none;align-items:center;gap:10px;
+animation:slideUp 0.3s ease;
+box-shadow:0 20px 40px rgba(0,0,0,0.4);
+}
+.toast.show{display:flex}
+@keyframes slideUp{
+from{opacity:0;transform:translateY(10px)}
+to{opacity:1;transform:translateY(0)}
+}
+.toast-icon{font-size:18px}
+
+/* HAMBURGER NAV */
+.nav-hamburger{
+display:none; /* shown via JS updateNavLayout on mobile */
+background:none;border:none;cursor:pointer;
+padding:6px;border-radius:6px;
+color:var(--text2);
+transition:color 0.2s;
+}
+.nav-hamburger:hover{color:var(--text)}
+.nav-hamburger svg{display:block}
+.nav-mobile-menu{
+display:none;
+position:fixed;top:64px;left:0;right:0;z-index:99;
+background:rgba(3,8,16,0.97);
+backdrop-filter:blur(20px);
+border-bottom:1px solid var(--border);
+padding:1.25rem 1.5rem;
+flex-direction:column;gap:1rem;
+}
+.nav-mobile-menu.open{display:flex}
+.nav-mobile-menu button,.nav-mobile-menu a{
+color:var(--text2);background:none;border:none;
+font-family:'DM Sans',sans-serif;font-size:15px;
+text-align:left;cursor:pointer;padding:0.5rem 0;
+border-bottom:1px solid var(--border);
+text-decoration:none;display:block;
+transition:color 0.2s;
+}
+.nav-mobile-menu button:hover,.nav-mobile-menu a:hover{color:var(--text)}
+.nav-mobile-menu button:last-child{border-bottom:none}
+
+/* SHARE RESULT BUTTON */
+.share-btn{
+background:transparent;border:1px solid var(--border2);
+border-radius:8px;padding:0.5rem 1rem;
+color:var(--text2);font-size:13px;font-family:'DM Sans',sans-serif;
+cursor:pointer;transition:all 0.2s;
+display:inline-flex;align-items:center;gap:6px;
+margin-top:0.75rem;
+}
+.share-btn:hover{border-color:var(--blue);color:var(--blue2)}
+
+/* AI FALLBACK BANNER */
+.ai-fallback-banner{
+background:rgba(245,158,11,0.08);
+border:1px solid rgba(245,158,11,0.25);
+border-radius:8px;padding:0.65rem 1rem;
+font-size:12px;color:#fcd34d;
+display:none;align-items:center;gap:8px;
+margin-bottom:0.75rem;
+}
+.ai-fallback-banner.show{display:flex}
+
+/* UNAVAILABLE DOMAIN ITEM */
+.domain-item-val.unavailable{color:var(--text3);font-style:italic}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+nav{padding:0 1.25rem}
+.nav-hamburger{display:block}
+.nav-links{display:none}
+.hero h1{font-size:2.2rem}
+.hero-sub{font-size:0.95rem}
+.scanner-section{padding:4rem 1.25rem}
+.features{padding:4rem 1.25rem}
+.signals-grid{grid-template-columns:1fr}
+.domain-grid{grid-template-columns:1fr}
+.results-grid{grid-template-columns:1fr}
+.report-types{grid-template-columns:1fr}
+}
+
+/* CAROUSEL */
+.carousel-wrap{position:relative;overflow:hidden;padding-bottom:3rem}
+.carousel-track{
+display:flex;transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.carousel-slide{
+min-width:100%;padding:2.5rem;
+background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius-lg);
+box-sizing:border-box;
+}
+.carousel-controls{
+display:flex;align-items:center;justify-content:center;
+gap:1rem;margin-top:1.5rem;
+}
+.carousel-btn{
+width:40px;height:40px;border-radius:50%;
+background:var(--surface);border:1px solid var(--border2);
+color:var(--text2);font-size:16px;cursor:pointer;
+transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+}
+.carousel-btn:hover{background:var(--surface2);border-color:var(--blue);color:var(--blue2)}
+.carousel-dots{display:flex;gap:8px;align-items:center}
+.carousel-dot{
+width:8px;height:8px;border-radius:50%;
+background:var(--border2);cursor:pointer;
+transition:all 0.3s;border:none;padding:0;
+}
+.carousel-dot.active{background:var(--blue2);width:24px;border-radius:4px}
+
+/* HOW SLIDESHOW */
+.how-slideshow{margin-top:3rem;max-width:640px;margin-left:auto;margin-right:auto}
+.how-slides-wrap{position:relative;min-height:220px}
+.how-slide{
+display:none;text-align:center;
+animation:slideIn 0.45s cubic-bezier(0.16,1,0.3,1);
+}
+.how-slide.active{display:block}
+@keyframes slideIn{
+from{opacity:0;transform:translateX(40px)}
+to{opacity:1;transform:translateX(0)}
+}
+.how-slide-icon{font-size:3.5rem;margin-bottom:1rem}
+.how-slide-step{
+font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
+color:var(--teal2);font-weight:500;margin-bottom:0.75rem;
+}
+.how-slide-title{
+font-family:'DM Serif Display',serif;
+font-size:1.75rem;color:#fff;margin-bottom:1rem;
+}
+.how-slide-desc{font-size:15px;color:var(--text2);line-height:1.7;max-width:480px;margin:0 auto}
+.how-progress-track{
+height:3px;background:var(--border);border-radius:2px;
+margin:2rem 0 1.25rem;overflow:hidden;
+}
+.how-progress-fill{
+height:100%;border-radius:2px;
+background:linear-gradient(90deg,var(--blue),var(--teal2));
+transition:width 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.how-nav{display:flex;align-items:center;justify-content:center;gap:1rem}
+.how-step-dots{display:flex;gap:8px;align-items:center}
+
+.skeleton{
+background:linear-gradient(90deg,var(--surface) 25%,var(--surface2) 50%,var(--surface) 75%);
+background-size:200% 100%;
+animation:shimmer 1.5s ease-in-out infinite;
+border-radius:6px;
+}
+@keyframes shimmer{
+0%{background-position:200% 0}
+100%{background-position:-200% 0}
+}
+
+/* ── TAGS: REAL vs AI ───────────────────────────────────────────── */
+.tag{
+display:inline-flex;align-items:center;gap:4px;
+font-size:10px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;
+padding:2px 7px;border-radius:5px;flex-shrink:0;
+}
+.tag-real{background:rgba(45,212,191,0.12);color:var(--teal2);border:1px solid rgba(45,212,191,0.25)}
+.tag-ai{background:rgba(139,92,246,0.12);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25)}
+.tag-pending{background:rgba(143,163,200,0.1);color:var(--text3);border:1px solid var(--border)}
+
+/* ── METHODOLOGY SECTION ────────────────────────────────────────── */
+.method-section{padding:6rem 2rem;background:var(--bg2)}
+.method-inner{max-width:1000px;margin:0 auto}
+.method-head{max-width:600px;margin-bottom:3rem}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+@media(max-width:800px){.method-grid{grid-template-columns:1fr}}
+.method-copy-card{
+background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+padding:1.75rem;margin-bottom:1.25rem;
+}
+.method-copy-card h4{font-size:15px;color:#fff;margin-bottom:0.5rem;display:flex;align-items:center;gap:8px}
+.method-copy-card p{font-size:13.5px;color:var(--text2);line-height:1.7}
+.example-card{
+background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+padding:1.75rem;
+}
+.example-badge{
+display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-bottom:1.25rem;
+}
+.example-score-row{display:flex;align-items:baseline;gap:10px;margin-bottom:1.25rem}
+.example-score-num{font-family:'Space Grotesk',sans-serif;font-size:2.25rem;font-weight:600;color:#fff}
+.example-score-sub{font-size:13px;color:var(--text3)}
+.factor-list{display:flex;flex-direction:column;gap:8px}
+.factor-row{
+display:flex;align-items:center;gap:10px;
+background:var(--bg3);border-radius:9px;padding:0.65rem 0.875rem;
+}
+.factor-label{flex:1;font-size:13px;color:var(--text)}
+.factor-pts{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;width:42px;text-align:right;flex-shrink:0}
+.pts-pos{color:#34d399}
+.pts-neg{color:#fca5a5}
+
+/* ── CONFIDENCE ──────────────────────────────────────────────────── */
+.confidence-box{
+background:var(--bg3);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1rem;
+}
+.confidence-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.confidence-label{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:0.02em}
+.confidence-pct{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--blue2)}
+.confidence-bar{height:4px;border-radius:2px;background:var(--bg2);overflow:hidden;margin-bottom:8px}
+.confidence-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--blue),var(--teal2));transition:width 1s ease}
+.confidence-explain{font-size:12px;color:var(--text3);line-height:1.6}
+
+/* ── EVIDENCE PANEL ──────────────────────────────────────────────── */
+.evidence-intro{font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.6}
+.evidence-list{display:flex;flex-direction:column;gap:8px}
+.evidence-item{
+display:flex;gap:10px;background:var(--bg3);border-radius:10px;padding:0.75rem 0.9rem;
+border-left:3px solid var(--border2);
+}
+.evidence-item.sev-risk{border-left-color:var(--danger)}
+.evidence-item.sev-safe{border-left-color:var(--safe)}
+.evidence-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.evidence-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.evidence-detail{font-size:12px;color:var(--text3);line-height:1.55}
+.evidence-empty{font-size:13px;color:var(--text3);text-align:center;padding:1.5rem 0}
+
+/* ── DOMAIN INTEL ────────────────────────────────────────────────── */
+.domain-item-val.unavailable{color:var(--text3);font-weight:400;font-style:italic}
+.rdap-status{
+display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3);
+margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);
+}
+
+/* ── DEMO MODE ───────────────────────────────────────────────────── */
+.demo-row{display:flex;align-items:center;gap:0.75rem;margin-top:1rem;flex-wrap:wrap}
+.demo-btn{
+display:inline-flex;align-items:center;gap:8px;
+background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);
+color:#c4b5fd;padding:0.55rem 1.1rem;border-radius:10px;
+font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;
+transition:all 0.2s;
+}
+.demo-btn:hover{background:rgba(139,92,246,0.18)}
+.demo-btn:disabled{opacity:0.5;cursor:not-allowed}
+.demo-progress{font-size:12px;color:var(--text3)}
+.demo-live-badge{
+display:none;align-items:center;gap:6px;
+background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3);
+color:#c4b5fd;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;
+padding:4px 10px;border-radius:20px;margin-bottom:1rem;
+}
+.demo-live-badge.show{display:inline-flex}
+.demo-live-badge .dot{width:6px;height:6px;border-radius:50%;background:#c4b5fd;animation:pulse-dot 1s ease-in-out infinite}
+
+/* ── COMPETITIVE POSITIONING ────────────────────────────────────── */
+.compare-section{padding:6rem 2rem}
+.compare-inner{max-width:900px;margin:0 auto}
+.compare-table{
+display:grid;grid-template-columns:1.4fr 1fr 1fr;
+border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-top:3rem;
+}
+.compare-cell{padding:1rem 1.25rem;font-size:13.5px;border-bottom:1px solid var(--border)}
+.compare-head{
+font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;
+background:var(--bg3);color:var(--text2);
+}
+.compare-head.veil-head{color:var(--teal2);background:rgba(13,148,136,0.08)}
+.compare-row-label{color:var(--text2);background:var(--surface)}
+.compare-cell.veil-col{background:rgba(13,148,136,0.04);color:var(--text)}
+.compare-cell.trad-col{color:var(--text3)}
+.compare-table .compare-cell:nth-last-child(-n+3){border-bottom:none}
+@media(max-width:700px){
+.compare-table{grid-template-columns:1fr;border-radius:var(--radius)}
+.compare-cell{border-bottom:1px solid var(--border)}
+}
+
+/* ── EXTENSION PREVIEW ──────────────────────────────────────────── */
+.ext-section{padding:6rem 2rem;background:var(--bg2)}
+.ext-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+@media(max-width:800px){.ext-inner{grid-template-columns:1fr}}
+.ext-mockup{
+background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,0.4);
+}
+.ext-browser-bar{
+display:flex;align-items:center;gap:8px;padding:0.7rem 1rem;
+background:var(--bg3);border-bottom:1px solid var(--border);
+}
+.ext-dot{width:9px;height:9px;border-radius:50%}
+.ext-url-pill{
+flex:1;background:var(--bg2);border-radius:6px;padding:5px 12px;
+font-size:11px;color:var(--text3);margin-left:8px;
+}
+.ext-popup{padding:1.5rem;position:relative}
+.ext-popup-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.ext-popup-brand{font-family:'DM Serif Display',serif;font-size:1.1rem;color:#fff}
+.ext-popup-score{
+display:flex;align-items:center;gap:12px;background:rgba(239,68,68,0.08);
+border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:1rem;margin-bottom:1rem;
+}
+.ext-popup-score-num{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:600;color:#fca5a5}
+.ext-popup-score-label{font-size:12px;color:var(--text2)}
+.ext-popup-score-status{font-size:13px;font-weight:600;color:#fca5a5;text-transform:uppercase;letter-spacing:0.04em}
+.ext-popup-detected{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);margin-bottom:0.5rem}
+.ext-popup-tag{
+display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);
+background:var(--bg3);border-radius:8px;padding:5px 10px;margin:0 4px 6px 0;
+}
+.ext-concept-badge{
+display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;margin-bottom:1rem;
+}
+
+/* ── COMMUNITY (honest) ─────────────────────────────────────────── */
+.community-note{
+font-size:12.5px;color:var(--text3);line-height:1.6;background:var(--bg3);
+border-radius:10px;padding:0.875rem 1rem;margin-top:0.75rem;
+}
+
+/* ── STREAMING CURSOR ───────────────────────────────────────────── */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.stream-cursor{
+display:inline-block;width:2px;height:1em;
+background:var(--blue2);vertical-align:middle;margin-left:2px;
+animation:blink 0.8s step-end infinite;
+}
+
+/* ── STAGE BADGES (replacing fabricated stats) ──────────────────── */
+.stage-grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:1.5rem;
+}
+.stage-card{text-align:center}
+.stage-badge{
+display:inline-flex;align-items:center;gap:8px;
+background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);
+border-radius:20px;padding:6px 16px;font-size:13px;font-weight:500;color:var(--blue2);
+margin-bottom:0.6rem;
+}
+.stage-desc{font-size:13px;color:var(--text2);line-height:1.6;max-width:220px;margin:0 auto}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">V</div>
+    VEIL
+  </div>
+  <div class="nav-links">
+    <button class="nav-link-btn" onclick="veilScroll('scanner')">Scan a Link</button>
+    <button class="nav-link-btn" onclick="veilScroll('methodology')">Methodology</button>
+    <button class="nav-link-btn" onclick="veilScroll('features')">Features</button>
+    <button class="nav-link-btn" onclick="veilScroll('how')">How It Works</button>
+  </div>
+  <div class="nav-actions">
+    <button class="nav-key-btn" onclick="openGeminiKeyModal()" id="navApiKeyBtn" title="Set your Gemini API key" aria-label="Set your Gemini API key">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M15.5 3.5a5.5 5.5 0 0 0-5.35 6.85L2 18.5V22h3.5l1.05-1.05v-1.95H8.5v-1.95h1.95l1.1-1.1A5.5 5.5 0 1 0 15.5 3.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="16.75" cy="7.25" r="1.15" fill="currentColor"/>
+      </svg>
+    </button>
+    <button class="nav-cta" onclick="veilScroll('scanner')" id="navCtaDesktop">Scan a Link →</button>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="Open menu">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="2" y="5" width="18" height="2" rx="1" fill="currentColor"/>
+        <rect x="2" y="10" width="18" height="2" rx="1" fill="currentColor"/>
+        <rect x="2" y="15" width="18" height="2" rx="1" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+<div class="nav-mobile-menu" id="mobileMenu">
+  <button onclick="veilScroll('scanner');closeMobileNav()">🛡 Scan a Link</button>
+  <button onclick="veilScroll('methodology');closeMobileNav()">Methodology</button>
+  <button onclick="veilScroll('features');closeMobileNav()">Features</button>
+  <button onclick="veilScroll('how');closeMobileNav()">How It Works</button>
+</div>
+
+<!-- GEMINI API KEY MODAL -->
+<div id="geminiKeyModal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(3,8,16,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);max-width:440px;width:100%;padding:1.75rem;">
+    <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;margin-bottom:0.5rem;">Connect your Gemini API key</h3>
+    <p style="color:var(--text2);font-size:13.5px;line-height:1.5;margin-bottom:1rem;">VEIL's AI Behavioral Read runs on Google's Gemini API and calls it directly from your browser, so it needs your own key. Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--blue2)">aistudio.google.com/apikey</a>. Your key is stored only in this browser's local storage and is sent only to Google's API.</p>
+    <input type="password" id="geminiKeyInput" placeholder="AIza..." style="width:100%;padding:0.65rem 0.8rem;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;margin-bottom:0.9rem;">
+    <div style="display:flex;gap:0.6rem;justify-content:flex-end;">
+      <button onclick="closeGeminiKeyModal()" style="background:none;border:1px solid var(--border2);color:var(--text2);padding:0.55rem 1rem;border-radius:8px;font-size:13.5px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+      <button onclick="saveGeminiKey()" style="background:linear-gradient(135deg,#1d4ed8,#0d9488);border:none;color:#fff;padding:0.55rem 1.1rem;border-radius:8px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;">Save Key</button>
+    </div>
+    <p id="geminiKeyStatus" style="font-size:12px;color:var(--teal2);margin-top:0.7rem;"></p>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      AI-Powered Trust Intelligence
+    </div>
+    <h1>Know what you can<br><em>trust online.</em><br>Before you click.</h1>
+    <p class="hero-sub">VEIL combines AI intelligence, behavioral analysis, and community trust signals to protect you from scams, phishing, manipulation, and deceptive websites.</p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="veilScroll('scanner')">🛡 Scan a Link</button>
+      <button class="btn-secondary" onclick="veilScroll('how')">See How VEIL Works →</button>
+    </div>
+    <div class="trust-visual">
+      <canvas class="trust-canvas" id="heroCanvas"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- SCANNER -->
+<section class="scanner-section" id="scanner">
+  <div style="max-width:860px;margin:0 auto">
+    <div class="section-label">Trust Scanner</div>
+    <h2 class="section-title">Analyze any link instantly</h2>
+    <p class="section-sub">Paste any URL below. VEIL's AI will analyze it for trustworthiness, scam signals, and manipulation patterns in seconds.</p>
+
+    <div class="scanner-wrap">
+      <div class="url-input-box">
+        <div class="url-input-row">
+          <span style="font-size:18px;flex-shrink:0">🔗</span>
+          <input class="url-input" id="urlInput" type="url"
+            placeholder="Paste any URL to scan — https://example.com"
+            onkeydown="if(event.key==='Enter')startScan()"
+          >
+          <button class="scan-btn" id="scanBtn" onclick="startScan()">
+            <span>Scan</span>
+            <span>→</span>
+          </button>
+        </div>
+        <div class="url-hints">
+          <span style="font-size:12px;color:var(--text3)">Try:</span>
+          <span class="url-hint" onclick="fillUrl('https://amaz0n-deals-today.net/gift-card-winner')">Suspicious link</span>
+          <span class="url-hint" onclick="fillUrl('https://github.com')">github.com</span>
+          <span class="url-hint" onclick="fillUrl('https://paypal-support-verify.tk/account')">Phishing link</span>
+          <span class="url-hint" onclick="fillUrl('https://stripe.com')">stripe.com</span>
+        </div>
+        <div class="demo-row">
+          <button class="demo-btn" id="demoBtn" onclick="runInvestorDemo()">▶ Run Investor Demo</button>
+          <span class="demo-live-badge" id="demoLiveBadge"><span class="dot"></span> Live demo — real pipeline, no fixtures</span>
+          <span class="demo-progress" id="demoProgress">Walks through 6 cases using VEIL's actual live analysis.</span>
+        </div>
+      </div>
+
+      <!-- SCANNING ANIMATION -->
+      <div class="scan-anim" id="scanAnim">
+        <div class="scan-ring-wrap">
+          <div class="scan-ring"></div>
+          <div class="scan-ring2"></div>
+          <div class="scan-dot"></div>
+        </div>
+        <div class="scan-steps" id="scanSteps"></div>
+      </div>
+
+      <!-- RESULTS -->
+      <div class="results" id="results">
+        <div class="results-grid">
+          <!-- ORB -->
+          <div class="orb-card" id="orbCard">
+            <p class="orb-label">Trust Score</p>
+            <div class="orb-wrap">
+              <svg class="orb-svg" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="12"/>
+                <circle id="orbArc" cx="80" cy="80" r="68" fill="none" stroke="#3b82f6" stroke-width="12"
+                  stroke-linecap="round"
+                  stroke-dasharray="427" stroke-dashoffset="427"
+                  style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1),stroke 0.5s ease"
+                />
+              </svg>
+              <div class="orb-center">
+                <div class="orb-score" id="orbScore">—</div>
+                <div class="orb-level" id="orbLevel">ANALYZING</div>
+              </div>
+            </div>
+            <div class="status-badge" id="statusBadge">Scanning…</div>
+            <p style="font-size:12px;color:var(--text3);margin-top:1rem;word-break:break-all" id="scannedUrl"></p>
+            <button class="share-btn" id="shareBtn" onclick="shareResult()" style="display:none">
+              🔗 Share result
+            </button>
+          </div>
+
+          <!-- ANALYSIS -->
+          <div class="analysis-card">
+            <div class="analysis-tabs">
+              <button class="analysis-tab active" onclick="switchTab('overview',this)">Overview</button>
+              <button class="analysis-tab" onclick="switchTab('evidence',this)">Evidence</button>
+              <button class="analysis-tab" onclick="switchTab('dna',this)">Behavior DNA</button>
+              <button class="analysis-tab" onclick="switchTab('domain',this)">Domain</button>
+              <button class="analysis-tab" onclick="switchTab('community',this)">Community</button>
+            </div>
+
+            <!-- OVERVIEW TAB -->
+            <div class="analysis-panel active" id="tab-overview">
+              <div class="ai-fallback-banner" id="aiFallbackBanner">
+                ⚠️ AI behavioral read unavailable — DNA scores are estimated from structural signals only. Treat them as lower confidence.
+              </div>
+              <div class="confidence-box" id="confidenceBox">
+                <div class="confidence-top">
+                  <span class="confidence-label">Confidence</span>
+                  <span class="confidence-pct skeleton" style="width:36px;height:14px;display:inline-block"></span>
+                </div>
+              </div>
+              <div class="ai-explain" id="aiExplain">
+                <div class="ai-explain-label">🤖 AI Behavioral Read</div>
+                <div class="ai-explain-text skeleton" style="height:60px;"></div>
+              </div>
+              <p style="font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:0.6rem">Contributing Factors — transparent score breakdown</p>
+              <div class="factor-list" id="factorList" style="margin-bottom:1.25rem"></div>
+              <div class="signals-grid" id="signalsGrid"></div>
+            </div>
+
+            <!-- EVIDENCE TAB -->
+            <div class="analysis-panel" id="tab-evidence">
+              <p class="evidence-intro">Specific patterns VEIL detected directly in this URL's structure with plain rule-based checks — not AI guesses. Each one is independently verifiable.</p>
+              <div class="evidence-list" id="evidenceList"></div>
+            </div>
+
+            <!-- DNA TAB -->
+            <div class="analysis-panel" id="tab-dna">
+              <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem">VEIL's AI behavioral read of manipulation and psychological pressure patterns. <span class="tag tag-ai">AI</span> — reasoned from the URL and any public knowledge of the domain, not a live page-content scan.</p>
+              <div class="dna-items" id="dnaItems"></div>
+            </div>
+
+            <!-- DOMAIN TAB -->
+            <div class="analysis-panel" id="tab-domain">
+              <div class="domain-grid" id="domainGrid"></div>
+            </div>
+
+            <!-- COMMUNITY TAB -->
+            <div class="analysis-panel" id="tab-community">
+              <div class="community-wrap" id="communityWrap"></div>
+              <button class="community-report-btn" onclick="openReport()">⚠️ Report this website</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="history-section" id="historySection">
+        <div class="history-header">
+          <span class="history-title">Recent Scans</span>
+          <button class="history-clear" onclick="clearHistory()">Clear all</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY / EXPLAINABILITY -->
+<section class="method-section" id="methodology">
+  <div class="method-inner">
+    <div class="method-head">
+      <div class="section-label">Why VEIL's Analysis Is Different</div>
+      <h2 class="section-title">No black box. Every point is traceable.</h2>
+      <p class="section-sub">Most "trust" tools give you a number and ask you to believe it. VEIL shows exactly where every point came from — and is honest about which parts are verified facts versus an AI's best read.</p>
+    </div>
+    <div class="method-grid">
+      <div>
+        <div class="method-copy-card">
+          <h4>🔒 Verified Technical Signals <span class="tag tag-real">Real</span></h4>
+          <p>Computed directly from the URL and, where the registry allows it, a live RDAP lookup — HTTPS presence, domain age, suspicious TLDs, brand-impersonation patterns, and more. Deterministic, rule-based, no model involved.</p>
+        </div>
+        <div class="method-copy-card">
+          <h4>🧠 AI Behavioral Read <span class="tag tag-ai">AI</span></h4>
+          <p>Gemini reasons over the verified signals plus general knowledge of the domain or brand, where it recognizes one, to estimate manipulation patterns. It's explicitly instructed to stay neutral rather than invent confident answers when it has little to go on.</p>
+        </div>
+        <div class="method-copy-card">
+          <h4>📊 Confidence, stated honestly</h4>
+          <p>VEIL's confidence score reflects exactly what was gathered for that specific scan — how many real signals fired, whether the live registry lookup succeeded, and whether the AI read came through. No fixed "28 signals" claim; it changes scan to scan.</p>
+        </div>
+      </div>
+      <div class="example-card">
+        <span class="example-badge">Example breakdown — illustrative</span>
+        <div class="example-score-row">
+          <span class="example-score-num">82</span>
+          <span class="example-score-sub">/ 100 Trust Score</span>
+        </div>
+        <div class="factor-list">
+          <div class="factor-row"><span class="tag tag-real">Real</span><span class="factor-label">HTTPS encryption present</span><span class="factor-pts pts-pos">+5</span></div>
+          <div class="factor-row"><span class="tag tag-real">Real</span><span class="factor-label">Recognized established domain</span><span class="factor-pts pts-pos">+18</span></div>
+          <div class="factor-row"><span class="tag tag-real">Real</span><span class="factor-label">Live RDAP lookup: domain age 9y 2m</span><span class="factor-pts pts-pos">+15</span></div>
+          <div class="factor-row"><span class="tag tag-ai">AI</span><span class="factor-label">Behavioral read: low manipulation pattern level</span><span class="factor-pts pts-pos">+9</span></div>
+          <div class="factor-row"><span class="tag tag-ai">AI</span><span class="factor-label">Behavioral read: high transparency signals</span><span class="factor-pts pts-pos">+5</span></div>
+        </div>
+        <p style="font-size:12px;color:var(--text3);margin-top:1rem;line-height:1.6">Run a real scan above to see this same breakdown computed live for any URL — including ones where the registry lookup fails or the AI read is inconclusive, which VEIL shows plainly rather than papering over.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-inner">
+    <div class="features-header">
+      <div class="section-label">What VEIL Does</div>
+      <h2 class="section-title" style="text-align:center">Every layer of protection,<br>in one place</h2>
+    </div>
+
+    <!-- CAROUSEL -->
+    <div class="carousel-wrap">
+      <div class="carousel-track" id="featureTrack">
+        <div class="carousel-slide">
+          <div class="feature-icon fi-blue">🧠</div>
+          <div class="feature-title">AI Trust Intelligence</div>
+          <p class="feature-desc">Our AI engine reads the behavioral fingerprint of every website, detecting manipulation patterns, pressure tactics, and deceptive signals that humans often miss.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-teal">🔬</div>
+          <div class="feature-title">Behavioral DNA Analysis</div>
+          <p class="feature-desc">VEIL breaks down the psychological tactics a website uses — urgency pressure, authority exploitation, emotional manipulation — visualized in a clear, proprietary format.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-purple">🌐</div>
+          <div class="feature-title">Domain Intelligence</div>
+          <p class="feature-desc">Deep analysis of domain age, registration data, SSL certificates, hosting reputation, and historical records to surface hidden risks before you visit.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-amber">🛡</div>
+          <div class="feature-title">Phishing &amp; Scam Detection</div>
+          <p class="feature-desc">Real-time pattern matching against known phishing templates, fake stores, impersonation attacks, and evolving AI-generated scam websites.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-teal">👥</div>
+          <div class="feature-title">Community Trust Signals</div>
+          <p class="feature-desc">Crowdsourced reports from millions of users create a living reputation layer, flagging emerging scams in real-time before they harm more people.</p>
+        </div>
+        <div class="carousel-slide">
+          <div class="feature-icon fi-blue">📊</div>
+          <div class="feature-title">Transparent Scoring</div>
+          <p class="feature-desc">Every trust score comes with a human-readable explanation. No black-box verdicts. You always understand exactly why VEIL assessed a site the way it did.</p>
+        </div>
+      </div>
+
+      <div class="carousel-controls">
+        <button class="carousel-btn" id="featPrev" onclick="featureSlide(-1)">←</button>
+        <div class="carousel-dots" id="featureDots"></div>
+        <button class="carousel-btn" id="featNext" onclick="featureSlide(1)">→</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div style="text-align:center">
+      <div class="section-label">Process</div>
+      <h2 class="section-title">How VEIL protects you</h2>
+    </div>
+
+    <div class="how-slideshow">
+      <!-- Step panels -->
+      <div class="how-slides-wrap">
+        <div class="how-slide active" id="howSlide0">
+          <div class="how-slide-icon">🔗</div>
+          <div class="how-slide-step">Step 1 of 4</div>
+          <h3 class="how-slide-title">Paste any link</h3>
+          <p class="how-slide-desc">Drop any URL into VEIL — a suspicious email link, an unfamiliar shopping site, or anything that feels off. No account needed. Works on any device.</p>
+        </div>
+        <div class="how-slide" id="howSlide1">
+          <div class="how-slide-icon">🧠</div>
+          <div class="how-slide-step">Step 2 of 4</div>
+          <h3 class="how-slide-title">AI analyzes it</h3>
+          <p class="how-slide-desc">VEIL's AI engine runs behavioral, domain, and reputation analysis simultaneously across dozens of trust signals — in under a second.</p>
+        </div>
+        <div class="how-slide" id="howSlide2">
+          <div class="how-slide-icon">📊</div>
+          <div class="how-slide-step">Step 3 of 4</div>
+          <h3 class="how-slide-title">Get a clear verdict</h3>
+          <p class="how-slide-desc">Receive a trust score, AI explanation in plain language, and a full Behavioral DNA breakdown — so you know exactly what's happening and why.</p>
+        </div>
+        <div class="how-slide" id="howSlide3">
+          <div class="how-slide-icon">🛡</div>
+          <div class="how-slide-step">Step 4 of 4</div>
+          <h3 class="how-slide-title">Stay protected</h3>
+          <p class="how-slide-desc">Make confident decisions. Report suspicious sites to protect others. Build your personal scan history. VEIL remembers so you don't have to.</p>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="how-progress-track">
+        <div class="how-progress-fill" id="howProgress"></div>
+      </div>
+
+      <!-- Step dots + nav -->
+      <div class="how-nav">
+        <button class="carousel-btn" onclick="howStep(-1)">←</button>
+        <div class="how-step-dots" id="howDots"></div>
+        <button class="carousel-btn" onclick="howStep(1)">→</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMPETITIVE POSITIONING -->
+<section class="compare-section" id="compare">
+  <div class="compare-inner">
+    <div style="text-align:center;max-width:640px;margin:0 auto">
+      <div class="section-label">Positioning</div>
+      <h2 class="section-title">Why existing security tools aren't enough</h2>
+      <p class="section-sub">Traditional tools were built to answer "is this domain on a blacklist?" That's a narrower question than the one most people actually have when they hesitate over a link.</p>
+    </div>
+    <div class="compare-table">
+      <div class="compare-cell compare-head">Capability</div>
+      <div class="compare-cell compare-head">Traditional Tools</div>
+      <div class="compare-cell compare-head veil-head">VEIL</div>
+
+      <div class="compare-cell compare-row-label">Approach</div>
+      <div class="compare-cell trad-col">Blacklist / signature matching</div>
+      <div class="compare-cell veil-col">Structural signals + behavioral pattern read</div>
+
+      <div class="compare-cell compare-row-label">Output</div>
+      <div class="compare-cell trad-col">Technical report, expert-oriented</div>
+      <div class="compare-cell veil-col">Plain-language explanation anyone can act on</div>
+
+      <div class="compare-cell compare-row-label">Manipulation tactics</div>
+      <div class="compare-cell trad-col">Not typically covered</div>
+      <div class="compare-cell veil-col">Named and explained (urgency, fear, scarcity, etc.)</div>
+
+      <div class="compare-cell compare-row-label">Transparency</div>
+      <div class="compare-cell trad-col">Score with limited explanation</div>
+      <div class="compare-cell veil-col">Every point traceable to a real or AI-tagged factor</div>
+
+      <div class="compare-cell compare-row-label">Audience</div>
+      <div class="compare-cell trad-col">IT / security teams</div>
+      <div class="compare-cell veil-col">Everyday users, before they click</div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);text-align:center;margin-top:1.5rem">This is VEIL's positioning, not a third-party benchmark — we haven't run a head-to-head study against named competitors.</p>
+  </div>
+</section>
+
+<!-- ILLUSTRATIVE SCENARIOS -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <div style="text-align:center;margin-bottom:1rem">
+      <div class="section-label">Illustrative Scenarios — Beta</div>
+      <h2 class="section-title">The kind of moment VEIL is built for</h2>
+      <p class="section-sub" style="margin:0 auto">VEIL is in beta — these are illustrative scenarios describing the experience we're building toward, not verified customer testimonials.</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <p class="testimonial-text">"A link claiming to be from your bank arrives. VEIL flags it as a likely phishing pattern immediately, with a plain-language explanation of exactly which signals triggered the flag."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🎯</div>
+          <div>
+            <div class="author-name">Scenario: Phishing link</div>
+            <div class="author-role">Illustrative — beta target experience</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"A team member is about to click a fake invoice link. VEIL catches the structural red flags and explains, in plain terms, exactly why it looks dangerous before anyone enters data."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🏢</div>
+          <div>
+            <div class="author-name">Scenario: Team workflow</div>
+            <div class="author-role">Illustrative — beta target experience</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Instead of just 'this site is bad,' Behavioral DNA names the actual psychological pattern being used — urgency, fear, scarcity — so the reasoning is visible, not just the verdict."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🔬</div>
+          <div>
+            <div class="author-name">Scenario: Behavioral DNA</div>
+            <div class="author-role">Illustrative — beta target experience</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXTENSION PREVIEW -->
+<section class="ext-section" id="extension">
+  <div class="ext-inner">
+    <div>
+      <span class="ext-concept-badge">🧩 Concept Preview — Coming Soon</span>
+      <div class="section-label">What's Next</div>
+      <h2 class="section-title">VEIL Browser Extension</h2>
+      <p class="section-sub">This is a concept mockup of where VEIL is headed next — automatic, in-the-moment scoring as you browse, using the same transparent engine you just saw above. It isn't built yet.</p>
+    </div>
+    <div class="ext-mockup">
+      <div class="ext-browser-bar">
+        <span class="ext-dot" style="background:#ef4444"></span>
+        <span class="ext-dot" style="background:#f59e0b"></span>
+        <span class="ext-dot" style="background:#10b981"></span>
+        <span class="ext-url-pill">paypal-support-verify.tk/account</span>
+      </div>
+      <div class="ext-popup">
+        <div class="ext-popup-header">
+          <span class="ext-popup-brand">VEIL</span>
+          <span style="font-size:11px;color:var(--text3)">Concept mockup</span>
+        </div>
+        <div class="ext-popup-score">
+          <div>
+            <div class="ext-popup-score-num">38</div>
+            <div class="ext-popup-score-label">Trust Score</div>
+          </div>
+          <div class="ext-popup-score-status">⚠ Dangerous</div>
+        </div>
+        <div class="ext-popup-detected">Detected</div>
+        <div>
+          <span class="ext-popup-tag">⚠ Fear Manipulation</span>
+          <span class="ext-popup-tag">⚠ Phishing Signals</span>
+          <span class="ext-popup-tag">⚠ Domain Spoofing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAGE: HONEST STATUS, NOT FABRICATED METRICS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stage-grid">
+      <div class="stage-card">
+        <div class="stage-badge">🧪 Beta Testing</div>
+        <p class="stage-desc">Live scanning engine with streaming AI analysis</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-badge">🌐 Live Community</div>
+        <p class="stage-desc">Reports shared across all users in real time — no local-only storage</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-badge">⚙️ Prototype Stage</div>
+        <p class="stage-desc">Browser extension is a concept, not yet built</p>
+      </div>
+      <div class="stage-card">
+        <div class="stage-badge">🔍 No Inflated Claims</div>
+        <p class="stage-desc">We'd rather show you real numbers later than fake ones now</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">VEIL</div>
+        <p class="footer-tagline">The Trust Layer of the Internet.<br>Protecting humans from digital deception.</p>
+        <div class="trust-pill" style="margin-top:1rem;display:inline-flex">
+          <span class="trust-dot"></span> All systems operational
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#">Trust Scanner</a>
+        <a href="#">Behavioral DNA</a>
+        <a href="#">Community Reports</a>
+        <a href="#">Browser Extension</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About VEIL</a>
+        <a href="#">Mission</a>
+        <a href="#">Blog</a>
+        <a href="#">Careers</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 VEIL. Built to protect humans online.</span>
+      <div class="footer-trust">
+        <span class="trust-pill"><span class="trust-dot"></span> AI-Powered</span>
+        <span class="trust-pill" style="margin-left:8px"><span class="trust-dot"></span> Privacy-First</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚠️ Report this website</div>
+      <button class="modal-close" onclick="closeReport()">×</button>
+    </div>
+    <p class="modal-desc">Help protect others. Select the type of issue you encountered on this website.</p>
+    <div class="report-types" id="reportTypes">
+      <div class="report-type" onclick="selectReport(this,'scam')">
+        <div class="report-type-icon">💸</div>
+        <div class="report-type-label">Scam / Fraud</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'phishing')">
+        <div class="report-type-icon">🎣</div>
+        <div class="report-type-label">Phishing</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'fake')">
+        <div class="report-type-icon">🏪</div>
+        <div class="report-type-label">Fake Store</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'manipulation')">
+        <div class="report-type-icon">🧠</div>
+        <div class="report-type-label">Manipulation</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'malware')">
+        <div class="report-type-icon">🦠</div>
+        <div class="report-type-label">Malware</div>
+      </div>
+      <div class="report-type" onclick="selectReport(this,'other')">
+        <div class="report-type-icon">🚩</div>
+        <div class="report-type-label">Other Issue</div>
+      </div>
+    </div>
+    <button class="modal-submit" onclick="submitReport()">Submit Report</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span id="toastMsg">Report submitted. Thank you for protecting others.</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// VEIL — Upgraded Intelligence Engine v2.0
+// Frontend: preserved exactly. Intelligence layer: dramatically upgraded.
+// ═══════════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+
+// ─── HERO CANVAS ───────────────────────────────────────────────────
+let canvas, ctx, nodes = [], animId;
+
+function initCanvas() {
+  canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  try {
+    ctx = canvas.getContext('2d');
+    resizeCanvas();
+    initNodes();
+    drawFrame();
+  } catch(e) {
+    console.warn('Canvas init skipped:', e);
+  }
+}
+
+function resizeCanvas(){
+  if(!canvas) return;
+  const w = canvas.offsetWidth || 700;
+  const h = canvas.offsetHeight || 300;
+  canvas.width = w;
+  canvas.height = h;
+}
+
+function initNodes(){
+  if(!canvas) return;
+  nodes = [];
+  const count = Math.min(30, Math.floor((canvas.width||700) / 25));
+  for(let i=0;i<count;i++){
+    nodes.push({
+      x:Math.random()*(canvas.width||700),
+      y:Math.random()*(canvas.height||300),
+      r:Math.random()*2.5+1,
+      vx:(Math.random()-0.5)*0.4,
+      vy:(Math.random()-0.5)*0.4,
+      opacity:Math.random()*0.6+0.3,
+      type:Math.random()<0.3?'trust':Math.random()<0.5?'warn':'safe',
+      pulse:Math.random()*Math.PI*2
+    });
+  }
+}
+
+function drawFrame(){
+  if(!ctx||!canvas) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // draw connections
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      const dx=nodes[i].x-nodes[j].x;
+      const dy=nodes[i].y-nodes[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        const op=(1-dist/120)*0.15;
+        ctx.strokeStyle=`rgba(59,130,246,${op})`;
+        ctx.lineWidth=0.5;
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x,nodes[i].y);
+        ctx.lineTo(nodes[j].x,nodes[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // draw nodes
+  nodes.forEach(n=>{
+    n.x+=n.vx;n.y+=n.vy;
+    n.pulse+=0.03;
+    if(n.x<0||n.x>canvas.width)n.vx*=-1;
+    if(n.y<0||n.y>canvas.height)n.vy*=-1;
+    const glow=Math.sin(n.pulse)*0.3+0.7;
+    let color=n.type==='trust'?'59,130,246':n.type==='safe'?'45,212,191':'139,92,246';
+    ctx.beginPath();
+    ctx.arc(n.x,n.y,n.r*glow,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${color},${n.opacity*glow})`;
+    ctx.fill();
+  });
+
+  animId=requestAnimationFrame(drawFrame);
+}
+
+window.addEventListener('resize',()=>{
+  resizeCanvas(); initNodes();
+});
+
+// Delay canvas init slightly to ensure layout is complete
+setTimeout(initCanvas, 100);
+
+// ─── SCROLL HELPER (replaces all href anchors) ──────────────────────
+function veilScroll(id){
+  var el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─── FEATURE CAROUSEL ──────────────────────────────────────────────
+var featIndex=0;
+var featSlides=[];
+var featTotal=6;
+
+function initFeatureCarousel(){
+  featSlides=document.querySelectorAll('.carousel-slide');
+  featTotal=featSlides.length;
+  var dotsEl=document.getElementById('featureDots');
+  if(!dotsEl) return;
+  dotsEl.innerHTML='';
+  for(var i=0;i<featTotal;i++){
+    var d=document.createElement('button');
+    d.className='carousel-dot'+(i===0?' active':'');
+    d.dataset.idx=i;
+    d.addEventListener('click',function(){
+      goFeature(parseInt(this.dataset.idx));
+    });
+    dotsEl.appendChild(d);
+  }
+  updateFeatureCarousel();
+}
+
+function goFeature(idx){
+  featIndex=idx;
+  updateFeatureCarousel();
+}
+
+function featureSlide(dir){
+  featIndex=(featIndex+dir+featTotal)%featTotal;
+  updateFeatureCarousel();
+}
+
+function updateFeatureCarousel(){
+  var track=document.getElementById('featureTrack');
+  if(!track) return;
+  track.style.transform='translateX(-'+featIndex+'00%)';
+  var dots=document.querySelectorAll('#featureDots .carousel-dot');
+  dots.forEach(function(d,i){
+    d.classList.toggle('active',i===featIndex);
+  });
+}
+
+// ─── HOW IT WORKS SLIDESHOW ─────────────────────────────────────────
+var howIndex=0;
+var howTotal=4;
+var howTimer=null;
+
+function initHowSlideshow(){
+  var dotsEl=document.getElementById('howDots');
+  if(!dotsEl) return;
+  dotsEl.innerHTML='';
+  for(var i=0;i<howTotal;i++){
+    var d=document.createElement('button');
+    d.className='carousel-dot'+(i===0?' active':'');
+    d.dataset.idx=i;
+    d.addEventListener('click',function(){
+      goHow(parseInt(this.dataset.idx));
+    });
+    dotsEl.appendChild(d);
+  }
+  updateHowSlideshow();
+  startHowAuto();
+}
+
+function goHow(idx){
+  howIndex=idx;
+  updateHowSlideshow();
+  restartHowAuto();
+}
+
+function howStep(dir){
+  howIndex=(howIndex+dir+howTotal)%howTotal;
+  updateHowSlideshow();
+  restartHowAuto();
+}
+
+function updateHowSlideshow(){
+  for(var i=0;i<howTotal;i++){
+    var sl=document.getElementById('howSlide'+i);
+    if(sl) sl.classList.toggle('active',i===howIndex);
+  }
+  var prog=document.getElementById('howProgress');
+  if(prog) prog.style.width=(((howIndex+1)/howTotal)*100)+'%';
+  var dots=document.querySelectorAll('#howDots .carousel-dot');
+  dots.forEach(function(d,i){
+    d.classList.toggle('active',i===howIndex);
+  });
+}
+
+function startHowAuto(){
+  howTimer=setInterval(function(){
+    howIndex=(howIndex+1)%howTotal;
+    updateHowSlideshow();
+  },4000);
+}
+
+function restartHowAuto(){
+  clearInterval(howTimer);
+  startHowAuto();
+}
+
+initFeatureCarousel();
+initHowSlideshow();
+
+
+const SCAN_MESSAGES=[
+  '🔍 Running URL structure & heuristic checks…',
+  '🌐 Attempting live RDAP registry lookup…',
+  '📡 Querying DNS-over-HTTPS for DNS records…',
+  '🔒 Checking SSL/HTTPS & security headers…',
+  '🧠 Running AI behavioral read…',
+  '📊 Calculating transparent trust score…',
+  '✅ Assembling evidence report…'
+];
+
+let scanHistory=JSON.parse(localStorage.getItem('veil_history')||'[]');
+let currentUrl='';
+let selectedReportType='';
+let demoRunning=false;
+
+// ─── REAL, DETERMINISTIC URL/DOMAIN HEURISTICS v2.0 ─────────────────
+// Every check is computed directly from the URL string with plain JS —
+// nothing here is AI-invented. This is the primary evidence engine.
+// Covers: HTTPS, IP hosting, obfuscation, TLD risk, brand impersonation,
+// homographs, typosquatting, path patterns, encoding, shorteners,
+// crypto/gift-card/financial scam patterns, lookalike detection, and more.
+
+const KNOWN_SAFE_DOMAINS=[
+  // Major tech / dev platforms
+  'github.com','gitlab.com','bitbucket.org','stackoverflow.com','npmjs.com',
+  'pypi.org','crates.io','packagist.org','rubygems.org','nuget.org',
+  'google.com','anthropic.com','openai.com','microsoft.com','apple.com',
+  'amazon.com','meta.com','tesla.com','nvidia.com','intel.com','amd.com',
+  'ibm.com','oracle.com','sap.com','salesforce.com','servicenow.com',
+  // Cloud & hosting
+  'cloudflare.com','aws.amazon.com','azure.com','cloud.google.com',
+  'digitalocean.com','heroku.com','vercel.app','netlify.app','render.com',
+  'railway.app','fly.io','linode.com','vultr.com','fastly.com','akamai.com',
+  // Payments & finance
+  'stripe.com','paypal.com','square.com','braintreepayments.com','adyen.com',
+  'klarna.com','wise.com','revolut.com','monzo.com','chime.com',
+  // Social / media
+  'twitter.com','x.com','linkedin.com','instagram.com','facebook.com',
+  'youtube.com','tiktok.com','reddit.com','discord.com','telegram.org',
+  'pinterest.com','snapchat.com','whatsapp.com','signal.org','mastodon.social',
+  // Productivity & SaaS
+  'notion.so','slack.com','zoom.us','dropbox.com','adobe.com','figma.com',
+  'canva.com','loom.com','miro.com','airtable.com','monday.com','asana.com',
+  'trello.com','jira.atlassian.com','confluence.atlassian.com','atlassian.com',
+  'hubspot.com','mailchimp.com','sendgrid.com','twilio.com','intercom.io',
+  'zendesk.com','freshdesk.com','typeform.com','surveymonkey.com',
+  // Content & publishing
+  'wordpress.com','medium.com','substack.com','ghost.org','wix.com',
+  'squarespace.com','webflow.io','blogger.com','tumblr.com',
+  // E-commerce
+  'shopify.com','etsy.com','ebay.com','walmart.com','target.com',
+  // Knowledge / news / reference
+  'wikipedia.org','britannica.com','nytimes.com','bbc.com','reuters.com',
+  'theguardian.com','washingtonpost.com','forbes.com','bloomberg.com',
+  'techcrunch.com','wired.com','arstechnica.com','theverge.com',
+  // Security / open source / standards
+  'mozilla.org','w3.org','ietf.org','owasp.org','cve.mitre.org',
+  'nist.gov','github.io','letsencrypt.org','haveibeenpwned.com',
+  // Entertainment & streaming
+  'netflix.com','spotify.com','twitch.tv','hulu.com','disneyplus.com',
+  'primevideo.com','apple.com','soundcloud.com','bandcamp.com',
+];
+
+// Tiered TLD risk: 3 = worst (free/massively abused), 2 = high risk, 1 = elevated
+const TLD_RISK_MAP={
+  // Tier 3 — free to register, overwhelming abuse rates
+  'tk':3,'ml':3,'ga':3,'cf':3,'gq':3,
+  // Tier 2 — low cost, frequent in threat feeds
+  'xyz':2,'top':2,'work':2,'click':2,'loan':2,'win':2,
+  'review':2,'party':2,'gdn':2,'icu':2,'cam':2,'cfd':2,
+  'cyou':2,'quest':2,'surf':2,'ooo':2,'autos':2,
+  // Tier 1 — elevated but not as extreme
+  'pw':1,'cc':1,'ws':1,'to':1,'rest':1,'info':1,'biz':1,
+  'online':1,'site':1,'website':1,'tech':1,'live':1,'stream':1,
+};
+// Keep a flat list for backwards compat
+const HIGH_RISK_TLDS=Object.keys(TLD_RISK_MAP);
+
+const URL_SHORTENERS=[
+  'bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','buff.ly',
+  'rebrand.ly','short.io','tiny.cc','cutt.ly','rb.gy','snip.ly',
+  'bl.ink','shorte.st','adf.ly','linktr.ee','lnkd.in'
+];
+
+const BRAND_KEYWORDS=[
+  'paypal','amazon','apple','microsoft','netflix','bankofamerica',
+  'chase','wellsfargo','citibank','barclays','hsbc','santander',
+  'google','facebook','instagram','twitter','linkedin','tiktok',
+  'irs','usps','fedex','ups','dhl','usbank','capitalone',
+  'coinbase','binance','kraken','metamask','opensea','robinhood',
+  'walmart','target','costco','bestbuy','ebay','etsy','alibaba',
+  'dropbox','onedrive','icloud','office365','docusign','squarespace'
+];
+
+// Homograph/IDN lookalike characters mapping
+const HOMOGRAPH_MAP={
+  'a':['а','ά','â','ã','å','ä'],  // Cyrillic а, Greek ά
+  'e':['е','ε','ë','ê'],            // Cyrillic е, Greek ε
+  'o':['о','ο','ö','ô'],            // Cyrillic о, Greek ο
+  'i':['і','і','ï','î'],            // Cyrillic і
+  'c':['с','ç'],                    // Cyrillic с
+  'p':['р'],                        // Cyrillic р
+  'x':['х'],                        // Cyrillic х
+  'y':['у','ý']                     // Cyrillic у
+};
+
+const URGENCY_PATH_KEYWORDS=[
+  'verify','suspended','urgent','winner','claim-now','limited-time',
+  'act-now','confirm-identity','locked','expire','immediately','restricted',
+  'unusual-activity','gift-card','congratulations','account-suspended',
+  'security-alert','unauthorized','click-here','validate','reactivate',
+  'confirm-now','update-billing','invoice','refund-pending','password-reset',
+  'action-required','important-notice','final-warning'
+];
+
+const CRYPTO_KEYWORDS=[
+  'crypto','bitcoin','btc','ethereum','eth','nft','wallet','defi',
+  'airdrop','whitelist','presale','token','blockchain','web3','mint'
+];
+
+const FINANCIAL_SCAM_KEYWORDS=[
+  'free-money','earn-online','work-from-home','make-money','passive-income',
+  'get-rich','investment-opportunity','double-your','forex','trading-bot',
+  'loan-approved','loan-offer','payday','unclaimed-funds','lottery-winner',
+  'prize-winner','sweepstakes','rebate','cashback-offer'
+];
+
+const GOVERNMENT_BRANDS=[
+  'irs','gov','government','federal','official','department','ministry',
+  'police','fbi','interpol','hmrc','dvla','medicare','medicaid','ssa'
+];
+
+function deLeet(s){
+  return s.replace(/0/g,'o').replace(/4/g,'a').replace(/1/g,'l')
+          .replace(/3/g,'e').replace(/5/g,'s').replace(/7/g,'t')
+          .replace(/8/g,'b').replace(/6/g,'g').replace(/9/g,'q')
+          .replace(/@/g,'a').replace(/\$/g,'s');
+}
+
+function hasHomographChars(str){
+  // Check for Unicode chars that look like ASCII letters
+  for(const [,variants] of Object.entries(HOMOGRAPH_MAP)){
+    for(const v of variants){
+      if(str.includes(v)) return true;
+    }
+  }
+  return false;
+}
+
+function detectTyposquatting(host, brand){
+  // Levenshtein distance check for near-misses
+  const brandDomain=brand+'.com';
+  const normalized=host.replace(/^www\./,'');
+  if(normalized===brandDomain) return false;
+  // Check if brand appears in host but not as exact match
+  if(normalized.includes(brand) && normalized!==brandDomain) return true;
+  // Simple char-swap / addition patterns
+  const patterns=[
+    brand+'s.com', brand+'-login.com', brand+'-secure.com',
+    brand+'account.com', brand+'online.com', brand+'support.com'
+  ];
+  return patterns.some(p=>normalized.includes(p.replace('.com','')));
+}
+
+function runUrlHeuristics(urlStr){
+  let parsed;
+  try{ parsed=new URL(urlStr); }
+  catch(e){
+    return {
+      evidence:[{icon:'⚠',title:'Malformed URL',detail:"VEIL could not parse this as a valid URL structure. The link may be broken or intentionally obfuscated.",severity:'risk',points:-20,confidence:'High'}],
+      host:'',rootDomain:'',tld:'',isHttps:false,subdomainCount:0,hyphenCount:0,
+      isIp:false,isShortener:false,isKnownSafe:false,pathKeywords:[],
+      cryptoSignals:false,financialScamSignals:false,govImpersonation:false
+    };
+  }
+
+  const evidence=[];
+  const host=parsed.hostname.toLowerCase();
+  const path=parsed.pathname.toLowerCase();
+  const query=(parsed.search||'').toLowerCase();
+  const pathAndQuery=path+' '+query;
+  const fullUrl=urlStr.toLowerCase();
+  const isHttps=parsed.protocol==='https:';
+  const labels=host.split('.').filter(Boolean);
+  const tld=labels[labels.length-1]||'';
+  const secondLevel=labels[labels.length-2]||'';
+  const rootDomain=labels.slice(-2).join('.');
+  const subdomainCount=Math.max(0,labels.length-2);
+  const hyphenCount=(host.match(/-/g)||[]).length;
+  const isIp=/^(\d{1,3}\.){3}\d{1,3}$/.test(host);
+  const isShortener=URL_SHORTENERS.some(s=>host===s||host.endsWith('.'+s));
+  const isKnownSafe=KNOWN_SAFE_DOMAINS.includes(rootDomain);
+  const hasEncoding=(urlStr.includes('%')&&urlStr.match(/%[0-9a-fA-F]{2}/));
+  const hasDoubleEncoding=(urlStr.includes('%25'));
+  const hasAtSymbol=parsed.username!==''||parsed.password!==''||urlStr.includes('@');
+  const domainHasHomograph=hasHomographChars(host);
+  const pathLength=(path.split('/').filter(Boolean).length);
+
+  // ── 1. HTTPS ────────────────────────────────────────────────────
+  if(isHttps){
+    evidence.push({icon:'✓',title:'HTTPS encryption present',
+      detail:"The connection uses TLS encryption. This protects data in transit but does not guarantee the site is trustworthy — phishing sites routinely use HTTPS.",
+      severity:'safe',points:5,confidence:'High'});
+  } else {
+    evidence.push({icon:'⚠',title:'No HTTPS — unencrypted connection',
+      detail:"This site is served over plain HTTP. Any data entered, including passwords and payment details, is transmitted unencrypted and can be intercepted.",
+      severity:'risk',points:-15,confidence:'High'});
+  }
+
+  // ── 2. IP-based URL ──────────────────────────────────────────────
+  if(isIp){
+    evidence.push({icon:'⚠',title:'Numeric IP address used instead of domain name',
+      detail:`The host is a raw IP address (${host}) rather than a registered domain. Legitimate services virtually never use IP addresses in links — this is a technique used to avoid domain-based reputation checks.`,
+      severity:'risk',points:-22,confidence:'High'});
+  }
+
+  // ── 3. Credential injection via @ ────────────────────────────────
+  if(hasAtSymbol){
+    evidence.push({icon:'⚠',title:'"@" symbol — potential URL spoofing',
+      detail:`A URL containing "@" sends the browser to the address after the "@" symbol while displaying what's before it as apparent credentials. E.g., "paypal.com@evil.com" actually navigates to evil.com.`,
+      severity:'risk',points:-20,confidence:'High'});
+  }
+
+  // ── 4. Homograph / IDN attack ────────────────────────────────────
+  if(domainHasHomograph){
+    evidence.push({icon:'⚠',title:'Possible homograph/IDN attack — non-ASCII lookalike characters',
+      detail:`The domain contains Unicode characters that are visually identical to standard Latin letters (e.g. Cyrillic "а" looks exactly like Latin "a"). This is used to create domains that appear to spell a trusted brand but resolve to an entirely different server.`,
+      severity:'risk',points:-25,confidence:'High'});
+  }
+
+  // ── 5. URL encoding / obfuscation ───────────────────────────────
+  if(hasDoubleEncoding){
+    evidence.push({icon:'⚠',title:'Double URL encoding detected',
+      detail:"Double percent-encoding (%25) is used to bypass URL scanners and WAF rules. Legitimate sites have no reason to double-encode characters in their URLs.",
+      severity:'risk',points:-15,confidence:'High'});
+  } else if(hasEncoding && !isKnownSafe){
+    const encodedCount=(urlStr.match(/%[0-9a-fA-F]{2}/g)||[]).length;
+    if(encodedCount>3){
+      evidence.push({icon:'⚠',title:'Excessive URL-encoded characters',
+        detail:`The URL contains ${encodedCount} percent-encoded characters. While some encoding is normal, excessive encoding is a technique used to obfuscate the real destination.`,
+        severity:'risk',points:-8,confidence:'Medium'});
+    }
+  }
+
+  // ── 6. Known safe domain ─────────────────────────────────────────
+  if(isKnownSafe){
+    evidence.push({icon:'✓',title:'Recognized established domain',
+      detail:`"${rootDomain}" is in VEIL's curated list of well-established, widely-known domains. This doesn't guarantee a specific page is safe, but the domain itself has a long track record.`,
+      severity:'safe',points:20,confidence:'High'});
+  }
+
+  // ── 7. Brand impersonation ───────────────────────────────────────
+  if(!isKnownSafe){
+    const normalizedHost=deLeet(host);
+    const matchedBrand=BRAND_KEYWORDS.find(b=>{
+      return (normalizedHost.includes(b)||deLeet(normalizedHost).includes(b)) && !KNOWN_SAFE_DOMAINS.includes(b+'.com'===rootDomain?rootDomain:'nomatch');
+    });
+    if(matchedBrand){
+      const usedLeet=normalizedHost!==host;
+      const usedTyposquat=detectTyposquatting(host,matchedBrand);
+      let detail=`The domain references "${matchedBrand}" but is not ${matchedBrand}.com. `;
+      if(usedLeet) detail+=`Character substitution is used (numbers/symbols replacing letters) — a typosquatting technique. `;
+      if(usedTyposquat) detail+=`The structure mirrors a known lookalike pattern for this brand. `;
+      detail+=`Brand names embedded in unrelated domains are one of the most common phishing tactics.`;
+      evidence.push({icon:'⚠',title:`Brand impersonation — "${matchedBrand}" detected in non-${matchedBrand}.com domain`,
+        detail,severity:'risk',points:-22,confidence:usedLeet?'High':'Medium'});
+    }
+
+    // Government / official impersonation
+    const matchedGov=GOVERNMENT_BRANDS.find(b=>normalizedHost.includes(b)&&!rootDomain.endsWith('.gov'));
+    if(matchedGov){
+      evidence.push({icon:'⚠',title:`Government/authority impersonation — "${matchedGov}" in domain`,
+        detail:`The domain uses a government or authority keyword ("${matchedGov}") but is not a verified .gov or official domain. Impersonating government agencies to instill fear is a high-impact social engineering technique.`,
+        severity:'risk',points:-20,confidence:'High'});
+    }
+  }
+
+  // ── 8. Excessive subdomain depth ─────────────────────────────────
+  if(!isIp && subdomainCount>=3){
+    evidence.push({icon:'⚠',title:`Excessive subdomain depth — ${subdomainCount} levels`,
+      detail:`"${host}" has ${subdomainCount} subdomain levels. Deep subdomains are used to make a suspicious root domain harder to notice, placing a trusted-looking prefix before a malicious registered domain (e.g., "secure.paypal.verify.login.evil.xyz").`,
+      severity:'risk',points:-10,confidence:'High'});
+  } else if(!isIp && subdomainCount===2){
+    evidence.push({icon:'•',title:'Multiple subdomains present',
+      detail:`The URL uses ${subdomainCount} subdomain levels. While common in legitimate services, combined with other signals this can indicate domain structuring to obscure the actual host.`,
+      severity:'info',points:-3,confidence:'Medium'});
+  }
+
+  // ── 9. Hyphen count ──────────────────────────────────────────────
+  if(hyphenCount>=4){
+    evidence.push({icon:'⚠',title:`Very high hyphen count — ${hyphenCount} hyphens in domain`,
+      detail:`The domain contains ${hyphenCount} hyphens. A classic phishing pattern strings together legitimate-seeming words with hyphens to create an authentic-looking domain: "secure-paypal-account-login-verify.com".`,
+      severity:'risk',points:-12,confidence:'High'});
+  } else if(hyphenCount>=2 && !isKnownSafe){
+    evidence.push({icon:'⚠',title:`Multiple hyphens in domain — ${hyphenCount}`,
+      detail:`${hyphenCount} hyphens in the domain name is above average. Legitimate services typically use clean, short domain names without multiple separators.`,
+      severity:'risk',points:-6,confidence:'Medium'});
+  }
+
+  // ── 10. High-risk TLD (tiered scoring) ───────────────────────────
+  if(!isIp && TLD_RISK_MAP[tld]){
+    const tier=TLD_RISK_MAP[tld];
+    const pts=tier===3?-18:tier===2?-12:-6;
+    const label=tier===3?'Free & massively abused':tier===2?'Frequently seen in threat feeds':'Elevated abuse rate';
+    evidence.push({icon:'⚠',title:`High-risk TLD: .${tld} (${label})`,
+      detail:tier===3
+        ? `.${tld} domains are available completely free to register, making them highly attractive for mass phishing campaigns. Abuse rates for .${tld} are disproportionately high compared to legitimate usage.`
+        : `.${tld} is inexpensive at scale and appears frequently in threat intelligence feeds. Legitimate businesses typically use established TLDs (.com, .org, .net) for credibility. Risk tier: ${tier}/3.`,
+      severity:'risk',points:pts,confidence:tier===3?'High':'Medium'});
+  }
+
+  // ── 11. URL shortener ────────────────────────────────────────────
+  if(isShortener){
+    evidence.push({icon:'⚠',title:`URL shortener — hides real destination`,
+      detail:`This is a URL shortener service (${host}). The actual destination is hidden until the link is clicked. VEIL cannot analyze what this redirects to without following the redirect chain — treat shortened links from unknown sources with caution.`,
+      severity:'risk',points:-10,confidence:'High'});
+  }
+
+  // ── 12. Urgency / scare language in path ─────────────────────────
+  const matchedUrgency=URGENCY_PATH_KEYWORDS.filter(k=>pathAndQuery.includes(k));
+  if(matchedUrgency.length>=3){
+    evidence.push({icon:'⚠',title:`Multiple urgency/pressure keywords — "${matchedUrgency.slice(0,3).join('", "')}"`,
+      detail:`The URL path contains ${matchedUrgency.length} pressure-language keywords. This density of urgency signals strongly suggests the destination is designed to rush users into action: "verify", "suspended", "confirm-identity", and similar words are among the most common phishing path patterns.`,
+      severity:'risk',points:-18,confidence:'High'});
+  } else if(matchedUrgency.length>0){
+    evidence.push({icon:'⚠',title:`Urgency/pressure language in URL path — "${matchedUrgency[0]}"`,
+      detail:`The URL path contains: "${matchedUrgency.join('", "')}". These words are frequently used in phishing URLs to create a sense of emergency before the user can think critically.`,
+      severity:'risk',points:-8*Math.min(matchedUrgency.length,2),confidence:'Medium'});
+  }
+
+  // ── 13. Crypto/NFT scam patterns ─────────────────────────────────
+  const cryptoMatches=CRYPTO_KEYWORDS.filter(k=>fullUrl.includes(k));
+  if(cryptoMatches.length>=2){
+    evidence.push({icon:'⚠',title:`Cryptocurrency/NFT signals — "${cryptoMatches.slice(0,3).join('", "')}"`,
+      detail:`The URL contains multiple cryptocurrency-related terms (${cryptoMatches.join(', ')}). Combined with other risk signals, this pattern matches crypto wallet-drain attacks, fake airdrop scams, and fraudulent NFT mint pages.`,
+      severity:'risk',points:-14,confidence:'Medium'});
+  }
+
+  // ── 14. Financial scam language ───────────────────────────────────
+  const finMatches=FINANCIAL_SCAM_KEYWORDS.filter(k=>fullUrl.includes(k));
+  if(finMatches.length>0){
+    evidence.push({icon:'⚠',title:`Financial scam language — "${finMatches[0]}"`,
+      detail:`The URL contains terms (${finMatches.join(', ')}) commonly associated with investment fraud, advance-fee scams, lottery scams, or fake money-making schemes.`,
+      severity:'risk',points:-12,confidence:'Medium'});
+  }
+
+  // ── 15. Unusually long domain ─────────────────────────────────────
+  if(host.length>50){
+    evidence.push({icon:'⚠',title:`Unusually long domain — ${host.length} characters`,
+      detail:`At ${host.length} characters, this hostname is significantly longer than typical legitimate domains. Very long domains are used to embed trusted-looking substrings while burying the actual malicious domain name.`,
+      severity:'risk',points:-8,confidence:'Medium'});
+  } else if(host.length>35 && !isKnownSafe){
+    evidence.push({icon:'⚠',title:`Long domain name — ${host.length} characters`,
+      detail:`The hostname is ${host.length} characters, which is longer than average. This alone is not conclusive, but combined with other signals may indicate domain structuring.`,
+      severity:'risk',points:-4,confidence:'Low'});
+  }
+
+  // ── 16. Deeply nested path ────────────────────────────────────────
+  if(pathLength>5 && !isKnownSafe){
+    evidence.push({icon:'⚠',title:`Deeply nested URL path — ${pathLength} levels`,
+      detail:`The URL path has ${pathLength} levels of nesting. Phishing pages often use deep paths to mimic the structure of legitimate portals (e.g., /account/security/verify/confirm/identity/).`,
+      severity:'risk',points:-5,confidence:'Low'});
+  }
+
+  // ── 17. Data URI or javascript: scheme ───────────────────────────
+  if(urlStr.toLowerCase().startsWith('data:') || urlStr.toLowerCase().startsWith('javascript:')){
+    evidence.push({icon:'⚠',title:'Dangerous URL scheme — data: or javascript:',
+      detail:'URLs using the "data:" or "javascript:" scheme can execute code directly in the browser without navigating to a real domain. This is a technique for XSS and drive-by attacks.',
+      severity:'risk',points:-40,confidence:'High'});
+  }
+
+  // ── 18. Punycode / xn-- ──────────────────────────────────────────
+  if(host.includes('xn--')){
+    evidence.push({icon:'⚠',title:'Punycode domain (xn-- prefix) — possible IDN homograph',
+      detail:`The domain uses Punycode encoding (${host}), which represents internationalized characters. This is often used in homograph attacks where a Unicode domain looks identical to a Latin brand name in the browser address bar.`,
+      severity:'risk',points:-20,confidence:'High'});
+  }
+
+  // ── 19. Redirect / tracking params ───────────────────────────────
+  const redirectParams=['redirect=','url=','goto=','link=','target=','next=','redir='];
+  const hasRedirectParam=redirectParams.some(p=>query.includes(p));
+  if(hasRedirectParam && !isKnownSafe){
+    evidence.push({icon:'⚠',title:'Open redirect parameter detected',
+      detail:'The URL contains a redirect parameter. Open redirects on trusted domains are abused to forward users to malicious sites while making the link appear to originate from a legitimate host.',
+      severity:'risk',points:-8,confidence:'Medium'});
+  }
+
+  // ── 20. Second-level domain randomness check ──────────────────────
+  // High entropy (random-looking) domains often indicate auto-generated phishing domains
+  if(!isKnownSafe && secondLevel.length>6){
+    const consonantRuns=(secondLevel.match(/[bcdfghjklmnpqrstvwxyz]{4,}/gi)||[]).length;
+    const digitCount=(secondLevel.match(/\d/g)||[]).length;
+    const hasRandomLook=consonantRuns>0 || (digitCount>2 && secondLevel.length<12);
+    if(hasRandomLook && !isIp){
+      evidence.push({icon:'⚠',title:'Domain appears algorithmically generated',
+        detail:`"${secondLevel}" contains patterns (unusual consonant sequences or embedded numbers) that suggest it may be a randomly generated domain — a technique used by malware and phishing campaigns to create disposable, difficult-to-block domains (DGA).`,
+        severity:'risk',points:-10,confidence:'Medium'});
+    }
+  }
+
+  // ── Positive: Clean structure on unknown domains ──────────────────
+  if(!isKnownSafe && evidence.filter(e=>e.severity==='risk').length===0){
+    evidence.push({icon:'✓',title:'No structural risk signals detected',
+      detail:"VEIL's rule-based checks found no red flags in this URL's structure. This does not confirm the site is safe — only that the URL string itself looks unremarkable. An AI behavioral read and domain age check may reveal more.",
+      severity:'safe',points:3,confidence:'Medium'});
+  }
+
+  return {
+    evidence,host,rootDomain,tld,isHttps,subdomainCount,hyphenCount,
+    isIp,isShortener,isKnownSafe,
+    cryptoSignals:CRYPTO_KEYWORDS.some(k=>fullUrl.includes(k)),
+    financialScamSignals:FINANCIAL_SCAM_KEYWORDS.some(k=>fullUrl.includes(k)),
+    govImpersonation:GOVERNMENT_BRANDS.some(b=>host.includes(b)&&!rootDomain.endsWith('.gov')),
+    pathDepth:pathLength,
+    urgencyCount:matchedUrgency.length,
+    hasPunycode:host.includes('xn--'),
+    hasHomograph:domainHasHomograph
+  };
+}
+
+function fillUrl(url){
+  document.getElementById('urlInput').value=url;
+  document.getElementById('urlInput').focus();
+}
+
+// ─── DNS-over-HTTPS INTELLIGENCE ────────────────────────────────────────────
+// Real DNS lookups via Cloudflare's 1.1.1.1 DoH API.
+// Checks: A record (hosting), MX (mail), TXT (SPF, DMARC, DKIM hints),
+// CNAME (redirect chains), and NS (nameservers). All gracefully degrade.
+async function fetchDnsIntelligence(host){
+  if(!host) return {available:false};
+  const rootDomainLabels=host.split('.').slice(-2).join('.');
+  const dohBase='https://cloudflare-dns.com/dns-query';
+  const hdrs={'Accept':'application/dns-json'};
+  const results={available:false,hasA:false,hasMx:false,spf:null,dmarc:null,
+    nameservers:[],aRecords:[],mxRecords:[],cname:null,dnssecEnabled:false};
+
+  try{
+    // A record lookup
+  const makeSignal=(ms)=>{const c=new AbortController();setTimeout(()=>c.abort(),ms);return c.signal;};
+    const [aResp, mxResp, txtResp, nsResp] = await Promise.allSettled([
+      fetch(`${dohBase}?name=${encodeURIComponent(host)}&type=A`,{headers:hdrs,signal:makeSignal(4000)}),
+      fetch(`${dohBase}?name=${encodeURIComponent(rootDomainLabels)}&type=MX`,{headers:hdrs,signal:makeSignal(4000)}),
+      fetch(`${dohBase}?name=${encodeURIComponent(rootDomainLabels)}&type=TXT`,{headers:hdrs,signal:makeSignal(4000)}),
+      fetch(`${dohBase}?name=${encodeURIComponent(rootDomainLabels)}&type=NS`,{headers:hdrs,signal:makeSignal(4000)})
+    ]);
+
+    results.available=true;
+
+    // A records
+    if(aResp.status==='fulfilled'&&aResp.value.ok){
+      const aData=await aResp.value.json();
+      results.dnssecEnabled=aData.AD===true;
+      if(Array.isArray(aData.Answer)){
+        results.hasA=true;
+        results.aRecords=aData.Answer.filter(r=>r.type===1).map(r=>r.data).slice(0,4);
+        const cnameRec=aData.Answer.find(r=>r.type===5);
+        if(cnameRec) results.cname=cnameRec.data;
+      }
+    }
+
+    // MX records
+    if(mxResp.status==='fulfilled'&&mxResp.value.ok){
+      const mxData=await mxResp.value.json();
+      if(Array.isArray(mxData.Answer)){
+        results.mxRecords=mxData.Answer.filter(r=>r.type===15).map(r=>r.data).slice(0,3);
+        results.hasMx=results.mxRecords.length>0;
+      }
+    }
+
+    // TXT records (SPF, DMARC)
+    if(txtResp.status==='fulfilled'&&txtResp.value.ok){
+      const txtData=await txtResp.value.json();
+      if(Array.isArray(txtData.Answer)){
+        const txts=txtData.Answer.filter(r=>r.type===16).map(r=>r.data.replace(/^"|"$/g,''));
+        const spfRec=txts.find(t=>t.startsWith('v=spf1'));
+        if(spfRec){
+          results.spf=spfRec.length>60?spfRec.substring(0,60)+'…':spfRec;
+          results.spfPresent=true;
+        } else {
+          results.spfPresent=false;
+        }
+      }
+    }
+
+    // DMARC
+    try{
+      const dmarcResp=await fetch(`${dohBase}?name=${encodeURIComponent('_dmarc.'+rootDomainLabels)}&type=TXT`,{headers:hdrs,signal:makeSignal(3000)});
+      if(dmarcResp.ok){
+        const dmarcData=await dmarcResp.json();
+        if(Array.isArray(dmarcData.Answer)){
+          const dmarcRec=dmarcData.Answer.filter(r=>r.type===16).map(r=>r.data.replace(/^"|"$/g,'')).find(t=>t.startsWith('v=DMARC1'));
+          results.dmarc=dmarcRec||null;
+          results.dmarcPresent=!!dmarcRec;
+        }
+      }
+    } catch(e){results.dmarcPresent=false;}
+
+    // NS records
+    if(nsResp.status==='fulfilled'&&nsResp.value.ok){
+      const nsData=await nsResp.value.json();
+      if(Array.isArray(nsData.Answer)){
+        results.nameservers=nsData.Answer.filter(r=>r.type===2).map(r=>r.data.replace(/\.$/,'')).slice(0,3);
+      }
+    }
+
+    return results;
+  } catch(e){
+    return {available:false};
+  }
+}
+
+// ─── BEST-EFFORT LIVE REGISTRY (RDAP) LOOKUP ────────────────────────
+// A real network call to a public RDAP server. Many registries don't
+// allow cross-origin browser requests, so this fails gracefully and
+// VEIL shows "Unavailable" rather than inventing registrar/age data.
+// Fix v4: use root domain (not full hostname) — subdomains broke RDAP.
+async function fetchRdap(host){
+  if(!host) return {available:false};
+  // Always query the root domain (last two labels), not a subdomain
+  const labels=host.split('.').filter(Boolean);
+  const isIpHost=/^(\d{1,3}\.){3}\d{1,3}$/.test(host);
+  const queryTarget=isIpHost?host:labels.slice(-2).join('.');
+  const endpoint=isIpHost
+    ?'https://rdap.org/ip/'+queryTarget
+    :'https://rdap.org/domain/'+queryTarget;
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),4500);
+    const resp=await fetch(endpoint,{signal:controller.signal});
+    clearTimeout(timeout);
+    if(!resp.ok) return {available:false};
+    const data=await resp.json();
+    let createdRaw=null;
+    if(Array.isArray(data.events)){
+      const ev=data.events.find(e=>e.eventAction==='registration')||data.events.find(e=>e.eventAction==='last changed');
+      if(ev) createdRaw=ev.eventDate;
+    }
+    let registrar=null;
+    if(Array.isArray(data.entities)){
+      const reg=data.entities.find(e=>Array.isArray(e.roles)&&e.roles.includes('registrar'));
+      if(reg){
+        if(Array.isArray(reg.vcardArray) && Array.isArray(reg.vcardArray[1])){
+          const fnEntry=reg.vcardArray[1].find(v=>v[0]==='fn');
+          if(fnEntry) registrar=fnEntry[3];
+        }
+        if(!registrar) registrar=reg.handle;
+      }
+    }
+    let ageDays=null, ageLabel='Unavailable', createdLabel='Unavailable';
+    if(createdRaw){
+      const createdDate=new Date(createdRaw);
+      if(!isNaN(createdDate.getTime())){
+        ageDays=Math.floor((Date.now()-createdDate.getTime())/86400000);
+        const years=Math.floor(ageDays/365);
+        const months=Math.floor((ageDays%365)/30);
+        ageLabel=years>0?`${years}y ${months}m`:`${months} months`;
+        createdLabel=createdDate.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+      }
+    }
+    const status=Array.isArray(data.status)&&data.status.length?data.status.join(', '):'Unavailable';
+    return {available:true,registrar:registrar||'Not publicly listed',created:createdLabel,age:ageLabel,ageDays,status};
+  }catch(e){
+    return {available:false};
+  }
+}
+
+// ─── ENHANCED AI BEHAVIORAL READ ────────────────────────────────────────────
+// Gemini reasons from verified technical signals + domain knowledge.
+// It is explicitly instructed to never invent facts.
+// Now covers 10 Behavioral DNA dimensions vs the original 6.
+// Uses Google's Gemini API directly from the browser — requires the user's
+// own Gemini API key (see openGeminiKeyModal / GEMINI_KEY_STORAGE above).
+const GEMINI_MODEL='gemini-2.5-flash';
+async function analyzeWithAI(url,heur,dnsData){
+  const riskEvidence=heur.evidence.filter(e=>e.severity==='risk');
+  const safeEvidence=heur.evidence.filter(e=>e.severity==='safe');
+  const evidenceSummary=heur.evidence.map(e=>`[${e.severity.toUpperCase()}] ${e.title}: ${e.detail}`).join('\n');
+  const dnsSummary=dnsData&&dnsData.available
+    ? `DNS Intelligence (real, via Cloudflare DoH):
+- A records resolved: ${dnsData.hasA?'Yes ('+dnsData.aRecords.join(', ')+')':'No'}
+- MX records: ${dnsData.hasMx?dnsData.mxRecords.join(', '):'None found'}
+- SPF record: ${dnsData.spfPresent?'Present ('+dnsData.spf+')':'Missing — increases phishing/spoofing risk'}
+- DMARC record: ${dnsData.dmarcPresent?'Present — domain has email authentication policy':'Missing — domain can be more easily spoofed in emails'}
+- DNSSEC: ${dnsData.dnssecEnabled?'Enabled — DNS responses are cryptographically signed':'Not detected'}
+- Nameservers: ${dnsData.nameservers.length?dnsData.nameservers.join(', '):'Unavailable'}`
+    : 'DNS Intelligence: Unavailable for this scan.';
+
+  const prompt=`You are VEIL's behavioral analysis layer — a cybersecurity AI focused on honest, evidence-grounded analysis. You cannot fetch or load this page's live HTML. You reason only from the URL/domain structure, the verified technical signals VEIL already detected, and any general knowledge you have about this specific domain, brand, or pattern.
+
+URL UNDER ANALYSIS: ${url}
+Hostname: ${heur.host}
+Root Domain: ${heur.rootDomain}
+TLD: .${heur.tld}
+HTTPS: ${heur.isHttps}
+Is Known Safe Domain: ${heur.isKnownSafe}
+Risk signals detected: ${riskEvidence.length}
+Safe signals detected: ${safeEvidence.length}
+Crypto signals: ${heur.cryptoSignals}
+Financial scam language: ${heur.financialScamSignals}
+Government impersonation: ${heur.govImpersonation}
+Urgency keyword count: ${heur.urgencyCount||0}
+Punycode/Homograph: ${(heur.hasPunycode||heur.hasHomograph)?'YES — potential IDN attack':'No'}
+
+Verified rule-based signals (these are facts, not your output):
+${evidenceSummary}
+
+${dnsSummary}
+
+CRITICAL INSTRUCTIONS:
+- If you recognize this domain/brand (e.g., github.com, stripe.com, paypal.com), use that knowledge to inform your read.
+- If you DON'T recognize the domain and the URL has no notable signals, keep scores neutral (20-40 range) and say so explicitly rather than guessing confidently.
+- Never invent technical facts. Never fabricate statistics. If unsure, say so.
+- SPF/DMARC absence increases phishing risk; their presence is a legitimacy signal.
+- Base your explanation on what you can actually observe and reason about.
+
+Return ONLY a valid JSON object (no markdown, no code fences, no commentary) with EXACTLY this structure:
+{
+  "explanation": "<2-4 sentences, calm and specific. Mention the domain/brand if you recognize it. If you don't recognize it and there are few signals, say so plainly. Reference specific risk signals found.>",
+  "verdictSummary": "<One crisp sentence verdict: Safe, Mostly Safe, Suspicious, or Dangerous, with key reason.>",
+  "scamProbability": <integer 0-100>,
+  "manipulationRisk": <integer 0-100>,
+  "contentSafety": <integer 0-100>,
+  "behaviorDNA": {
+    "urgencyPressure": <0-100, likelihood the site creates artificial time pressure>,
+    "fearManipulation": <0-100, likelihood the site uses fear/threat to drive action>,
+    "authorityExploitation": <0-100, likelihood the site falsely claims authority>,
+    "scarcityManipulation": <0-100, likelihood the site uses fake scarcity>,
+    "darkPatternIntensity": <0-100, likelihood of deceptive UX patterns>,
+    "socialProofManipulation": <0-100, likelihood of fake reviews/testimonials/counters>,
+    "emotionalManipulation": <0-100, likelihood of emotional exploitation tactics>,
+    "financialPressure": <0-100, likelihood of financial coercion or high-pressure sales>,
+    "privacySignals": <0-100, confidence the site respects user privacy — higher is safer>,
+    "transparencyScore": <0-100, overall transparency and legitimacy signals — higher is safer>
+  },
+  "behaviorDNAExplanations": {
+    "urgencyPressure": "<one sentence, evidence-based>",
+    "fearManipulation": "<one sentence>",
+    "authorityExploitation": "<one sentence>",
+    "scarcityManipulation": "<one sentence>",
+    "darkPatternIntensity": "<one sentence>",
+    "socialProofManipulation": "<one sentence>",
+    "emotionalManipulation": "<one sentence>",
+    "financialPressure": "<one sentence>",
+    "privacySignals": "<one sentence>",
+    "transparencyScore": "<one sentence>"
+  },
+  "keyRisks": ["<up to 3 specific risk phrases, or empty array if safe>"],
+  "recommendation": "<'Safe to visit', 'Proceed with caution', 'High risk — avoid', or 'Dangerous — do not visit'>"
+}`;
+
+  // Show a live streaming placeholder in the AI explain box while we wait
+  const aiExplainEl=document.getElementById('aiExplain');
+  if(aiExplainEl){
+    aiExplainEl.innerHTML=`<div class="ai-explain-label">🤖 AI Behavioral Read <span class="tag tag-ai">AI</span> <span style="font-size:10px;color:var(--teal2);letter-spacing:0.06em">STREAMING…</span></div><div class="ai-explain-text" id="aiStreamText" style="min-height:48px"><span class="skeleton" style="display:inline-block;width:80%;height:14px;margin-bottom:6px"></span><br><span class="skeleton" style="display:inline-block;width:60%;height:14px"></span></div>`;
+  }
+
+  const geminiKey=getGeminiKey();
+  if(!geminiKey){
+    if(aiExplainEl){
+      aiExplainEl.innerHTML=`<div class="ai-explain-label">🤖 AI Behavioral Read <span class="tag tag-ai">AI</span></div><div class="ai-explain-text">No Gemini API key connected — showing a rule-based estimate instead. <button onclick="openGeminiKeyModal()" style="background:none;border:1px solid var(--border2);color:var(--blue2);padding:0.3rem 0.6rem;border-radius:6px;font-size:12.5px;cursor:pointer;font-family:'DM Sans',sans-serif;">Connect Gemini key →</button></div>`;
+    }
+    return generateAiFallback(heur);
+  }
+
+  try{
+    const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${encodeURIComponent(geminiKey)}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        systemInstruction:{parts:[{text:'You are VEIL\'s behavioral analysis layer — a cybersecurity AI. Return ONLY valid JSON, no markdown, no code fences, no preamble. Your entire response must be parseable by JSON.parse().'}]},
+        contents:[{role:'user',parts:[{text:prompt}]}],
+        generationConfig:{maxOutputTokens:1200,temperature:0.4,responseMimeType:'application/json'}
+      })
+    });
+
+    if(!resp.ok){
+      let errMsg='';
+      try{ const errBody=await resp.json(); errMsg=errBody?.error?.message||''; }catch(e){}
+      throw new Error('Gemini API error '+resp.status+(errMsg?': '+errMsg:''));
+    }
+
+    // Stream the response (SSE) and collect the full text
+    let fullText='';
+    let displayBuffer='';
+    const streamTextEl=document.getElementById('aiStreamText');
+    const reader=resp.body.getReader();
+    const decoder=new TextDecoder();
+    let sseBuffer='';
+
+    while(true){
+      const {done,value}=await reader.read();
+      if(done) break;
+      sseBuffer+=decoder.decode(value,{stream:true});
+      const lines=sseBuffer.split('\n');
+      sseBuffer=lines.pop(); // keep any incomplete trailing line for next chunk
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const dataStr=line.slice(6).trim();
+        if(!dataStr||dataStr==='[DONE]') continue;
+        try{
+          const evt=JSON.parse(dataStr);
+          const piece=evt?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';
+          if(piece){
+            fullText+=piece;
+            // Show a live excerpt from "explanation" field if we can find it
+            const exMatch=fullText.match(/"explanation"\s*:\s*"([^"]{10,})/);
+            if(exMatch && streamTextEl){
+              displayBuffer=exMatch[1].replace(/\\n/g,' ').replace(/\\"/g,'"');
+              streamTextEl.innerHTML=displayBuffer+'<span class="stream-cursor"></span>';
+            }
+          }
+        } catch(e){ /* ignore parse errors on partial SSE lines */ }
+      }
+    }
+
+    const cleaned=fullText.replace(/```json\n?|```\n?/g,'').trim();
+    const parsed=JSON.parse(cleaned);
+    parsed.__fallback=false;
+    // Ensure new DNA fields exist even if model omits them
+    const dnaDefaults={socialProofManipulation:30,emotionalManipulation:30,financialPressure:30,privacySignals:60};
+    parsed.behaviorDNA={...dnaDefaults,...parsed.behaviorDNA};
+    const expDefaults={socialProofManipulation:'No strong signal.',emotionalManipulation:'No strong signal.',financialPressure:'No strong signal.',privacySignals:'No strong signal.'};
+    parsed.behaviorDNAExplanations={...expDefaults,...parsed.behaviorDNAExplanations};
+    return parsed;
+  }catch(e){
+    console.error('Gemini analysis failed:',e);
+    return generateAiFallback(heur);
+  }
+}
+
+function generateAiFallback(heur){
+  const riskItems=heur.evidence.filter(e=>e.severity==='risk');
+  const riskHeavy=riskItems.length;
+  const base=heur.isKnownSafe?15:riskHeavy>=3?75:riskHeavy>=1?50:30;
+  const note='AI read unavailable — this estimate is derived from structural URL signals only.';
+
+  // Derive DNA dimensions from actual signals rather than using one flat base value
+  const hasUrgency=heur.urgencyCount>0;
+  const hasGovImpersonation=heur.govImpersonation;
+  const hasBrandImpersonation=riskItems.some(e=>e.title.includes('impersonation'));
+  const hasCrypto=heur.cryptoSignals;
+  const hasFinancial=heur.financialScamSignals;
+  const hasIp=heur.isIp;
+  const hasHighRiskTld=HIGH_RISK_TLDS.includes(heur.tld);
+
+  const urgencyPressure=hasUrgency?Math.min(90,base+25):Math.max(5,base-20);
+  const fearManipulation=hasGovImpersonation||hasUrgency?Math.min(88,base+20):Math.max(5,base-15);
+  const authorityExploitation=hasGovImpersonation||hasBrandImpersonation?Math.min(85,base+20):Math.max(5,base-20);
+  const financialPressure=hasFinancial||hasCrypto?Math.min(88,base+20):Math.max(5,base-5);
+  const darkPatternIntensity=hasIp||heur.hasPunycode||heur.hasHomograph?Math.min(88,base+18):base;
+  const privacySignals=Math.max(5,100-(base+(hasHighRiskTld?10:0)+(hasIp?10:0)));
+  const transparencyScore=Math.max(5,100-(base+(hasBrandImpersonation?10:0)));
+
+  return{
+    explanation:"VEIL's AI behavioral layer didn't return a result for this scan. The scores below are estimated from structural URL signals alone — treat them as lower-confidence than a full AI read.",
+    verdictSummary:heur.isKnownSafe?'Recognized safe domain — structural signals are clean.':riskHeavy>=3?'Multiple structural risk signals detected — high caution advised.':'Limited signals — manual review recommended.',
+    scamProbability:base,manipulationRisk:Math.max(10,base-10),contentSafety:Math.max(5,100-base),
+    keyRisks:riskItems.slice(0,3).map(e=>e.title),
+    recommendation:heur.isKnownSafe?'Safe to visit':riskHeavy>=3?'High risk — avoid':'Proceed with caution',
+    behaviorDNA:{
+      urgencyPressure,fearManipulation,authorityExploitation,
+      scarcityManipulation:hasFinancial?Math.min(80,base+15):Math.max(5,base-10),
+      darkPatternIntensity,
+      socialProofManipulation:Math.max(5,base-10),
+      emotionalManipulation:Math.max(5,fearManipulation-5),
+      financialPressure,privacySignals,transparencyScore
+    },
+    behaviorDNAExplanations:{
+      urgencyPressure:hasUrgency?`Urgency keywords detected in URL path — ${note}`:note,
+      fearManipulation:hasGovImpersonation?`Government impersonation detected — ${note}`:note,
+      authorityExploitation:hasBrandImpersonation?`Brand impersonation signal present — ${note}`:note,
+      scarcityManipulation:note,darkPatternIntensity:hasIp?`IP-based URL is a structural dark pattern — ${note}`:note,
+      socialProofManipulation:note,emotionalManipulation:note,
+      financialPressure:hasFinancial||hasCrypto?`Financial/crypto scam language in URL — ${note}`:note,
+      privacySignals:note,transparencyScore:note
+    },
+    __fallback:true
+  };
+}
+
+// ─── TRANSPARENT, COMPUTED TRUST SCORE v2.0 ─────────────────────────────────
+// Every point is traceable to a real signal (URL heuristic / RDAP / DNS)
+// or a tagged AI judgment. No fabricated "28 signals" claims.
+function computeTrustScore(heur,rdap,dns,ai){
+  let score=50;
+  const factors=[];
+
+  // Real URL heuristic signals
+  heur.evidence.forEach(e=>{
+    if(e.points===0) return;
+    score+=e.points;
+    factors.push({label:e.title,points:e.points,tag:'real'});
+  });
+
+  // Real RDAP domain age signals — smooth curve, no cliff edges
+  if(rdap && rdap.available && rdap.ageDays!=null){
+    let pts=0;
+    const d=rdap.ageDays;
+    if(d>365*10)       pts=18;
+    else if(d>365*5)   pts=14;
+    else if(d>365*2)   pts=9;
+    else if(d>365)     pts=5;
+    else if(d>270)     pts=2;
+    else if(d>180)     pts=-3;
+    else if(d>90)      pts=-7;
+    else if(d>60)      pts=-11;
+    else if(d>30)      pts=-15;
+    else               pts=-20;
+    if(pts!==0){
+      score+=pts;
+      factors.push({label:`RDAP domain age: ${rdap.age}`,points:pts,tag:'real'});
+    }
+  }
+
+  // Real DNS signals (SPF, DMARC, DNSSEC)
+  if(dns && dns.available){
+    if(dns.spfPresent===true){
+      score+=4;
+      factors.push({label:'SPF record present — domain has email authentication',points:4,tag:'real'});
+    } else if(dns.spfPresent===false){
+      score-=5;
+      factors.push({label:'SPF record missing — domain can be more easily spoofed',points:-5,tag:'real'});
+    }
+    if(dns.dmarcPresent===true){
+      score+=4;
+      factors.push({label:'DMARC record present — email policy enforcement active',points:4,tag:'real'});
+    } else if(dns.dmarcPresent===false){
+      score-=5;
+      factors.push({label:'DMARC record missing — email spoofing risk is higher',points:-5,tag:'real'});
+    }
+    if(dns.dnssecEnabled){
+      score+=4;
+      factors.push({label:'DNSSEC enabled — DNS responses are cryptographically signed',points:4,tag:'real'});
+    }
+    if(!dns.hasA && !heur.isKnownSafe){
+      score-=8;
+      factors.push({label:'No DNS A record resolved — domain may not host a live site',points:-8,tag:'real'});
+    }
+  }
+
+  // AI behavioral signals (clearly tagged as AI)
+  if(ai && !ai.__fallback){
+    const dna=ai.behaviorDNA;
+    const manipFields=['urgencyPressure','fearManipulation','authorityExploitation',
+      'scarcityManipulation','darkPatternIntensity','socialProofManipulation',
+      'emotionalManipulation','financialPressure'];
+    const avgManip=manipFields.reduce((s,k)=>s+(dna[k]||30),0)/manipFields.length;
+    const manipPts=Math.round((45-avgManip)/3);
+    score+=manipPts;
+    factors.push({label:'AI read: manipulation pattern level (avg across all DNA dimensions)',points:manipPts,tag:'ai'});
+
+    const transPts=Math.round(((dna.transparencyScore||50)-50)/4);
+    score+=transPts;
+    factors.push({label:'AI read: transparency & legitimacy signals',points:transPts,tag:'ai'});
+
+    const privacyPts=Math.round(((dna.privacySignals||50)-50)/5);
+    score+=privacyPts;
+    factors.push({label:'AI read: privacy signal strength',points:privacyPts,tag:'ai'});
+
+    const scamPts=Math.round((45-ai.scamProbability)/3);
+    score+=scamPts;
+    factors.push({label:'AI read: scam pattern likelihood',points:scamPts,tag:'ai'});
+  } else {
+    factors.push({label:'AI behavioral read unavailable for this scan',points:0,tag:'pending'});
+  }
+
+  score=Math.max(2,Math.min(98,Math.round(score)));
+  return {score,factors};
+}
+
+function scoreToLevel(score){
+  return score>80?'Safe':score>60?'Mostly Safe':score>35?'Suspicious':'Dangerous';
+}
+
+// ─── DYNAMIC, HONEST CONFIDENCE SCORE v2.0 ──────────────────────────────────
+// Confidence depends on actual evidence gathered, stated explicitly.
+function computeConfidence(heur,rdap,dns,aiOk){
+  const realSignals=heur.evidence.filter(e=>e.severity==='risk'||e.severity==='safe').length;
+  let pts=35+Math.min(25,realSignals*4);
+  if(rdap && rdap.available) pts+=12; else pts-=5;
+  if(dns && dns.available) pts+=10; else pts-=3;
+  if(aiOk) pts+=12; else pts-=8;
+  // High-confidence signals boost
+  if(heur.isKnownSafe) pts+=5;
+  if(heur.hasHomograph||heur.hasPunycode) pts+=3; // High-certainty risk signal
+  pts=Math.max(30,Math.min(97,Math.round(pts)));
+
+  const parts=[];
+  parts.push(`${realSignals} structural URL signal${realSignals===1?'':'s'}`);
+  if(rdap && rdap.available) parts.push('live RDAP registry lookup');
+  if(dns && dns.available) parts.push(`DNS intelligence (SPF: ${dns.spfPresent?'✓':'✗'}, DMARC: ${dns.dmarcPresent?'✓':'✗'})`);
+  if(aiOk) parts.push('AI behavioral read');
+
+  const notAvail=[];
+  if(!rdap||!rdap.available) notAvail.push('RDAP registry');
+  if(!dns||!dns.available) notAvail.push('DNS lookup');
+  if(!aiOk) notAvail.push('AI read');
+
+  let explain=`Based on: ${parts.join(', ')}.`;
+  if(notAvail.length) explain+=` Unavailable: ${notAvail.join(', ')} — this limits certainty.`;
+
+  return {pct:pts,explain};
+}
+
+function buildSignals(heur,rdap,dns,ai){
+  let domainReputation=55;
+  heur.evidence.forEach(e=>domainReputation+=e.points);
+  if(rdap && rdap.available && rdap.ageDays!=null){
+    if(rdap.ageDays>365*5) domainReputation+=14;
+    else if(rdap.ageDays<60) domainReputation-=15;
+  }
+  if(dns && dns.available){
+    if(dns.spfPresent) domainReputation+=4;
+    if(dns.dmarcPresent) domainReputation+=4;
+    if(dns.dnssecEnabled) domainReputation+=4;
+  }
+  domainReputation=Math.max(0,Math.min(100,domainReputation));
+  const sslSecurity=heur.isHttps?88:5;
+  return {
+    domainReputation,sslSecurity,
+    scamProbability:ai.scamProbability||50,
+    manipulationRisk:ai.manipulationRisk||50,
+    contentSafety:ai.contentSafety||50
+  };
+}
+
+async function startScan(){
+  const url=document.getElementById('urlInput').value.trim();
+  if(!url){showToast('❗','Please paste a URL to scan.');return;}
+
+  // ── Input sanitisation & edge case guards ────────────────────────
+  const lc=url.toLowerCase();
+  if(lc.startsWith('javascript:')||lc.startsWith('vbscript:')){
+    showToast('🚫','Script-injection URI detected — VEIL will not execute this.');return;
+  }
+  if(lc.startsWith('data:')){
+    showToast('🚫','Data URIs cannot be scanned as URLs.');return;
+  }
+  if(lc.startsWith('file://')){
+    showToast('❗','Local file paths cannot be scanned.');return;
+  }
+  const localhostPat=/^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(:\d+)?(\/|$)/i;
+  if(localhostPat.test(url)){
+    showToast('❗','Localhost/loopback addresses cannot be scanned.');return;
+  }
+
+  let validUrl=url;
+  if(!url.startsWith('http://') && !url.startsWith('https://')){
+    validUrl='https://'+url;
+  }
+
+  // Validate the URL is parse-able before proceeding
+  try{ new URL(validUrl); }
+  catch(e){showToast('❗','That doesn\'t look like a valid URL. Try including https://');return;}
+
+  currentUrl=validUrl;
+
+  document.getElementById('scanBtn').disabled=true;
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('scanAnim').classList.add('show');
+
+  // animate steps — each message corresponds to a real operation below
+  const stepsEl=document.getElementById('scanSteps');
+  stepsEl.innerHTML='';
+  let stepIndex=0;
+
+  async function tickStep(){
+    if(stepIndex>=SCAN_MESSAGES.length) return;
+    const el=document.createElement('div');
+    el.className='scan-step';
+    el.style.animationDelay='0s';
+    el.innerHTML=`<span>${SCAN_MESSAGES[stepIndex]}</span>`;
+    stepsEl.appendChild(el);
+    if(stepIndex===SCAN_MESSAGES.length-1) el.classList.add('done');
+    stepIndex++;
+  }
+
+  // Step 1: URL heuristics (instant)
+  tickStep();
+  const heur=runUrlHeuristics(validUrl);
+
+  // Step 2: RDAP
+  await new Promise(r=>setTimeout(r,300));
+  tickStep();
+  const rdapPromise=fetchRdap(heur.host);
+
+  // Step 3: DNS-over-HTTPS
+  await new Promise(r=>setTimeout(r,200));
+  tickStep();
+  const dnsPromise=fetchDnsIntelligence(heur.host);
+
+  // Step 4: SSL / HTTPS note (already covered by heuristics, just visual)
+  await new Promise(r=>setTimeout(r,200));
+  tickStep();
+
+  // Step 5: AI
+  await new Promise(r=>setTimeout(r,200));
+  tickStep();
+  const [rdap,dns]=await Promise.all([rdapPromise,dnsPromise]);
+  const ai=await analyzeWithAI(validUrl,heur,dns);
+
+  // Step 6: Score
+  await new Promise(r=>setTimeout(r,150));
+  tickStep();
+
+  // Step 7: Assemble
+  await new Promise(r=>setTimeout(r,150));
+  tickStep();
+  await new Promise(r=>setTimeout(r,200));
+
+  const {score,factors}=computeTrustScore(heur,rdap,dns,ai);
+  const level=scoreToLevel(score);
+  const confidence=computeConfidence(heur,rdap,dns,!ai.__fallback);
+  const signals=buildSignals(heur,rdap,dns,ai);
+
+  document.getElementById('scanAnim').classList.remove('show');
+  stepsEl.innerHTML='';
+  document.getElementById('scanBtn').disabled=false;
+
+  // Show fallback banner if AI didn't respond
+  const banner=document.getElementById('aiFallbackBanner');
+  if(ai.__fallback) banner.classList.add('show');
+  else banner.classList.remove('show');
+
+  // Show share button
+  document.getElementById('shareBtn').style.display='inline-flex';
+
+  renderResults(validUrl,{score,level,explanation:ai.explanation,verdictSummary:ai.verdictSummary,
+    keyRisks:ai.keyRisks||[],recommendation:ai.recommendation||'',
+    factors,confidence,signals,
+    behaviorDNA:ai.behaviorDNA,behaviorDNAExplanations:ai.behaviorDNAExplanations,
+    heur,rdap,dns});
+  saveHistory(validUrl,score,level);
+}
+
+function renderResults(url,d){
+  document.getElementById('scannedUrl').textContent=url.length>50?url.substring(0,50)+'…':url;
+
+  // ORB
+  const score=Math.max(0,Math.min(100,d.score));
+  const arc=427*(1-score/100);
+  const orbArc=document.getElementById('orbArc');
+  setTimeout(()=>{ orbArc.style.strokeDashoffset=arc; },100);
+
+  const colors={Safe:'#10b981','Mostly Safe':'#60a5fa',Suspicious:'#f59e0b',Dangerous:'#ef4444'};
+  orbArc.style.stroke=colors[d.level]||'#3b82f6';
+  document.getElementById('orbScore').textContent=score;
+  document.getElementById('orbLevel').textContent=d.level.toUpperCase();
+
+  const badge=document.getElementById('statusBadge');
+  badge.textContent=d.level;
+  badge.className='status-badge '+{Safe:'status-safe','Mostly Safe':'status-mostly',Suspicious:'status-suspicious',Dangerous:'status-danger'}[d.level];
+
+  // CONFIDENCE
+  document.getElementById('confidenceBox').innerHTML=`
+    <div class="confidence-top">
+      <span class="confidence-label">Confidence</span>
+      <span class="confidence-pct">${d.confidence.pct}%</span>
+    </div>
+    <div class="confidence-bar"><div class="confidence-fill" style="width:${d.confidence.pct}%"></div></div>
+    <div class="confidence-explain">${d.confidence.explain}</div>
+  `;
+
+  // AI EXPLANATION + VERDICT
+  const verdictHtml=d.verdictSummary?`<div style="font-size:12px;color:var(--text3);margin-top:6px;font-style:italic">${d.verdictSummary}</div>`:'';
+  const recommendationColors={'Safe to visit':'#10b981','Proceed with caution':'#f59e0b','High risk — avoid':'#ef4444','Dangerous — do not visit':'#ef4444'};
+  const recColor=recommendationColors[d.recommendation]||'var(--text2)';
+  const recHtml=d.recommendation?`<div style="margin-top:8px;display:flex;align-items:center;gap:6px"><span style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3)">Recommendation</span><span style="font-size:13px;font-weight:600;color:${recColor}">${d.recommendation}</span></div>`:'';
+
+  const keyRisksHtml=d.keyRisks&&d.keyRisks.length?`<div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap">${d.keyRisks.map(r=>`<span style="font-size:11px;background:rgba(239,68,68,0.1);color:#fca5a5;border:1px solid rgba(239,68,68,0.2);border-radius:6px;padding:2px 8px">⚠ ${r}</span>`).join('')}</div>`:'';
+
+  document.getElementById('aiExplain').innerHTML=`
+    <div class="ai-explain-label">🤖 AI Behavioral Read <span class="tag tag-ai">AI</span></div>
+    <div class="ai-explain-text">${d.explanation}</div>
+    ${verdictHtml}${recHtml}${keyRisksHtml}
+  `;
+
+  // CONTRIBUTING FACTORS
+  document.getElementById('factorList').innerHTML=d.factors.map(f=>{
+    const sign=f.points>0?'+':f.points<0?'':'';
+    const cls=f.points>0?'pts-pos':f.points<0?'pts-neg':'';
+    const tagHtml=f.tag==='real'?'<span class="tag tag-real">Real</span>':f.tag==='ai'?'<span class="tag tag-ai">AI</span>':'<span class="tag tag-pending">N/A</span>';
+    return `<div class="factor-row">
+      ${tagHtml}
+      <span class="factor-label">${f.label}</span>
+      <span class="factor-pts ${cls}">${f.points===0?'—':sign+f.points}</span>
+    </div>`;
+  }).join('');
+
+  // SIGNALS
+  const sigs=d.signals;
+  const sigMeta={
+    domainReputation:{label:'Domain Reputation',tag:'real'},
+    sslSecurity:{label:'SSL / Encryption',tag:'real'},
+    contentSafety:{label:'Content Safety',tag:'ai'},
+    scamProbability:{label:'Scam Probability',tag:'ai'},
+    manipulationRisk:{label:'Manipulation Risk',tag:'ai'}
+  };
+  const sigColors={
+    domainReputation:s=>s>60?'#10b981':s>35?'#f59e0b':'#ef4444',
+    sslSecurity:s=>s>60?'#10b981':s>35?'#f59e0b':'#ef4444',
+    contentSafety:s=>s>60?'#10b981':s>35?'#f59e0b':'#ef4444',
+    scamProbability:s=>s<35?'#10b981':s<65?'#f59e0b':'#ef4444',
+    manipulationRisk:s=>s<35?'#10b981':s<65?'#f59e0b':'#ef4444',
+  };
+  document.getElementById('signalsGrid').innerHTML=Object.entries(sigs).map(([k,v])=>{
+    const pct=Math.max(0,Math.min(100,v));
+    const isRisk=k==='scamProbability'||k==='manipulationRisk';
+    const color=sigColors[k]?sigColors[k](pct):'#3b82f6';
+    const displayVal=isRisk?`${pct}%`:pct>75?'High':pct>50?'Good':pct>25?'Low':'Poor';
+    const meta=sigMeta[k]||{label:k,tag:'pending'};
+    const tagHtml=meta.tag==='real'?'<span class="tag tag-real">Real</span>':'<span class="tag tag-ai">AI</span>';
+    return`<div class="signal-item">
+      <div class="signal-header">
+        <span class="signal-name">${meta.label} ${tagHtml}</span>
+        <span class="signal-val" style="color:${color}">${displayVal}</span>
+      </div>
+      <div class="signal-bar">
+        <div class="signal-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // EVIDENCE DETECTED
+  const ev=d.heur.evidence;
+  document.getElementById('evidenceList').innerHTML=ev.length?ev.map(e=>`
+    <div class="evidence-item sev-${e.severity}">
+      <span class="evidence-icon">${e.icon}</span>
+      <div>
+        <div class="evidence-title">${e.title}${e.confidence?` <span style="font-size:10px;color:var(--text3);font-weight:400">— ${e.confidence} confidence</span>`:''}</div>
+        <div class="evidence-detail">${e.detail}</div>
+      </div>
+    </div>
+  `).join(''):'<div class="evidence-empty">No findings.</div>';
+
+  // BEHAVIOR DNA — 10 dimensions
+  const dna=d.behaviorDNA;
+  const exp=d.behaviorDNAExplanations||{};
+  const dnaLabels={
+    urgencyPressure:'Urgency Pressure',
+    fearManipulation:'Fear Manipulation',
+    authorityExploitation:'Authority Exploitation',
+    scarcityManipulation:'Scarcity Manipulation',
+    darkPatternIntensity:'Dark Pattern Intensity',
+    socialProofManipulation:'Social Proof Manipulation',
+    emotionalManipulation:'Emotional Manipulation',
+    financialPressure:'Financial Pressure',
+    privacySignals:'Privacy Signals',
+    transparencyScore:'Transparency'
+  };
+  const dnaGoodKeys=['privacySignals','transparencyScore']; // Higher = safer
+  document.getElementById('dnaItems').innerHTML=Object.entries(dna).map(([k,v])=>{
+    if(!(k in dnaLabels)) return '';
+    const pct=Math.max(0,Math.min(100,v));
+    const isGood=dnaGoodKeys.includes(k);
+    const color=isGood?(pct>60?'#10b981':pct>30?'#f59e0b':'#ef4444'):(pct<30?'#10b981':pct<65?'#f59e0b':'#ef4444');
+    return`<div class="dna-block">
+      <div class="dna-row">
+        <span class="dna-name">${dnaLabels[k]||k}</span>
+        <div class="dna-bar-wrap"><div class="dna-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <span class="dna-pct" style="color:${color}">${pct}%</span>
+      </div>
+      ${exp[k]?`<p class="dna-explain">${exp[k]}</p>`:''}
+    </div>`;
+  }).join('');
+
+  // DOMAIN INTELLIGENCE — now includes DNS data
+  const h=d.heur, rdap=d.rdap, dns=d.dns;
+  const nsLabel=dns&&dns.available&&dns.nameservers.length?dns.nameservers.join(', '):'Unavailable';
+  const spfLabel=dns&&dns.available?(dns.spfPresent?'Present ✓':(dns.spfPresent===false?'Missing ✗':'Unavailable')):'Unavailable';
+  const dmarcLabel=dns&&dns.available?(dns.dmarcPresent?'Present ✓':(dns.dmarcPresent===false?'Missing ✗':'Unavailable')):'Unavailable';
+  const dnssecLabel=dns&&dns.available?(dns.dnssecEnabled?'Enabled ✓':'Not detected'):'Unavailable';
+  const mxLabel=dns&&dns.available&&dns.hasMx?dns.mxRecords[0]:'Unavailable';
+  const aLabel=dns&&dns.available&&dns.hasA?dns.aRecords.slice(0,2).join(', '):'Unavailable';
+
+  const domainItems=[
+    {label:'Protocol',val:h.isHttps?'HTTPS (encrypted)':'HTTP (not encrypted)'},
+    {label:'Hostname',val:h.host||'—'},
+    {label:'TLD Risk Tier',val:HIGH_RISK_TLDS.includes(h.tld)?`Elevated (.${h.tld})`:'Standard'},
+    {label:'Subdomain Depth',val:`${h.subdomainCount} level${h.subdomainCount===1?'':'s'}`},
+    {label:'Curated Recognition',val:h.isKnownSafe?'Recognized domain':'Not in curated list'},
+    {label:'A Record (IP)',val:aLabel},
+    {label:'Nameservers',val:nsLabel.length>40?nsLabel.substring(0,40)+'…':nsLabel},
+    {label:'SPF Record',val:spfLabel},
+    {label:'DMARC Policy',val:dmarcLabel},
+    {label:'DNSSEC',val:dnssecLabel},
+    {label:'MX (Mail Exchange)',val:mxLabel.length>40?mxLabel.substring(0,40)+'…':mxLabel},
+    {label:'Registrar',val:(rdap&&rdap.available)?rdap.registrar:'Unavailable'},
+    {label:'Domain Created',val:(rdap&&rdap.available)?rdap.created:'Unavailable'},
+    {label:'Domain Age',val:(rdap&&rdap.available)?rdap.age:'Unavailable'},
+    {label:'Registry Status',val:(rdap&&rdap.available)?rdap.status:'Unavailable'},
+  ];
+  document.getElementById('domainGrid').innerHTML=domainItems.map(it=>`
+    <div class="domain-item">
+      <div class="domain-item-label">${it.label}</div>
+      <div class="domain-item-val${(it.val==='Unavailable'||it.val==='Not detected')?' unavailable':''}">${it.val}</div>
+    </div>
+  `).join('')+`
+    <div class="rdap-status" style="grid-column:1/-1">
+      ${(rdap&&rdap.available)?'✓ Live RDAP lookup succeeded.':'⚠ RDAP unavailable — shows "Unavailable" rather than guessing.'}
+      ${(dns&&dns.available)?' ✓ DNS-over-HTTPS lookup succeeded.':' ⚠ DNS lookup unavailable.'}
+    </div>
+  `;
+
+  // COMMUNITY (async — loads shared cross-user reports)
+  renderCommunityTab(url);
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  // reset tabs
+  document.querySelectorAll('.analysis-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.analysis-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.analysis-tab')[0].classList.add('active');
+  document.getElementById('tab-overview').classList.add('active');
+}
+
+// ─── SHARED COMMUNITY REPORTS (cross-user, persistent storage) ───────
+// Reports are written to shared storage so every user sees the same totals.
+// Key format: "veil_report:{normalizedUrl}" → JSON aggregate object
+// {counts:{scam:N,...}, total:N, lastReport:timestamp}
+
+function normalizeUrlForKey(url){
+  // Strip trailing slash, lowercase, remove www. — so reports group correctly
+  try{
+    const u=new URL(url);
+    return (u.hostname.replace(/^www\./,'')+u.pathname).toLowerCase().replace(/\/$/,'');
+  } catch(e){ return url.toLowerCase().slice(0,120); }
+}
+
+function safeStorageKey(url){
+  // storage keys: no spaces, slashes, quotes — replace with safe chars
+  return 'veil_report:'+normalizeUrlForKey(url).replace(/[/\s'"]/g,'-').slice(0,190);
+}
+
+async function loadCommunityData(url){
+  const key=safeStorageKey(url);
+  try{
+    const result=await window.storage.get(key,true); // shared=true
+    if(result && result.value){
+      return JSON.parse(result.value);
+    }
+  } catch(e){ /* key not found or storage unavailable */ }
+  return {counts:{},total:0,lastReport:null};
+}
+
+async function saveCommunityReport(url,type){
+  const key=safeStorageKey(url);
+  const data=await loadCommunityData(url);
+  data.counts[type]=(data.counts[type]||0)+1;
+  data.total=(data.total||0)+1;
+  data.lastReport=Date.now();
+  try{
+    await window.storage.set(key,JSON.stringify(data),true); // shared=true
+    return true;
+  } catch(e){ return false; }
+}
+
+async function renderCommunityTab(url){
+  const wrap=document.getElementById('communityWrap');
+  if(!wrap) return;
+  wrap.innerHTML=`<div class="community-stat"><span class="community-label">Loading community reports…</span><span class="community-val skeleton" style="width:30px;height:14px;display:inline-block"></span></div>`;
+
+  const typeLabels={scam:'Scam / Fraud',phishing:'Phishing',fake:'Fake Store',manipulation:'Manipulation',malware:'Malware',other:'Other Issue'};
+
+  let data;
+  try{
+    data=await loadCommunityData(url);
+  } catch(e){
+    data={counts:{},total:0,lastReport:null};
+  }
+
+  const total=data.total||0;
+  const counts=data.counts||{};
+  const lastStr=data.lastReport?new Date(data.lastReport).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'Never';
+
+  const totalColor=total>5?'#fca5a5':total>0?'#fcd34d':'#34d399';
+  let rows=`<div class="community-stat"><span class="community-label">Community reports — all users, this URL</span><span class="community-val" style="color:${totalColor};font-size:1.1rem;font-weight:600">${total}</span></div>`;
+
+  if(total>0){
+    rows+=`<div class="community-stat"><span class="community-label">Last report filed</span><span class="community-val">${lastStr}</span></div>`;
+    Object.entries(counts).forEach(([k,v])=>{
+      if(v>0) rows+=`<div class="community-stat"><span class="community-label">${typeLabels[k]||k}</span><span class="community-val" style="color:#fca5a5">${v}</span></div>`;
+    });
+  }
+
+  const storageNote=typeof window.storage!=='undefined'
+    ?'Reports are shared across all VEIL users in real time via persistent storage.'
+    :'Shared storage unavailable — reports are local to this browser only.';
+
+  wrap.innerHTML=rows+`<div class="community-note">🌐 <strong>Live community data.</strong> ${storageNote}</div>`;
+}
+
+function switchTab(name, el){
+  document.querySelectorAll('.analysis-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.analysis-panel').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ─── HISTORY ───────────────────────────────────────────────────────
+function saveHistory(url,score,level){
+  const item={url,score,level,date:Date.now()};
+  scanHistory=scanHistory.filter(h=>h.url!==url);
+  scanHistory.unshift(item);
+  if(scanHistory.length>10)scanHistory=scanHistory.slice(0,10);
+  localStorage.setItem('veil_history',JSON.stringify(scanHistory));
+  renderHistory();
+}
+
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  const section=document.getElementById('historySection');
+  if(scanHistory.length===0){section.classList.remove('show');return;}
+  section.classList.add('show');
+  const cls={Safe:'hb-safe','Mostly Safe':'hb-mostly',Suspicious:'hb-suspicious',Dangerous:'hb-danger'};
+  list.innerHTML='';
+  scanHistory.forEach(function(h){
+    const div=document.createElement('div');
+    div.className='history-item';
+    div.dataset.url=h.url;
+    div.innerHTML=
+      '<span class="history-url">'+escHtml(h.url)+'</span>'+
+      '<span class="history-score-badge '+(cls[h.level]||'hb-mostly')+'">'+h.score+'</span>';
+    div.addEventListener('click',function(){
+      document.getElementById('urlInput').value=this.dataset.url;
+      startScan();
+    });
+    list.appendChild(div);
+  });
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function clearHistory(){
+  scanHistory=[];
+  localStorage.removeItem('veil_history');
+  renderHistory();
+}
+
+renderHistory();
+
+// ─── EXPOSE FUNCTIONS GLOBALLY (needed for inline onclick attrs) ────
+const DEMO_URLS=[
+  {url:'https://github.com',label:'github.com — established developer platform'},
+  {url:'https://secure-login-amaz0n-deals.xyz/gift-card-winner',label:'Fake shopping / gift-card scam pattern'},
+  {url:'https://paypal-support-verify.tk/account/confirm-identity',label:'Phishing / brand-impersonation (.tk)'},
+  {url:'https://wikipedia.org',label:'wikipedia.org — well-known reference site'},
+  {url:'https://1rs-tax-refund-claim.work/urgent-verify/action-required',label:'Government impersonation / urgency pattern'},
+  {url:'https://crypto-airdrop-wallet-whitelist.xyz/mint',label:'Crypto wallet-drain / NFT scam pattern'},
+];
+
+async function runInvestorDemo(){
+  if(demoRunning) return;
+  demoRunning=true;
+  const btn=document.getElementById('demoBtn');
+  const badge=document.getElementById('demoLiveBadge');
+  const progress=document.getElementById('demoProgress');
+  btn.disabled=true;
+  badge.classList.add('show');
+  for(let i=0;i<DEMO_URLS.length;i++){
+    progress.textContent=`Case ${i+1} of ${DEMO_URLS.length}: ${DEMO_URLS[i].label}`;
+    document.getElementById('urlInput').value=DEMO_URLS[i].url;
+    await new Promise(r=>setTimeout(r,1600)); // let viewers read the case label before it scans
+    await startScan();
+    await new Promise(r=>setTimeout(r,5500)); // hold on the finished result before moving to the next case
+  }
+  progress.textContent='Demo complete — try your own URL above.';
+  badge.classList.remove('show');
+  btn.disabled=false;
+  demoRunning=false;
+}
+
+window.startScan = startScan;
+window.fillUrl = fillUrl;
+window.switchTab = switchTab;
+window.runInvestorDemo = runInvestorDemo;
+window.clearHistory = clearHistory;
+window.openReport = openReport;
+window.closeReport = closeReport;
+window.selectReport = selectReport;
+window.submitReport = submitReport;
+window.veilScroll = veilScroll;
+window.featureSlide = featureSlide;
+window.howStep = howStep;
+
+// ─── REPORT MODAL ──────────────────────────────────────────────────
+function openReport(){
+  document.getElementById('reportModal').classList.add('show');
+  selectedReportType='';
+  document.querySelectorAll('.report-type').forEach(t=>t.classList.remove('selected'));
+}
+function closeReport(){document.getElementById('reportModal').classList.remove('show')}
+function selectReport(el,type){
+  selectedReportType=type;
+  document.querySelectorAll('.report-type').forEach(t=>t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+async function submitReport(){
+  if(!selectedReportType){showToast('❗','Please select a report type.');return;}
+  closeReport();
+  showToast('⏳','Submitting report…');
+  const ok=await saveCommunityReport(currentUrl,selectedReportType);
+  if(currentUrl) renderCommunityTab(currentUrl);
+  if(ok){
+    showToast('✅','Report submitted — visible to all VEIL users. Thank you.');
+  } else {
+    // Fallback: still save locally so user experience isn't broken
+    const reports=JSON.parse(localStorage.getItem('veil_reports')||'[]');
+    reports.push({url:currentUrl,type:selectedReportType,date:Date.now()});
+    localStorage.setItem('veil_reports',JSON.stringify(reports));
+    showToast('✅','Report submitted (saved locally — shared storage unavailable).');
+  }
+}
+
+document.getElementById('reportModal').addEventListener('click',function(e){
+  if(e.target===this)closeReport();
+});
+
+// ─── TOAST ─────────────────────────────────────────────────────────
+function showToast(icon,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastIcon').textContent=icon;
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ─── NAV ACTIVE STATE ──────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  const nav=document.querySelector('nav');
+  if(nav) nav.style.background=window.scrollY>50?'rgba(3,8,16,0.92)':'rgba(3,8,16,0.7)';
+});
+
+// ─── MOBILE NAV ────────────────────────────────────────────────────
+// ─── GEMINI API KEY MANAGEMENT ───────────────────────────────────────────
+const GEMINI_KEY_STORAGE='veil_gemini_api_key';
+function getGeminiKey(){
+  return localStorage.getItem(GEMINI_KEY_STORAGE)||'';
+}
+function openGeminiKeyModal(){
+  const modal=document.getElementById('geminiKeyModal');
+  const input=document.getElementById('geminiKeyInput');
+  const status=document.getElementById('geminiKeyStatus');
+  if(input) input.value=getGeminiKey();
+  if(status) status.textContent=getGeminiKey()?'A key is currently saved in this browser.':'';
+  if(modal) modal.style.display='flex';
+}
+function closeGeminiKeyModal(){
+  const modal=document.getElementById('geminiKeyModal');
+  if(modal) modal.style.display='none';
+}
+function saveGeminiKey(){
+  const input=document.getElementById('geminiKeyInput');
+  const status=document.getElementById('geminiKeyStatus');
+  const key=(input&&input.value||'').trim();
+  if(!key){
+    localStorage.removeItem(GEMINI_KEY_STORAGE);
+    if(status) status.textContent='Key cleared.';
+    return;
+  }
+  localStorage.setItem(GEMINI_KEY_STORAGE,key);
+  if(status) status.textContent='Key saved to this browser. Re-run a scan to use it.';
+  setTimeout(closeGeminiKeyModal,900);
+}
+
+function toggleMobileNav(){
+  const m=document.getElementById('mobileMenu');
+  m.classList.toggle('open');
+}
+function closeMobileNav(){
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+// Responsive nav CTA: show hamburger on mobile, button on desktop
+function updateNavLayout(){
+  const isNarrow=window.innerWidth<=600;
+  const desktopCta=document.getElementById('navCtaDesktop');
+  const hamburger=document.getElementById('navHamburger');
+  if(desktopCta) desktopCta.style.display=isNarrow?'none':'block';
+  if(hamburger) hamburger.style.display=isNarrow?'block':'none';
+}
+window.addEventListener('resize',updateNavLayout);
+updateNavLayout();
+
+// Close mobile menu on outside click
+document.addEventListener('click',function(e){
+  const menu=document.getElementById('mobileMenu');
+  const hamburger=document.getElementById('navHamburger');
+  if(menu&&menu.classList.contains('open')&&!menu.contains(e.target)&&!hamburger.contains(e.target)){
+    closeMobileNav();
+  }
+});
+
+// ─── SHARE RESULT ──────────────────────────────────────────────────
+function shareResult(){
+  if(!currentUrl) return;
+  const shareText=`I just scanned this URL with VEIL — check it out: ${currentUrl}`;
+  if(navigator.share){
+    navigator.share({title:'VEIL Trust Scan',text:shareText,url:currentUrl}).catch(()=>{});
+  } else {
+    // Fallback: copy the URL to clipboard
+    navigator.clipboard.writeText(currentUrl).then(()=>{
+      showToast('📋','URL copied to clipboard!');
+    }).catch(()=>{
+      showToast('🔗','Share: '+currentUrl.substring(0,40)+'…');
+    });
+  }
+}
+
+window.toggleMobileNav=toggleMobileNav;
+window.closeMobileNav=closeMobileNav;
+window.shareResult=shareResult;
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
