@@ -1,0 +1,2982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEIL — Digital Trust Intelligence Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════════════════════
+   VEIL v5 — Digital Trust Intelligence Platform
+   Design Language: Linear × Vercel × Stripe Dashboard × Cloudflare
+   Single-file, modular, production-ready architecture
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-0: #0a0c10; --bg-1: #0f1117; --bg-2: #14161f; --bg-3: #1a1d28;
+  --bg-4: #202431; --bg-5: #2a2e3d; --bg-6: #353a4d;
+  --surface-glass: rgba(15, 17, 23, 0.65);
+  --border-1: rgba(255,255,255,0.04); --border-2: rgba(255,255,255,0.07);
+  --border-3: rgba(255,255,255,0.10); --border-accent: rgba(59,130,246,0.25);
+  --text-0: #ffffff; --text-1: #e8eaf0; --text-2: #b4b8c5; --text-3: #7a7f8f;
+  --text-4: #4d5260; --text-5: #2e3240;
+  --accent-blue: #3b82f6; --accent-blue-2: #60a5fa; --accent-blue-glow: rgba(59,130,246,0.15);
+  --accent-teal: #0d9488; --accent-teal-2: #2dd4bf; --accent-teal-glow: rgba(13,148,136,0.15);
+  --accent-green: #10b981; --accent-green-2: #34d399; --accent-green-glow: rgba(16,185,129,0.15);
+  --accent-amber: #f59e0b; --accent-amber-2: #fbbf24; --accent-amber-glow: rgba(245,158,11,0.15);
+  --accent-red: #ef4444; --accent-red-2: #f87171; --accent-red-glow: rgba(239,68,68,0.15);
+  --accent-purple: #8b5cf6; --accent-purple-2: #a78bfa; --accent-purple-glow: rgba(139,92,246,0.15);
+  --accent-pink: #ec4899; --accent-pink-2: #f472b6;
+  --status-safe: #10b981; --status-safe-bg: rgba(16,185,129,0.08);
+  --status-warn: #f59e0b; --status-warn-bg: rgba(245,158,11,0.08);
+  --status-danger: #ef4444; --status-danger-bg: rgba(239,68,68,0.08);
+  --status-info: #3b82f6; --status-info-bg: rgba(59,130,246,0.08);
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 18px; --r-2xl: 24px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3); --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.5); --shadow-xl: 0 16px 48px rgba(0,0,0,0.6);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --sidebar-width: 240px; --sidebar-collapsed: 64px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.5;
+  color: var(--text-1); background: var(--bg-0);
+  -webkit-font-smoothing: antialiased; overflow: hidden;
+  height: 100vh; width: 100vw;
+}
+::selection { background: rgba(59,130,246,0.25); color: #fff; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-5); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bg-6); }
+
+.app-shell { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-width); height: 100vh; background: var(--bg-1);
+  border-right: 1px solid var(--border-1); display: flex; flex-direction: column;
+  flex-shrink: 0; transition: width 250ms var(--ease-out); position: relative; z-index: 50;
+}
+.sidebar.collapsed { width: var(--sidebar-collapsed); }
+.sidebar-brand {
+  display: flex; align-items: center; gap: 12px; padding: 18px 20px;
+  border-bottom: 1px solid var(--border-1);
+}
+.sidebar-brand-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 15px; color: #fff; font-family: var(--font-mono);
+  flex-shrink: 0; box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+}
+.sidebar-brand-text { font-size: 18px; font-weight: 800; color: var(--text-0); letter-spacing: -0.03em; white-space: nowrap; opacity: 1; transition: opacity 150ms; }
+.sidebar.collapsed .sidebar-brand-text { opacity: 0; width: 0; overflow: hidden; }
+.sidebar-brand-sub { font-size: 10px; font-weight: 500; color: var(--text-4); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; opacity: 1; transition: opacity 150ms; }
+.sidebar.collapsed .sidebar-brand-sub { opacity: 0; width: 0; overflow: hidden; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 10px; }
+.sidebar-section { margin-bottom: 8px; }
+.sidebar-section-label { font-size: 10px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 12px 6px; white-space: nowrap; opacity: 1; transition: opacity 150ms; }
+.sidebar.collapsed .sidebar-section-label { opacity: 0; height: 0; padding: 0; overflow: hidden; }
+.sidebar-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--r-md); cursor: pointer; transition: all 150ms; position: relative; margin-bottom: 2px; color: var(--text-3); text-decoration: none; white-space: nowrap; }
+.sidebar-item:hover { background: var(--bg-3); color: var(--text-1); }
+.sidebar-item.active { background: var(--bg-3); color: var(--text-0); }
+.sidebar-item.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 20px; background: linear-gradient(180deg, var(--accent-blue), var(--accent-teal)); border-radius: 0 3px 3px 0; }
+.sidebar-item-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; opacity: 0.8; }
+.sidebar-item:hover .sidebar-item-icon, .sidebar-item.active .sidebar-item-icon { opacity: 1; }
+.sidebar-item-text { font-size: 13px; font-weight: 500; white-space: nowrap; opacity: 1; transition: opacity 150ms; }
+.sidebar.collapsed .sidebar-item-text { opacity: 0; width: 0; overflow: hidden; }
+.sidebar-item-badge { margin-left: auto; background: var(--accent-red-bg); color: var(--accent-red-2); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; white-space: nowrap; opacity: 1; transition: opacity 150ms; }
+.sidebar.collapsed .sidebar-item-badge { opacity: 0; width: 0; overflow: hidden; }
+.sidebar-footer { border-top: 1px solid var(--border-1); padding: 12px; }
+.sidebar-user { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-md); cursor: pointer; transition: background 150ms; }
+.sidebar-user:hover { background: var(--bg-3); }
+.sidebar-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.sidebar-user-info { flex: 1; min-width: 0; opacity: 1; transition: opacity 150ms; }
+.sidebar.collapsed .sidebar-user-info { opacity: 0; width: 0; overflow: hidden; }
+.sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.sidebar-user-role { font-size: 11px; color: var(--text-4); }
+.sidebar-toggle { position: absolute; right: -12px; top: 72px; width: 24px; height: 24px; background: var(--bg-3); border: 1px solid var(--border-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-3); font-size: 10px; z-index: 51; transition: all 150ms; }
+.sidebar-toggle:hover { background: var(--bg-4); color: var(--text-1); border-color: var(--border-3); }
+
+/* ── Main Area ── */
+.main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.topbar { height: 56px; background: var(--bg-1); border-bottom: 1px solid var(--border-1); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; position: relative; z-index: 40; }
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-breadcrumb { font-size: 13px; color: var(--text-3); display: flex; align-items: center; gap: 8px; }
+.topbar-breadcrumb span { color: var(--text-4); }
+.topbar-breadcrumb strong { color: var(--text-1); font-weight: 600; }
+.topbar-search { position: relative; width: 320px; }
+.topbar-search input { width: 100%; background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-md); padding: 8px 12px 8px 36px; color: var(--text-1); font-size: 13px; font-family: var(--font-sans); outline: none; transition: all 150ms; }
+.topbar-search input::placeholder { color: var(--text-4); }
+.topbar-search input:focus { border-color: var(--border-accent); background: var(--bg-3); box-shadow: 0 0 0 3px var(--accent-blue-glow); }
+.topbar-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-4); font-size: 14px; }
+.topbar-search-kbd { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: var(--bg-3); border: 1px solid var(--border-1); border-radius: 4px; padding: 1px 5px; font-size: 10px; color: var(--text-4); font-family: var(--font-mono); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-btn { width: 36px; height: 36px; border-radius: var(--r-md); background: transparent; border: 1px solid transparent; color: var(--text-3); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 150ms; position: relative; font-size: 16px; }
+.topbar-btn:hover { background: var(--bg-3); color: var(--text-1); border-color: var(--border-2); }
+.topbar-btn-dot { position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; background: var(--accent-red); border-radius: 50%; border: 2px solid var(--bg-1); }
+
+.content-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 24px; }
+
+/* ── Page Header ── */
+.page-header { margin-bottom: 24px; }
+.page-header-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+.page-title { font-size: 26px; font-weight: 700; color: var(--text-0); letter-spacing: -0.02em; line-height: 1.2; }
+.page-subtitle { font-size: 14px; color: var(--text-3); max-width: 600px; line-height: 1.6; }
+.page-actions { display: flex; gap: 8px; }
+
+/* ── Buttons ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: var(--r-md); font-size: 13px; font-weight: 600; font-family: var(--font-sans); cursor: pointer; transition: all 150ms; border: 1px solid transparent; white-space: nowrap; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary { background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal)); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.25); }
+.btn-primary:hover:not(:disabled) { box-shadow: 0 4px 16px rgba(59,130,246,0.4); transform: translateY(-1px); }
+.btn-secondary { background: var(--bg-3); color: var(--text-1); border-color: var(--border-2); }
+.btn-secondary:hover:not(:disabled) { background: var(--bg-4); border-color: var(--border-3); }
+.btn-ghost { background: transparent; color: var(--text-2); }
+.btn-ghost:hover:not(:disabled) { background: var(--bg-3); color: var(--text-1); }
+.btn-danger { background: var(--accent-red-bg); color: var(--accent-red-2); border-color: rgba(239,68,68,0.2); }
+.btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.15); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-lg { padding: 10px 20px; font-size: 14px; }
+
+/* ── Cards ── */
+.card { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); overflow: hidden; transition: all 250ms; }
+.card:hover { border-color: var(--border-2); box-shadow: var(--shadow-md); }
+.card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-1); }
+.card-header-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
+.card-header-subtitle { font-size: 12px; color: var(--text-4); margin-top: 2px; }
+.card-body { padding: 20px; }
+.card-footer { padding: 12px 20px; border-top: 1px solid var(--border-1); display: flex; align-items: center; justify-content: space-between; }
+.card-glass { background: var(--surface-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border-2); }
+
+/* ── KPI Cards ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); padding: 20px; position: relative; overflow: hidden; transition: all 250ms; }
+.kpi-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal)); opacity: 0; transition: opacity 250ms; }
+.kpi-card:hover::before { opacity: 1; }
+.kpi-card-icon { width: 36px; height: 36px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px; }
+.kpi-card-icon.blue { background: var(--accent-blue-glow); }
+.kpi-card-icon.green { background: var(--accent-green-glow); }
+.kpi-card-icon.amber { background: var(--accent-amber-glow); }
+.kpi-card-icon.red { background: var(--accent-red-glow); }
+.kpi-card-icon.purple { background: var(--accent-purple-glow); }
+.kpi-card-value { font-size: 28px; font-weight: 700; color: var(--text-0); letter-spacing: -0.02em; line-height: 1; margin-bottom: 6px; }
+.kpi-card-label { font-size: 12px; color: var(--text-3); margin-bottom: 8px; }
+.kpi-card-change { font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.kpi-card-change.up { color: var(--accent-green-2); }
+.kpi-card-change.down { color: var(--accent-red-2); }
+
+/* ── Trust Meter ── */
+.trust-meter { position: relative; width: 140px; height: 140px; margin: 0 auto; }
+.trust-meter svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+.trust-meter-bg { fill: none; stroke: var(--bg-4); stroke-width: 10; }
+.trust-meter-fill { fill: none; stroke-width: 10; stroke-linecap: round; stroke-dasharray: 377; stroke-dashoffset: 377; transition: stroke-dashoffset 1.2s var(--ease-out), stroke 0.5s ease; }
+.trust-meter-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.trust-meter-score { font-size: 32px; font-weight: 800; color: var(--text-0); line-height: 1; letter-spacing: -0.03em; }
+.trust-meter-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+/* ── Badges ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.badge-safe { background: var(--accent-green-bg); color: var(--accent-green-2); }
+.badge-warn { background: var(--accent-amber-bg); color: var(--accent-amber-2); }
+.badge-danger { background: var(--accent-red-bg); color: var(--accent-red-2); }
+.badge-info { background: var(--accent-info-bg); color: var(--accent-blue-2); }
+.badge-ghost { background: transparent; border: 1px solid var(--border-2); color: var(--text-3); }
+.tag-real { background: rgba(45,212,191,0.1); color: var(--accent-teal-2); border: 1px solid rgba(45,212,191,0.2); }
+.tag-ai { background: rgba(139,92,246,0.1); color: var(--accent-purple-2); border: 1px solid rgba(139,92,246,0.2); }
+
+/* ── Progress ── */
+.progress-track { height: 6px; background: var(--bg-4); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 1s var(--ease-out); }
+
+/* ── Tables ── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border-1); white-space: nowrap; }
+.data-table td { padding: 12px 16px; font-size: 13px; color: var(--text-2); border-bottom: 1px solid var(--border-1); vertical-align: middle; }
+.data-table tr:hover td { background: rgba(255,255,255,0.015); }
+.data-table tr:last-child td { border-bottom: none; }
+
+/* ── Tabs ── */
+.tab-bar { display: flex; gap: 2px; background: var(--bg-3); border-radius: var(--r-md); padding: 4px; margin-bottom: 20px; }
+.tab-btn { flex: 1; padding: 8px 16px; background: transparent; border: none; color: var(--text-3); font-size: 13px; font-weight: 500; font-family: var(--font-sans); border-radius: 8px; cursor: pointer; transition: all 150ms; white-space: nowrap; }
+.tab-btn:hover { color: var(--text-1); }
+.tab-btn.active { background: var(--bg-4); color: var(--text-0); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
+/* ── Timeline ── */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--bg-4); border-radius: 1px; }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot { position: absolute; left: -24px; top: 2px; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg-2); background: var(--bg-5); z-index: 1; }
+.timeline-dot.blue { background: var(--accent-blue); }
+.timeline-dot.green { background: var(--accent-green); }
+.timeline-dot.amber { background: var(--accent-amber); }
+.timeline-dot.red { background: var(--accent-red); }
+.timeline-dot.purple { background: var(--accent-purple); }
+.timeline-content { padding-left: 8px; }
+.timeline-time { font-size: 11px; color: var(--text-4); margin-bottom: 2px; }
+.timeline-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.timeline-desc { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+/* ── Activity Cards ── */
+.activity-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: var(--r-md); background: var(--bg-2); border: 1px solid var(--border-1); margin-bottom: 8px; transition: all 150ms; cursor: pointer; }
+.activity-card:hover { background: var(--bg-3); border-color: var(--border-2); }
+.activity-icon { width: 36px; height: 36px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.activity-icon.blue { background: var(--accent-blue-glow); }
+.activity-icon.green { background: var(--accent-green-glow); }
+.activity-icon.amber { background: var(--accent-amber-glow); }
+.activity-icon.red { background: var(--accent-red-glow); }
+.activity-icon.purple { background: var(--accent-purple-glow); }
+.activity-content { flex: 1; min-width: 0; }
+.activity-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.activity-desc { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.activity-meta { font-size: 11px; color: var(--text-4); margin-top: 4px; }
+
+/* ── Empty State ── */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; }
+.empty-state-icon { width: 64px; height: 64px; border-radius: var(--r-xl); background: var(--bg-3); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px; opacity: 0.5; }
+.empty-state-title { font-size: 16px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+.empty-state-desc { font-size: 13px; color: var(--text-4); max-width: 320px; line-height: 1.6; }
+
+/* ── Skeleton ── */
+.skeleton { background: linear-gradient(90deg, var(--bg-3) 25%, var(--bg-4) 50%, var(--bg-3) 75%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: var(--r-sm); }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── Grids ── */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 1200px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 900px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } .grid-4 { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: var(--bg-2); border: 1px solid var(--border-2); border-radius: var(--r-xl); max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s var(--ease-out); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border-1); }
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text-0); }
+.modal-close { background: none; border: none; color: var(--text-4); font-size: 20px; cursor: pointer; transition: color 150ms; }
+.modal-close:hover { color: var(--text-1); }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border-1); display: flex; justify-content: flex-end; gap: 8px; }
+
+/* ── Toast ── */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--bg-2); border: 1px solid var(--border-2); border-radius: var(--r-lg); padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-1); box-shadow: var(--shadow-lg); animation: toastIn 0.3s var(--ease-out); max-width: 360px; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.toast-icon { font-size: 18px; flex-shrink: 0; }
+
+/* ── Scanner ── */
+.scanner-box { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); padding: 20px; margin-bottom: 16px; }
+.scanner-input-row { display: flex; gap: 12px; align-items: center; }
+.scanner-input { flex: 1; background: var(--bg-3); border: 1px solid var(--border-1); border-radius: var(--r-md); padding: 10px 14px; color: var(--text-1); font-size: 14px; font-family: var(--font-sans); outline: none; transition: all 150ms; }
+.scanner-input:focus { border-color: var(--border-accent); box-shadow: 0 0 0 3px var(--accent-blue-glow); }
+.scanner-input::placeholder { color: var(--text-4); }
+.scan-anim-ring { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border-2); border-top-color: var(--accent-blue-2); animation: spin 1s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Results Grid ── */
+.results-grid { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+@media (max-width: 900px) { .results-grid { grid-template-columns: 1fr; } }
+.orb-card { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); padding: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.factor-row { display: flex; align-items: center; gap: 8px; background: var(--bg-3); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; }
+.factor-label { flex: 1; font-size: 12px; color: var(--text-2); }
+.factor-pts { font-family: var(--font-mono); font-size: 12px; font-weight: 600; width: 36px; text-align: right; flex-shrink: 0; }
+.factor-pts.pos { color: var(--accent-green-2); }
+.factor-pts.neg { color: var(--accent-red-2); }
+.evidence-item { display: flex; gap: 10px; background: var(--bg-3); border-radius: 10px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--border-2); }
+.evidence-item.risk { border-left-color: var(--accent-red); }
+.evidence-item.safe { border-left-color: var(--accent-green); }
+.evidence-item.info { border-left-color: var(--accent-blue); }
+.evidence-icon { font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+.evidence-title { font-size: 12px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.evidence-detail { font-size: 11px; color: var(--text-3); line-height: 1.5; }
+
+/* ── Course Cards ── */
+.course-card { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); overflow: hidden; transition: all 250ms; cursor: pointer; }
+.course-card:hover { border-color: var(--border-2); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.course-image { height: 140px; background: linear-gradient(135deg, var(--bg-4), var(--bg-5)); display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; overflow: hidden; }
+.course-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4)); }
+.course-body { padding: 16px; }
+.course-category { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-blue-2); margin-bottom: 6px; }
+.course-title { font-size: 15px; font-weight: 700; color: var(--text-0); margin-bottom: 6px; line-height: 1.3; }
+.course-desc { font-size: 12px; color: var(--text-3); line-height: 1.5; margin-bottom: 12px; }
+.course-meta { display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--text-4); }
+.course-progress-track { height: 4px; background: var(--bg-4); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+.course-progress-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal)); }
+
+/* ── Research Cards ── */
+.research-card { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); padding: 20px; transition: all 250ms; }
+.research-card:hover { border-color: var(--border-2); box-shadow: var(--shadow-md); }
+.research-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.research-card-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 4px; }
+.research-card-type.weekly { background: var(--accent-blue-glow); color: var(--accent-blue-2); }
+.research-card-type.industry { background: var(--accent-purple-glow); color: var(--accent-purple-2); }
+.research-card-type.ai { background: rgba(236,72,153,0.1); color: var(--accent-pink-2); }
+.research-card-type.country { background: var(--accent-teal-glow); color: var(--accent-teal-2); }
+.research-card-title { font-size: 15px; font-weight: 700; color: var(--text-0); margin-bottom: 8px; line-height: 1.3; }
+.research-card-desc { font-size: 13px; color: var(--text-3); line-height: 1.6; margin-bottom: 12px; }
+.research-card-footer { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-4); }
+
+/* ── Compliance ── */
+.compliance-framework { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); padding: 20px; margin-bottom: 12px; transition: all 250ms; }
+.compliance-framework:hover { border-color: var(--border-2); }
+.compliance-framework-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.compliance-framework-name { font-size: 15px; font-weight: 700; color: var(--text-0); display: flex; align-items: center; gap: 10px; }
+.compliance-framework-score { font-family: var(--font-mono); font-size: 24px; font-weight: 700; }
+.compliance-framework-score.high { color: var(--accent-green-2); }
+.compliance-framework-score.medium { color: var(--accent-amber-2); }
+.compliance-framework-score.low { color: var(--accent-red-2); }
+.compliance-checklist { display: flex; flex-direction: column; gap: 6px; }
+.compliance-check { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bg-3); border-radius: 8px; }
+.compliance-check-icon { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+.compliance-check-icon.done { background: var(--accent-green-bg); color: var(--accent-green-2); }
+.compliance-check-icon.pending { background: var(--accent-amber-bg); color: var(--accent-amber-2); }
+.compliance-check-icon.missing { background: var(--accent-red-bg); color: var(--accent-red-2); }
+.compliance-check-text { font-size: 12px; color: var(--text-2); }
+
+/* ── Audit ── */
+.audit-score-ring { width: 100px; height: 100px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid var(--bg-4); position: relative; }
+.audit-score-ring::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 4px solid transparent; border-top-color: var(--accent-blue); border-right-color: var(--accent-teal); transform: rotate(45deg); }
+.audit-score-value { font-size: 28px; font-weight: 800; color: var(--text-0); line-height: 1; }
+.audit-score-label { font-size: 10px; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ── Kanban ── */
+.kanban-board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px; }
+.kanban-column { min-width: 280px; max-width: 320px; flex: 1; }
+.kanban-column-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; margin-bottom: 8px; }
+.kanban-column-title { font-size: 13px; font-weight: 700; color: var(--text-1); display: flex; align-items: center; gap: 8px; }
+.kanban-column-count { background: var(--bg-3); color: var(--text-3); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+.kanban-cards { display: flex; flex-direction: column; gap: 8px; }
+.kanban-card { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-md); padding: 14px; cursor: pointer; transition: all 150ms; }
+.kanban-card:hover { border-color: var(--border-2); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+.kanban-card-priority { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.kanban-card-priority.high { background: var(--accent-red); }
+.kanban-card-priority.medium { background: var(--accent-amber); }
+.kanban-card-priority.low { background: var(--accent-blue); }
+.kanban-card-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 6px; line-height: 1.4; }
+.kanban-card-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-4); }
+.kanban-card-tags { display: flex; gap: 4px; margin-top: 8px; }
+
+/* ── Feed ── */
+.feed-card { background: var(--bg-2); border: 1px solid var(--border-1); border-radius: var(--r-lg); padding: 16px; margin-bottom: 12px; transition: all 150ms; cursor: pointer; }
+.feed-card:hover { border-color: var(--border-2); background: var(--bg-3); }
+.feed-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.feed-card-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.feed-card-source { font-size: 12px; font-weight: 600; color: var(--text-1); }
+.feed-card-time { font-size: 11px; color: var(--text-4); margin-left: auto; }
+.feed-card-title { font-size: 14px; font-weight: 600; color: var(--text-0); margin-bottom: 6px; line-height: 1.4; }
+.feed-card-desc { font-size: 12px; color: var(--text-3); line-height: 1.6; margin-bottom: 10px; }
+.feed-card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ── Settings ── */
+.settings-section { max-width: 640px; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--border-1); }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.settings-desc { font-size: 12px; color: var(--text-4); }
+.toggle { width: 40px; height: 22px; background: var(--bg-4); border-radius: 11px; position: relative; cursor: pointer; transition: background 150ms; flex-shrink: 0; }
+.toggle.on { background: var(--accent-blue); }
+.toggle-knob { width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 150ms; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.toggle.on .toggle-knob { transform: translateX(18px); }
+
+/* ── Animations ── */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.animate-fade-in { animation: fadeIn 0.4s var(--ease-out) forwards; }
+.animate-slide-in { animation: slideInRight 0.4s var(--ease-out) forwards; }
+.stagger > * { opacity: 0; animation: fadeIn 0.4s var(--ease-out) forwards; }
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* ── Page Transitions ── */
+.page-content { display: none; animation: fadeIn 0.3s var(--ease-out); }
+.page-content.active { display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .topbar-search { display: none; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* ── Utilities ── */
+.text-0 { color: var(--text-0); } .text-1 { color: var(--text-1); } .text-2 { color: var(--text-2); }
+.text-3 { color: var(--text-3); } .text-4 { color: var(--text-4); }
+.font-mono { font-family: var(--font-mono); }
+.font-bold { font-weight: 700; } .font-semibold { font-weight: 600; }
+.flex { display: flex; } .flex-col { flex-direction: column; }
+.items-center { align-items: center; } .justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
+.mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; } .mt-4 { margin-top: 16px; }
+.mb-2 { margin-bottom: 8px; } .mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; }
+.p-4 { padding: 16px; } .p-5 { padding: 20px; }
+.w-full { width: 100%; } .h-full { height: 100%; }
+.overflow-hidden { overflow: hidden; } .overflow-auto { overflow: auto; }
+.relative { position: relative; }
+
+.threat-level { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+.threat-level.critical { background: var(--accent-red-bg); color: var(--accent-red-2); }
+.threat-level.high { background: rgba(245,158,11,0.12); color: var(--accent-amber-2); }
+.threat-level.medium { background: rgba(59,130,246,0.12); color: var(--accent-blue-2); }
+.threat-level.low { background: var(--accent-green-bg); color: var(--accent-green-2); }
+
+.chart-container { position: relative; height: 260px; width: 100%; }
+.chart-container.sm { height: 180px; }
+.chart-container.lg { height: 340px; }
+
+.section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-2), transparent); margin: 32px 0; }
+.hint-text { font-size: 11px; color: var(--text-4); line-height: 1.5; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.status-dot.online { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+.status-dot.away { background: var(--accent-amber); }
+.status-dot.busy { background: var(--accent-red); }
+
+.code-block { background: var(--bg-3); border: 1px solid var(--border-1); border-radius: var(--r-md); padding: 12px 16px; font-family: var(--font-mono); font-size: 12px; color: var(--text-2); overflow-x: auto; }
+
+.avatar-group { display: flex; }
+.avatar-group .avatar { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--bg-2); margin-left: -8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; }
+.avatar-group .avatar:first-child { margin-left: 0; }
+
+.pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-red); animation: pulse 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     SIDEBAR
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon">V</div>
+    <div>
+      <div class="sidebar-brand-text">VEIL</div>
+      <div class="sidebar-brand-sub">Trust Intelligence</div>
+    </div>
+  </div>
+  <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">◀</button>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Platform</div>
+      <a class="sidebar-item active" data-page="dashboard" onclick="navTo('dashboard')">
+        <span class="sidebar-item-icon">🏠</span>
+        <span class="sidebar-item-text">Dashboard</span>
+        <span class="sidebar-item-badge">3</span>
+      </a>
+      <a class="sidebar-item" data-page="intelligence" onclick="navTo('intelligence')">
+        <span class="sidebar-item-icon">🛡</span>
+        <span class="sidebar-item-text">Trust Intelligence</span>
+      </a>
+      <a class="sidebar-item" data-page="academy" onclick="navTo('academy')">
+        <span class="sidebar-item-icon">🎓</span>
+        <span class="sidebar-item-text">Trust Academy</span>
+        <span class="sidebar-item-badge" style="background:rgba(59,130,246,0.1);color:var(--accent-blue-2)">New</span>
+      </a>
+      <a class="sidebar-item" data-page="research" onclick="navTo('research')">
+        <span class="sidebar-item-icon">📚</span>
+        <span class="sidebar-item-text">Research Center</span>
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Operations</div>
+      <a class="sidebar-item" data-page="compliance" onclick="navTo('compliance')">
+        <span class="sidebar-item-icon">📋</span>
+        <span class="sidebar-item-text">Compliance</span>
+      </a>
+      <a class="sidebar-item" data-page="audit" onclick="navTo('audit')">
+        <span class="sidebar-item-icon">🔍</span>
+        <span class="sidebar-item-text">Trust Audit</span>
+      </a>
+      <a class="sidebar-item" data-page="benchmark" onclick="navTo('benchmark')">
+        <span class="sidebar-item-icon">📈</span>
+        <span class="sidebar-item-text">Benchmarking</span>
+      </a>
+      <a class="sidebar-item" data-page="collaboration" onclick="navTo('collaboration')">
+        <span class="sidebar-item-icon">👥</span>
+        <span class="sidebar-item-text">Collaboration</span>
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Intelligence</div>
+      <a class="sidebar-item" data-page="feed" onclick="navTo('feed')">
+        <span class="sidebar-item-icon">📰</span>
+        <span class="sidebar-item-text">Intelligence Feed</span>
+        <span class="sidebar-item-badge">12</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user" onclick="navTo('settings')">
+      <div class="sidebar-user-avatar">AS</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name">Alex Sterling</div>
+        <div class="sidebar-user-role">Security Lead</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     MAIN AREA
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="main-area">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-breadcrumb" id="breadcrumb">
+        <span>VEIL</span> / <strong>Dashboard</strong>
+      </div>
+    </div>
+    <div class="topbar-search">
+      <span class="topbar-search-icon">🔍</span>
+      <input type="text" placeholder="Search anything..." id="globalSearch">
+      <span class="topbar-search-kbd">⌘K</span>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" title="Notifications">
+        🔔
+        <span class="topbar-btn-dot"></span>
+      </button>
+      <button class="topbar-btn" title="Help">❓</button>
+      <button class="topbar-btn" onclick="navTo('settings')" title="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <!-- Content Scroll Area -->
+  <div class="content-scroll" id="contentScroll">
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: DASHBOARD
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content active" id="page-dashboard">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Your digital trust command center. Monitor threats, track compliance, and stay ahead of emerging risks.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="navTo('intelligence')">🛡 New Scan</button>
+        <button class="btn btn-primary btn-sm">📊 Export Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-grid stagger">
+    <div class="kpi-card">
+      <div class="kpi-card-icon blue">🌍</div>
+      <div class="kpi-card-value">Elevated</div>
+      <div class="kpi-card-label">Global Threat Level</div>
+      <div class="kpi-card-change down">↑ 12% from last week</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon green">🛡</div>
+      <div class="kpi-card-value">87</div>
+      <div class="kpi-card-label">Personal Trust Score</div>
+      <div class="kpi-card-change up">↑ 3 pts this month</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon amber">⚠️</div>
+      <div class="kpi-card-value">1,247</div>
+      <div class="kpi-card-label">Threats Detected Today</div>
+      <div class="kpi-card-change down">↑ 8% vs yesterday</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon purple">📋</div>
+      <div class="kpi-card-value">94%</div>
+      <div class="kpi-card-label">Compliance Score</div>
+      <div class="kpi-card-change up">↑ 2% this quarter</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon red">🎯</div>
+      <div class="kpi-card-value">23</div>
+      <div class="kpi-card-label">Active Investigations</div>
+      <div class="kpi-card-change">3 new today</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon blue">🎓</div>
+      <div class="kpi-card-value">68%</div>
+      <div class="kpi-card-label">Academy Progress</div>
+      <div class="kpi-card-change up">2 courses completed</div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Grid -->
+  <div class="grid-2" style="margin-bottom: 24px;">
+    <!-- Threat Trend Chart -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-header-title">Threat Detection Trend</div>
+          <div class="card-header-subtitle">Daily threat volume over the past 30 days</div>
+        </div>
+        <div class="badge badge-ghost">Last 30 days</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="dashboardThreatChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Score Distribution -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-header-title">Trust Score Distribution</div>
+          <div class="card-header-subtitle">Across all monitored entities</div>
+        </div>
+        <div class="badge badge-ghost">Live</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="dashboardTrustChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom: 24px;">
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">Quick Actions</div>
+      </div>
+      <div class="card-body" style="padding: 12px 16px;">
+        <button class="activity-card" style="width:100%; margin-bottom:6px;" onclick="navTo('intelligence')">
+          <div class="activity-icon blue">🔗</div>
+          <div class="activity-content">
+            <div class="activity-title">Scan a URL</div>
+            <div class="activity-desc">Analyze any link for trustworthiness</div>
+          </div>
+        </button>
+        <button class="activity-card" style="width:100%; margin-bottom:6px;" onclick="navTo('audit')">
+          <div class="activity-icon purple">🔍</div>
+          <div class="activity-content">
+            <div class="activity-title">Run Trust Audit</div>
+            <div class="activity-desc">Audit your organization's digital footprint</div>
+          </div>
+        </button>
+        <button class="activity-card" style="width:100%; margin-bottom:6px;" onclick="navTo('compliance')">
+          <div class="activity-icon green">📋</div>
+          <div class="activity-content">
+            <div class="activity-title">Check Compliance</div>
+            <div class="activity-desc">Review GDPR, SOC2, ISO27001 status</div>
+          </div>
+        </button>
+        <button class="activity-card" style="width:100%;" onclick="navTo('academy')">
+          <div class="activity-icon amber">🎓</div>
+          <div class="activity-content">
+            <div class="activity-title">Continue Learning</div>
+            <div class="activity-desc">Resume Phishing Defense 101</div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">Recent Activity</div>
+        <button class="btn btn-ghost btn-sm">View all</button>
+      </div>
+      <div class="card-body" style="padding: 12px 16px;">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot red"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">2 min ago</div>
+              <div class="timeline-title">High-risk domain detected</div>
+              <div class="timeline-desc">secure-bank-verify.tk flagged as phishing</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot blue"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">15 min ago</div>
+              <div class="timeline-title">Trust audit completed</div>
+              <div class="timeline-desc">Acme Corp audit — Score: 74/100</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot green"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">1 hour ago</div>
+              <div class="timeline-title">Compliance check passed</div>
+              <div class="timeline-desc">SOC2 Type II — All controls green</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot amber"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">3 hours ago</div>
+              <div class="timeline-title">New threat intelligence</div>
+              <div class="timeline-desc">CVE-2026-4421 added to database</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot purple"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">5 hours ago</div>
+              <div class="timeline-title">Course completed</div>
+              <div class="timeline-desc">Alex finished "QR Scam Detection"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Insight Panel -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">🤖 AI Insight</div>
+        <div class="badge badge-info">Live</div>
+      </div>
+      <div class="card-body">
+        <div style="background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(13,148,136,0.08)); border: 1px solid var(--border-accent); border-radius: var(--r-md); padding: 16px; margin-bottom: 16px;">
+          <p style="font-size: 13px; color: var(--text-1); line-height: 1.7; margin-bottom: 12px;">
+            <strong>Elevated phishing activity detected</strong> in the financial services sector. Three new campaigns targeting regional banks have been identified in the past 48 hours using homograph domain techniques.
+          </p>
+          <p style="font-size: 12px; color: var(--text-3); line-height: 1.6;">
+            Recommendation: Review email authentication (SPF/DMARC) for all financial domains and enable enhanced monitoring for .tk, .ml, and .xyz TLDs.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span class="badge badge-danger">Phishing ↑ 34%</span>
+          <span class="badge badge-warn">Brand Impersonation ↑ 18%</span>
+          <span class="badge badge-safe">Malware ↓ 7%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="grid-2">
+    <!-- Trending Threats -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">🔥 Trending Threats</div>
+        <button class="btn btn-ghost btn-sm" onclick="navTo('feed')">View Feed</button>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <table class="data-table">
+          <thead>
+            <tr><th>Threat</th><th>Type</th><th>Severity</th><th>Volume</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--text-1)">Bank impersonation wave</strong><br><span style="font-size:11px;color:var(--text-4)">Targeting 14 regional banks</span></td>
+              <td><span class="badge badge-danger">Phishing</span></td>
+              <td><span class="threat-level critical">Critical</span></td>
+              <td class="font-mono">14,203</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--text-1)">Crypto wallet drainers</strong><br><span style="font-size:11px;color:var(--text-4)">New variant of Inferno Drainer</span></td>
+              <td><span class="badge badge-danger">Malware</span></td>
+              <td><span class="threat-level high">High</span></td>
+              <td class="font-mono">8,941</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--text-1)">QR code payment scams</strong><br><span style="font-size:11px;color:var(--text-4)">Fake parking & toll payment</span></td>
+              <td><span class="badge badge-warn">Social Eng.</span></td>
+              <td><span class="threat-level high">High</span></td>
+              <td class="font-mono">6,227</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--text-1)">AI-generated deepfake calls</strong><br><span style="font-size:11px;color:var(--text-4)">Voice cloning for wire fraud</span></td>
+              <td><span class="badge badge-warn">Fraud</span></td>
+              <td><span class="threat-level medium">Medium</span></td>
+              <td class="font-mono">3,108</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--text-1)">Supply chain compromise</strong><br><span style="font-size:11px;color:var(--text-4)">npm package typosquatting</span></td>
+              <td><span class="badge badge-info">Supply Chain</span></td>
+              <td><span class="threat-level medium">Medium</span></td>
+              <td class="font-mono">1,842</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Platform Stats -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">📊 Platform Statistics</div>
+        <div class="badge badge-ghost">All time</div>
+      </div>
+      <div class="card-body">
+        <div class="grid-2" style="gap: 12px; margin-bottom: 16px;">
+          <div style="background: var(--bg-3); border-radius: var(--r-md); padding: 16px; text-align: center;">
+            <div style="font-size: 24px; font-weight: 800; color: var(--text-0);">2.4M</div>
+            <div style="font-size: 11px; color: var(--text-4); margin-top: 4px;">URLs Scanned</div>
+          </div>
+          <div style="background: var(--bg-3); border-radius: var(--r-md); padding: 16px; text-align: center;">
+            <div style="font-size: 24px; font-weight: 800; color: var(--text-0);">847K</div>
+            <div style="font-size: 11px; color: var(--text-4); margin-top: 4px;">Threats Blocked</div>
+          </div>
+          <div style="background: var(--bg-3); border-radius: var(--r-md); padding: 16px; text-align: center;">
+            <div style="font-size: 24px; font-weight: 800; color: var(--text-0);">12.3K</div>
+            <div style="font-size: 11px; color: var(--text-4); margin-top: 4px;">Active Users</div>
+          </div>
+          <div style="background: var(--bg-3); border-radius: var(--r-md); padding: 16px; text-align: center;">
+            <div style="font-size: 24px; font-weight: 800; color: var(--text-0);">98.7%</div>
+            <div style="font-size: 11px; color: var(--text-4); margin-top: 4px;">Detection Rate</div>
+          </div>
+        </div>
+        <div class="chart-container sm">
+          <canvas id="dashboardStatsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: TRUST INTELLIGENCE (Scanner Module)
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-intelligence">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Trust Intelligence</h1>
+        <p class="page-subtitle">Analyze URLs, files, emails, and QR codes. Understand the trustworthiness of any digital entity before you interact.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">📁 Batch Scan</button>
+        <button class="btn btn-primary btn-sm">📊 Export Results</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scanner Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchIntelTab('url', this)">🔗 URL Scanner</button>
+    <button class="tab-btn" onclick="switchIntelTab('qr', this)">📱 QR Scanner</button>
+    <button class="tab-btn" onclick="switchIntelTab('file', this)">📄 File Scanner</button>
+    <button class="tab-btn" onclick="switchIntelTab('email', this)">✉️ Email Scanner</button>
+    <button class="tab-btn" onclick="switchIntelTab('history', this)">🕐 History</button>
+  </div>
+
+  <!-- URL Scanner Panel -->
+  <div id="intel-panel-url">
+    <div class="scanner-box">
+      <div class="scanner-input-row">
+        <span style="font-size:18px;flex-shrink:0">🔗</span>
+        <input class="scanner-input" id="urlInput" type="url" placeholder="Paste any URL to analyze — https://example.com" onkeydown="if(event.key==='Enter')startScan()">
+        <button class="btn btn-primary" id="scanBtn" onclick="startScan()">
+          <span>Scan</span> <span>→</span>
+        </button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:11px;color:var(--text-4)">Try:</span>
+        <span class="badge badge-ghost" style="cursor:pointer" onclick="fillUrl('https://github.com')">github.com</span>
+        <span class="badge badge-ghost" style="cursor:pointer" onclick="fillUrl('https://amaz0n-deals-today.net/gift-card-winner')">Suspicious</span>
+        <span class="badge badge-ghost" style="cursor:pointer" onclick="fillUrl('https://paypal-support-verify.tk/account')">Phishing</span>
+        <span class="badge badge-ghost" style="cursor:pointer" onclick="fillUrl('https://stripe.com')">stripe.com</span>
+      </div>
+    </div>
+
+    <!-- Scan Animation -->
+    <div id="scanAnim" style="display:none;text-align:center;padding:40px 20px;">
+      <div class="scan-anim-ring"></div>
+      <div style="font-size:13px;color:var(--text-3);margin-bottom:8px;" id="scanStepText">Initializing scan…</div>
+      <div style="display:flex;flex-direction:column;gap:6px;max-width:300px;margin:0 auto;" id="scanSteps"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="scanResults" style="display:none;">
+      <div class="results-grid">
+        <!-- Trust Orb -->
+        <div class="orb-card">
+          <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;">Trust Score</p>
+          <div class="trust-meter">
+            <svg viewBox="0 0 140 140">
+              <circle class="trust-meter-bg" cx="70" cy="70" r="60"/>
+              <circle id="trustMeterArc" class="trust-meter-fill" cx="70" cy="70" r="60" stroke="#3b82f6"/>
+            </svg>
+            <div class="trust-meter-center">
+              <div class="trust-meter-score" id="orbScore">—</div>
+              <div class="trust-meter-label" id="orbLevel">ANALYZING</div>
+            </div>
+          </div>
+          <div id="statusBadge" class="badge" style="margin-top:16px;">Scanning…</div>
+          <p style="font-size:11px;color:var(--text-4);margin-top:12px;word-break:break-all;" id="scannedUrl"></p>
+        </div>
+
+        <!-- Analysis Panel -->
+        <div class="card">
+          <div class="card-header" style="padding-bottom:0;border-bottom:none;">
+            <div class="tab-bar" style="margin-bottom:0;width:100%;">
+              <button class="tab-btn active" onclick="switchResultTab('overview',this)">Overview</button>
+              <button class="tab-btn" onclick="switchResultTab('evidence',this)">Evidence</button>
+              <button class="tab-btn" onclick="switchResultTab('dna',this)">Behavior DNA</button>
+              <button class="tab-btn" onclick="switchResultTab('domain',this)">Domain</button>
+              <button class="tab-btn" onclick="switchResultTab('community',this)">Community</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Overview -->
+            <div id="result-tab-overview">
+              <div style="background:var(--bg-3);border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;border-left:3px solid var(--accent-blue);">
+                <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-blue-2);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px;">🤖 AI Behavioral Read <span class="tag-ai">AI</span></div>
+                <div id="aiExplainText" style="font-size:13px;color:var(--text-1);line-height:1.7;"><span class="skeleton" style="display:inline-block;width:90%;height:14px;margin-bottom:6px"></span><br><span class="skeleton" style="display:inline-block;width:70%;height:14px"></span></div>
+              </div>
+              <p style="font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-4);margin-bottom:10px">Contributing Factors</p>
+              <div id="factorList"></div>
+              <div class="grid-2" style="margin-top:16px;gap:10px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--text-3)">Domain Reputation</span><span style="font-size:11px;color:var(--text-2);font-weight:600;" id="sigDomain">—</span></div>
+                  <div class="progress-track"><div class="progress-fill" id="barDomain" style="width:0%;background:var(--accent-blue)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--text-3)">SSL Security</span><span style="font-size:11px;color:var(--text-2);font-weight:600;" id="sigSSL">—</span></div>
+                  <div class="progress-track"><div class="progress-fill" id="barSSL" style="width:0%;background:var(--accent-green)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--text-3)">Scam Probability</span><span style="font-size:11px;color:var(--text-2);font-weight:600;" id="sigScam">—</span></div>
+                  <div class="progress-track"><div class="progress-fill" id="barScam" style="width:0%;background:var(--accent-red)"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;color:var(--text-3)">Manipulation Risk</span><span style="font-size:11px;color:var(--text-2);font-weight:600;" id="sigManip">—</span></div>
+                  <div class="progress-track"><div class="progress-fill" id="barManip" style="width:0%;background:var(--accent-amber)"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Evidence -->
+            <div id="result-tab-evidence" style="display:none;">
+              <p style="font-size:12px;color:var(--text-3);margin-bottom:12px">Specific patterns detected in this URL with rule-based verification.</p>
+              <div id="evidenceList"></div>
+            </div>
+
+            <!-- DNA -->
+            <div id="result-tab-dna" style="display:none;">
+              <p style="font-size:12px;color:var(--text-3);margin-bottom:16px">Behavioral analysis of manipulation and psychological pressure patterns. <span class="tag-ai">AI</span></p>
+              <div id="dnaItems"></div>
+            </div>
+
+            <!-- Domain -->
+            <div id="result-tab-domain" style="display:none;">
+              <div class="grid-2" id="domainGrid" style="gap:10px;"></div>
+            </div>
+
+            <!-- Community -->
+            <div id="result-tab-community" style="display:none;">
+              <div id="communityWrap"></div>
+              <button class="btn btn-danger btn-sm" style="margin-top:12px;width:100%;" onclick="showToast('✅','Report submitted. Thank you for protecting others.')">⚠️ Report this website</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Other scanner panels (simplified placeholders) -->
+  <div id="intel-panel-qr" style="display:none;">
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:60px 20px;">
+        <div class="empty-state-icon" style="margin:0 auto 16px;">📱</div>
+        <div class="empty-state-title">QR Code Scanner</div>
+        <div class="empty-state-desc">Upload or scan a QR code to analyze the embedded URL for trust signals before opening.</div>
+        <button class="btn btn-primary" style="margin-top:20px;">📤 Upload QR Image</button>
+      </div>
+    </div>
+  </div>
+  <div id="intel-panel-file" style="display:none;">
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:60px 20px;">
+        <div class="empty-state-icon" style="margin:0 auto 16px;">📄</div>
+        <div class="empty-state-title">File Scanner</div>
+        <div class="empty-state-desc">Upload files to check for malware, suspicious macros, and embedded threats.</div>
+        <button class="btn btn-primary" style="margin-top:20px;">📤 Upload File</button>
+      </div>
+    </div>
+  </div>
+  <div id="intel-panel-email" style="display:none;">
+    <div class="card">
+      <div class="card-body" style="text-align:center;padding:60px 20px;">
+        <div class="empty-state-icon" style="margin:0 auto 16px;">✉️</div>
+        <div class="empty-state-title">Email Scanner</div>
+        <div class="empty-state-desc">Paste email headers or upload .eml files to analyze phishing indicators and spoofing attempts.</div>
+        <button class="btn btn-primary" style="margin-top:20px;">📤 Upload Email</button>
+      </div>
+    </div>
+  </div>
+  <div id="intel-panel-history" style="display:none;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">Scan History</div>
+        <button class="btn btn-ghost btn-sm" onclick="clearHistory()">Clear All</button>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="data-table" id="historyTable">
+          <thead>
+            <tr><th>URL</th><th>Score</th><th>Level</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-4)">No scans yet. Run your first scan above.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: TRUST ACADEMY
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-academy">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Trust Academy</h1>
+        <p class="page-subtitle">Master digital trust through interactive courses, simulations, and hands-on challenges designed by security experts.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">🏆 Leaderboard</button>
+        <button class="btn btn-primary btn-sm">🎯 Weekly Challenge</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Learning Progress -->
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-body">
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div style="font-size: 36px; font-weight: 800; color: var(--text-0);">68%</div>
+          <div style="font-size: 11px; color: var(--text-4); margin-top: 2px;">Overall Progress</div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:12px;color:var(--text-2)">Level 4 — Trust Guardian</span>
+            <span style="font-size:12px;color:var(--text-3)">1,240 / 2,000 XP</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:62%;background:linear-gradient(90deg,var(--accent-blue),var(--accent-teal))"></div></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div style="text-align:center;padding:8px 16px;background:var(--bg-3);border-radius:var(--r-md);">
+            <div style="font-size:18px;font-weight:700;color:var(--text-0);">7</div>
+            <div style="font-size:10px;color:var(--text-4);">Courses</div>
+          </div>
+          <div style="text-align:center;padding:8px 16px;background:var(--bg-3);border-radius:var(--r-md);">
+            <div style="font-size:18px;font-weight:700;color:var(--text-0);">12</div>
+            <div style="font-size:10px;color:var(--text-4);">Badges</div>
+          </div>
+          <div style="text-align:center;padding:8px 16px;background:var(--bg-3);border-radius:var(--r-md);">
+            <div style="font-size:18px;font-weight:700;color:var(--text-0);">3</div>
+            <div style="font-size:10px;color:var(--text-4);">Certificates</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course Categories -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchAcademyTab('all',this)">All Courses</button>
+    <button class="tab-btn" onclick="switchAcademyTab('fundamentals',this)">Fundamentals</button>
+    <button class="tab-btn" onclick="switchAcademyTab('advanced',this)">Advanced</button>
+    <button class="tab-btn" onclick="switchAcademyTab('simulations',this)">Simulations</button>
+    <button class="tab-btn" onclick="switchAcademyTab('certifications',this)">Certifications</button>
+  </div>
+
+  <!-- Course Grid -->
+  <div class="grid-3 stagger" id="academyCourses">
+    <div class="course-card">
+      <div class="course-image">🎣</div>
+      <div class="course-body">
+        <div class="course-category">Fundamentals</div>
+        <div class="course-title">Phishing Defense 101</div>
+        <div class="course-desc">Learn to identify phishing emails, spoofed domains, and social engineering tactics used by attackers.</div>
+        <div class="course-meta">⏱ 45 min · 6 lessons · 4.9★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:78%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">78% complete</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">📱</div>
+      <div class="course-body">
+        <div class="course-category">Fundamentals</div>
+        <div class="course-title">QR Code Scam Detection</div>
+        <div class="course-desc">Understand how malicious QR codes work and practice identifying dangerous ones in real scenarios.</div>
+        <div class="course-meta">⏱ 30 min · 4 lessons · 4.8★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:100%"></div></div>
+        <div style="font-size:11px;color:var(--accent-green-2);margin-top:4px;">✓ Completed</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">🧠</div>
+      <div class="course-body">
+        <div class="course-category">Advanced</div>
+        <div class="course-title">Behavioral DNA Analysis</div>
+        <div class="course-desc">Deep dive into dark patterns, urgency manipulation, and psychological pressure tactics used by scam sites.</div>
+        <div class="course-meta">⏱ 60 min · 8 lessons · 4.7★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:25%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">25% complete</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">🔐</div>
+      <div class="course-body">
+        <div class="course-category">Advanced</div>
+        <div class="course-title">Domain Intelligence Mastery</div>
+        <div class="course-desc">Master RDAP lookups, DNS analysis, SSL certificate validation, and domain age assessment.</div>
+        <div class="course-meta">⏱ 55 min · 7 lessons · 4.6★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:0%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">Not started</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">🎯</div>
+      <div class="course-body">
+        <div class="course-category">Simulation</div>
+        <div class="course-title">Live Phishing Simulation</div>
+        <div class="course-desc">Interactive scenario: You receive 10 realistic emails. Can you spot all the phishing attempts?</div>
+        <div class="course-meta">⏱ 20 min · 10 scenarios · 4.9★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:60%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">6 of 10 completed</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">🏆</div>
+      <div class="course-body">
+        <div class="course-category">Certification</div>
+        <div class="course-title">VEIL Certified Trust Analyst</div>
+        <div class="course-desc">Comprehensive certification covering all aspects of digital trust analysis. Industry-recognized credential.</div>
+        <div class="course-meta">⏱ 4 hours · Exam included · 4.8★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:15%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">15% complete</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">💰</div>
+      <div class="course-body">
+        <div class="course-category">Simulation</div>
+        <div class="course-title">Crypto Scam Challenge</div>
+        <div class="course-desc">Navigate realistic crypto scam scenarios including fake airdrops, wallet drainers, and NFT fraud.</div>
+        <div class="course-meta">⏱ 25 min · 8 scenarios · 4.7★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:0%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">Not started</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">📧</div>
+      <div class="course-body">
+        <div class="course-category">Advanced</div>
+        <div class="course-title">Email Header Forensics</div>
+        <div class="course-desc">Learn to read email headers, trace routing, verify SPF/DMARC/DKIM, and detect spoofing attempts.</div>
+        <div class="course-meta">⏱ 40 min · 5 lessons · 4.5★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:40%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">40% complete</div>
+      </div>
+    </div>
+    <div class="course-card">
+      <div class="course-image">🤖</div>
+      <div class="course-body">
+        <div class="course-category">Fundamentals</div>
+        <div class="course-title">AI Scam Recognition</div>
+        <div class="course-desc">Understand how AI is used to create scams — deepfakes, voice cloning, generated phishing pages, and more.</div>
+        <div class="course-meta">⏱ 35 min · 5 lessons · 4.8★</div>
+        <div class="course-progress-track"><div class="course-progress-fill" style="width:0%"></div></div>
+        <div style="font-size:11px;color:var(--text-4);margin-top:4px;">Not started</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Challenge Banner -->
+  <div class="card" style="margin-top: 24px; background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08)); border-color: var(--border-accent);">
+    <div class="card-body" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+      <div style="font-size:40px;">🏆</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:16px;font-weight:700;color:var(--text-0);margin-bottom:4px;">This Week's Challenge: "The Perfect Phish"</div>
+        <div style="font-size:13px;color:var(--text-3);line-height:1.6;">A sophisticated phishing campaign is targeting your organization. Analyze 5 emails, 3 URLs, and 2 QR codes to identify every threat. Top 10 scorers win the "Eagle Eye" badge.</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:24px;font-weight:800;color:var(--text-0);">1,847</div>
+        <div style="font-size:11px;color:var(--text-4);">Participants</div>
+        <button class="btn btn-primary" style="margin-top:10px;">Start Challenge →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: TRUST RESEARCH CENTER
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-research">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Trust Research Center</h1>
+        <p class="page-subtitle">Authoritative research, threat intelligence reports, and industry analysis from the VEIL security research team.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">🔍 Search Research</button>
+        <button class="btn btn-primary btn-sm">📥 Download All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Report -->
+  <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(13,148,136,0.06));">
+    <div class="card-body" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+      <div style="font-size:48px;">📊</div>
+      <div style="flex:1;min-width:250px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span class="badge badge-info">Featured</span>
+          <span style="font-size:11px;color:var(--text-4)">July 2026</span>
+        </div>
+        <div style="font-size:20px;font-weight:700;color:var(--text-0);margin-bottom:8px;">Internet Trust Report — Q2 2026</div>
+        <div style="font-size:13px;color:var(--text-3);line-height:1.6;">Comprehensive analysis of global digital trust trends, emerging threat vectors, and industry resilience scores across 47 countries and 12 sectors.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-primary">📖 Read Report</button>
+        <button class="btn btn-secondary">📥 Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Research Grid -->
+  <div class="grid-3 stagger">
+    <div class="research-card">
+      <div class="research-card-header">
+        <span class="research-card-type weekly">Weekly</span>
+        <span style="font-size:11px;color:var(--text-4)">Jul 18, 2026</span>
+      </div>
+      <div class="research-card-title">Weekly Threat Digest — Week 29</div>
+      <div class="research-card-desc">Bank impersonation campaigns surge 34% week-over-week. New QR payment scam targets parking meters in 12 US cities.</div>
+      <div class="research-card-footer">
+        <span>👁 4,203 views</span>
+        <span>⬇ 1,847 downloads</span>
+      </div>
+    </div>
+    <div class="research-card">
+      <div class="research-card-header">
+        <span class="research-card-type industry">Industry</span>
+        <span style="font-size:11px;color:var(--text-4)">Jul 15, 2026</span>
+      </div>
+      <div class="research-card-title">Financial Services Trust Index 2026</div>
+      <div class="research-card-desc">Sector-wide analysis of 340 financial institutions. Average trust score: 71/100. Top performer: JPMorgan Chase (94).</div>
+      <div class="research-card-footer">
+        <span>👁 8,941 views</span>
+        <span>⬇ 3,220 downloads</span>
+      </div>
+    </div>
+    <div class="research-card">
+      <div class="research-card-header">
+        <span class="research-card-type ai">AI Threat</span>
+        <span style="font-size:11px;color:var(--text-4)">Jul 12, 2026</span>
+      </div>
+      <div class="research-card-title">The Rise of AI-Generated Scam Content</div>
+      <div class="research-card-desc">How LLMs and image generation are lowering the barrier to entry for scammers. 400% increase in AI-generated phishing pages.</div>
+      <div class="research-card-footer">
+        <span>👁 12,308 views</span>
+        <span>⬇ 5,104 downloads</span>
+      </div>
+    </div>
+    <div class="research-card">
+      <div class="research-card-header">
+        <span class="research-card-type country">Country</span>
+        <span style="font-size:11px;color:var(--text-4)">Jul 10, 2026</span>
+      </div>
+      <div class="research-card-title">Country Trust Index — Nordics Lead</div>
+      <div class="research-card-desc">Norway, Sweden, and Finland maintain top positions. Emerging markets show 18% improvement in phishing resilience.</div>
+      <div class="research-card-footer">
+        <span>👁 6,227 views</span>
+        <span>⬇ 2,108 downloads</span>
+      </div>
+    </div>
+    <div class="research-card">
+      <div class="research-card-header">
+        <span class="research-card-type weekly">Weekly</span>
+        <span style="font-size:11px;color:var(--text-4)">Jul 8, 2026</span>
+      </div>
+      <div class="research-card-title">Weekly Threat Digest — Week 28</div>
+      <div class="research-card-desc">Crypto wallet drainer variants multiply. Supply chain attacks on npm packages affect 2,400+ projects.</div>
+      <div class="research-card-footer">
+        <span>👁 3,891 views</span>
+        <span>⬇ 1,556 downloads</span>
+      </div>
+    </div>
+    <div class="research-card">
+      <div class="research-card-header">
+        <span class="research-card-type industry">Industry</span>
+        <span style="font-size:11px;color:var(--text-4)">Jul 5, 2026</span>
+      </div>
+      <div class="research-card-title">E-Commerce Trust Rankings</div>
+      <div class="research-card-desc">Analysis of 1,200 e-commerce platforms. Fake store detection up 22%. Amazon, Shopify, and Etsy lead in trust scores.</div>
+      <div class="research-card-footer">
+        <span>👁 7,442 views</span>
+        <span>⬇ 2,887 downloads</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Research Library Table -->
+  <div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+      <div class="card-header-title">Research Library</div>
+      <div class="badge badge-ghost">48 reports</div>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr><th>Report</th><th>Type</th><th>Date</th><th>Views</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--text-1)">2026 Mid-Year Threat Landscape</strong></td>
+            <td><span class="badge badge-info">Annual</span></td>
+            <td>Jul 1, 2026</td>
+            <td class="font-mono">24,103</td>
+            <td><button class="btn btn-ghost btn-sm">⬇</button></td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text-1)">Ransomware & Extortion Trends</strong></td>
+            <td><span class="badge badge-warn">Special</span></td>
+            <td>Jun 28, 2026</td>
+            <td class="font-mono">18,442</td>
+            <td><button class="btn btn-ghost btn-sm">⬇</button></td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text-1)">Mobile App Trust Analysis</strong></td>
+            <td><span class="badge badge-info">Industry</span></td>
+            <td>Jun 20, 2026</td>
+            <td class="font-mono">11,887</td>
+            <td><button class="btn btn-ghost btn-sm">⬇</button></td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text-1)">Government Digital Trust Scorecard</strong></td>
+            <td><span class="badge badge-safe">Country</span></td>
+            <td>Jun 15, 2026</td>
+            <td class="font-mono">9,221</td>
+            <td><button class="btn btn-ghost btn-sm">⬇</button></td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text-1)">Healthcare Sector Vulnerability Report</strong></td>
+            <td><span class="badge badge-danger">Critical</span></td>
+            <td>Jun 10, 2026</td>
+            <td class="font-mono">15,663</td>
+            <td><button class="btn btn-ghost btn-sm">⬇</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: TRUST COMPLIANCE
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-compliance">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Trust Compliance</h1>
+        <p class="page-subtitle">Track, manage, and improve your organization's compliance posture across GDPR, ISO27001, SOC2, PCI DSS, and DPDP.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">📥 Export</button>
+        <button class="btn btn-primary btn-sm">➕ Add Framework</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliance Overview KPIs -->
+  <div class="kpi-grid stagger">
+    <div class="kpi-card">
+      <div class="kpi-card-icon green">📋</div>
+      <div class="kpi-card-value">94%</div>
+      <div class="kpi-card-label">Overall Compliance</div>
+      <div class="kpi-card-change up">↑ 2% this quarter</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon blue">✅</div>
+      <div class="kpi-card-value">142</div>
+      <div class="kpi-card-label">Controls Passed</div>
+      <div class="kpi-card-change up">↑ 8 new this month</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon amber">⚠️</div>
+      <div class="kpi-card-value">12</div>
+      <div class="kpi-card-label">Controls at Risk</div>
+      <div class="kpi-card-change down">↓ 3 from last month</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon red">❌</div>
+      <div class="kpi-card-value">6</div>
+      <div class="kpi-card-label">Controls Failed</div>
+      <div class="kpi-card-change">2 critical</div>
+    </div>
+  </div>
+
+  <!-- Compliance Frameworks -->
+  <div class="grid-2">
+    <!-- GDPR -->
+    <div class="compliance-framework">
+      <div class="compliance-framework-header">
+        <div class="compliance-framework-name">
+          <span style="font-size:20px;">🇪🇺</span> GDPR
+        </div>
+        <div class="compliance-framework-score high">96%</div>
+      </div>
+      <div class="compliance-checklist">
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Lawful basis for processing established</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Data Protection Impact Assessment completed</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Privacy policy updated and transparent</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Data subject rights mechanism implemented</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon pending">⏳</span><span class="compliance-check-text">Cross-border transfer safeguards (Schrems II)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Breach notification procedure tested</span></div>
+      </div>
+    </div>
+
+    <!-- ISO 27001 -->
+    <div class="compliance-framework">
+      <div class="compliance-framework-header">
+        <div class="compliance-framework-name">
+          <span style="font-size:20px;">🔒</span> ISO 27001
+        </div>
+        <div class="compliance-framework-score high">91%</div>
+      </div>
+      <div class="compliance-checklist">
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Information Security Policy documented</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Risk assessment and treatment plan</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Access control policy enforced</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon pending">⏳</span><span class="compliance-check-text">Internal audit scheduled (Q3)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Incident management procedures</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon missing">✗</span><span class="compliance-check-text">Business continuity testing (overdue)</span></div>
+      </div>
+    </div>
+
+    <!-- SOC 2 -->
+    <div class="compliance-framework">
+      <div class="compliance-framework-header">
+        <div class="compliance-framework-name">
+          <span style="font-size:20px;">🛡</span> SOC 2 Type II
+        </div>
+        <div class="compliance-framework-score medium">87%</div>
+      </div>
+      <div class="compliance-checklist">
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Security controls (CC6.1 — CC6.8)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Availability monitoring and SLAs</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon pending">⏳</span><span class="compliance-check-text">Processing integrity (CC8.1)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Confidentiality agreements reviewed</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon missing">✗</span><span class="compliance-check-text">Privacy notice alignment (CC9.2)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Change management procedures</span></div>
+      </div>
+    </div>
+
+    <!-- PCI DSS -->
+    <div class="compliance-framework">
+      <div class="compliance-framework-header">
+        <div class="compliance-framework-name">
+          <span style="font-size:20px;">💳</span> PCI DSS v4.0
+        </div>
+        <div class="compliance-framework-score medium">82%</div>
+      </div>
+      <div class="compliance-checklist">
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Network segmentation validated</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Encryption in transit (TLS 1.3)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon pending">⏳</span><span class="compliance-check-text">Vulnerability management (Req 6.3)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon missing">✗</span><span class="compliance-check-text">Access control matrix (Req 7.2)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon done">✓</span><span class="compliance-check-text">Logging and monitoring (Req 10)</span></div>
+        <div class="compliance-check"><span class="compliance-check-icon missing">✗</span><span class="compliance-check-text">Quarterly ASV scan (overdue)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliance Trend Chart -->
+  <div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+      <div class="card-header-title">Compliance Score Trend</div>
+      <div class="badge badge-ghost">Last 12 months</div>
+    </div>
+    <div class="card-body">
+      <div class="chart-container">
+        <canvas id="complianceTrendChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: TRUST AUDIT
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-audit">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Trust Audit</h1>
+        <p class="page-subtitle">Generate comprehensive trust audits for any domain, organization, or company. Get executive summaries, risk matrices, and actionable recommendations.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">📁 History</button>
+        <button class="btn btn-primary btn-sm">➕ New Audit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Input -->
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-body">
+      <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+        <div style="flex:1;min-width:250px;">
+          <label style="display:block;font-size:12px;color:var(--text-3);margin-bottom:6px;font-weight:500;">Domain or Organization</label>
+          <input class="scanner-input" style="width:100%;" type="text" placeholder="e.g., acme-corp.com or Acme Corporation" value="acme-corp.com">
+        </div>
+        <div style="min-width:180px;">
+          <label style="display:block;font-size:12px;color:var(--text-3);margin-bottom:6px;font-weight:500;">Audit Type</label>
+          <select class="scanner-input" style="width:100%;cursor:pointer;">
+            <option>Full Trust Audit</option>
+            <option>Security Focus</option>
+            <option>Privacy Focus</option>
+            <option>Compliance Gap</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-lg">🔍 Generate Audit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sample Audit Result -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-header-title">Audit Result: acme-corp.com</div>
+        <div class="card-header-subtitle">Generated July 22, 2026 · Full Trust Audit</div>
+      </div>
+      <div class="badge badge-info">Latest</div>
+    </div>
+    <div class="card-body">
+      <!-- Score Rings -->
+      <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;">
+        <div style="text-align:center;">
+          <div class="audit-score-ring" style="border-color:var(--accent-blue);margin:0 auto 8px;">
+            <div class="audit-score-value" style="color:var(--accent-blue-2)">74</div>
+            <div class="audit-score-label">Overall</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);font-weight:600;">Trust Score</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="audit-score-ring" style="border-color:var(--accent-green);margin:0 auto 8px;">
+            <div class="audit-score-value" style="color:var(--accent-green-2)">82</div>
+            <div class="audit-score-label">Security</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);font-weight:600;">Security</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="audit-score-ring" style="border-color:var(--accent-amber);margin:0 auto 8px;">
+            <div class="audit-score-value" style="color:var(--accent-amber-2)">68</div>
+            <div class="audit-score-label">Privacy</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);font-weight:600;">Privacy</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="audit-score-ring" style="border-color:var(--accent-purple);margin:0 auto 8px;">
+            <div class="audit-score-value" style="color:var(--accent-purple-2)">79</div>
+            <div class="audit-score-label">Transparency</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);font-weight:600;">Transparency</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="audit-score-ring" style="border-color:var(--accent-teal);margin:0 auto 8px;">
+            <div class="audit-score-value" style="color:var(--accent-teal-2)">71</div>
+            <div class="audit-score-label">Reliability</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);font-weight:600;">Reliability</div>
+        </div>
+      </div>
+
+      <!-- Executive Summary -->
+      <div style="background:var(--bg-3);border-radius:var(--r-md);padding:16px;margin-bottom:20px;border-left:3px solid var(--accent-amber);">
+        <div style="font-size:12px;font-weight:700;color:var(--accent-amber-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em;">⚠️ Executive Summary</div>
+        <p style="font-size:13px;color:var(--text-1);line-height:1.7;">Acme Corp demonstrates solid security fundamentals (TLS 1.3, HSTS, secure headers) but has notable gaps in privacy transparency and cookie consent management. The domain is 4 years old with consistent registration. No active phishing impersonation detected. DMARC policy is at p=none — recommend upgrading to p=quarantine.</p>
+      </div>
+
+      <!-- Recommendations -->
+      <p style="font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-4);margin-bottom:12px;">Top Recommendations</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+        <div class="factor-row">
+          <span class="badge badge-danger">Critical</span>
+          <span class="factor-label">Upgrade DMARC from p=none to p=quarantine</span>
+          <span class="factor-pts neg">-8 pts</span>
+        </div>
+        <div class="factor-row">
+          <span class="badge badge-warn">High</span>
+          <span class="factor-label">Implement comprehensive cookie consent banner</span>
+          <span class="factor-pts neg">-6 pts</span>
+        </div>
+        <div class="factor-row">
+          <span class="badge badge-warn">High</span>
+          <span class="factor-label">Add privacy policy last-updated date</span>
+          <span class="factor-pts neg">-4 pts</span>
+        </div>
+        <div class="factor-row">
+          <span class="badge badge-info">Medium</span>
+          <span class="factor-label">Enable DNSSEC for all domains</span>
+          <span class="factor-pts neg">-3 pts</span>
+        </div>
+        <div class="factor-row">
+          <span class="badge badge-ghost">Low</span>
+          <span class="factor-label">Add security.txt file to root domain</span>
+          <span class="factor-pts neg">-2 pts</span>
+        </div>
+      </div>
+
+      <!-- Risk Matrix -->
+      <p style="font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-4);margin-bottom:12px;">Risk Matrix</p>
+      <div class="grid-2" style="gap:10px;">
+        <div style="background:var(--bg-3);border-radius:var(--r-md);padding:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:12px;color:var(--text-2);font-weight:600;">Phishing Impersonation Risk</span>
+            <span class="badge badge-safe">Low</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:18%;background:var(--accent-green)"></div></div>
+        </div>
+        <div style="background:var(--bg-3);border-radius:var(--r-md);padding:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:12px;color:var(--text-2);font-weight:600;">Data Exposure Risk</span>
+            <span class="badge badge-warn">Medium</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:52%;background:var(--accent-amber)"></div></div>
+        </div>
+        <div style="background:var(--bg-3);border-radius:var(--r-md);padding:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:12px;color:var(--text-2);font-weight:600;">Domain Hijacking Risk</span>
+            <span class="badge badge-safe">Low</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:22%;background:var(--accent-green)"></div></div>
+        </div>
+        <div style="background:var(--bg-3);border-radius:var(--r-md);padding:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:12px;color:var(--text-2);font-weight:600;">Regulatory Compliance Risk</span>
+            <span class="badge badge-warn">Medium</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:48%;background:var(--accent-amber)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span style="font-size:12px;color:var(--text-4)">Audit ID: AUD-2026-07-22-001</span>
+      <button class="btn btn-secondary btn-sm">📥 Download PDF Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: TRUST BENCHMARKING
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-benchmark">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Trust Benchmarking</h1>
+        <p class="page-subtitle">Compare your organization's digital trust posture against industry peers, top performers, and historical trends.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">📥 Export</button>
+        <button class="btn btn-primary btn-sm">➕ Add Competitor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Benchmark KPIs -->
+  <div class="kpi-grid stagger">
+    <div class="kpi-card">
+      <div class="kpi-card-icon blue">📊</div>
+      <div class="kpi-card-value">74</div>
+      <div class="kpi-card-label">Your Trust Score</div>
+      <div class="kpi-card-change">Industry avg: 68</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon green">🏆</div>
+      <div class="kpi-card-value">#12</div>
+      <div class="kpi-card-label">Industry Ranking</div>
+      <div class="kpi-card-change up">↑ 3 positions</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon purple">📈</div>
+      <div class="kpi-card-value">+8%</div>
+      <div class="kpi-card-label">YoY Improvement</div>
+      <div class="kpi-card-change up">Above avg (+5%)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-icon amber">🎯</div>
+      <div class="kpi-card-value">6</div>
+      <div class="kpi-card-label">Improvement Areas</div>
+      <div class="kpi-card-change">2 critical</div>
+    </div>
+  </div>
+
+  <!-- Radar Chart + Comparison -->
+  <div class="grid-2" style="margin-bottom: 24px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">Trust Dimension Comparison</div>
+        <div class="badge badge-ghost">Radar View</div>
+      </div>
+      <div class="card-body">
+        <div class="chart-container lg">
+          <canvas id="benchmarkRadarChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">Industry Comparison</div>
+        <div class="badge badge-ghost">Top 10</div>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr><th>Rank</th><th>Organization</th><th>Score</th><th>Trend</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="font-mono" style="color:var(--accent-amber-2);font-weight:700">1</td><td><strong>SecureFirst Bank</strong></td><td class="font-mono" style="color:var(--accent-green-2);font-weight:700">96</td><td><span class="kpi-card-change up">↑ 2</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">2</td><td><strong>CloudNine Tech</strong></td><td class="font-mono" style="color:var(--accent-green-2);font-weight:700">93</td><td><span class="kpi-card-change">—</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">3</td><td><strong>ShieldNet Corp</strong></td><td class="font-mono" style="color:var(--accent-green-2);font-weight:700">91</td><td><span class="kpi-card-change up">↑ 1</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">4</td><td><strong>TrustVault Inc</strong></td><td class="font-mono" style="color:var(--accent-green-2);font-weight:700">89</td><td><span class="kpi-card-change down">↓ 1</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">5</td><td><strong>SafeHarbor Digital</strong></td><td class="font-mono" style="color:var(--accent-green-2);font-weight:700">87</td><td><span class="kpi-card-change up">↑ 3</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">6</td><td><strong>IronClad Systems</strong></td><td class="font-mono" style="color:var(--accent-blue-2);font-weight:700">85</td><td><span class="kpi-card-change">—</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">7</td><td><strong>Guardian AI</strong></td><td class="font-mono" style="color:var(--accent-blue-2);font-weight:700">83</td><td><span class="kpi-card-change up">↑ 2</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">8</td><td><strong>Fortress Data</strong></td><td class="font-mono" style="color:var(--accent-blue-2);font-weight:700">81</td><td><span class="kpi-card-change down">↓ 2</span></td></tr>
+            <tr><td class="font-mono" style="color:var(--text-3);font-weight:700">9</td><td><strong>Sentinel Corp</strong></td><td class="font-mono" style="color:var(--accent-blue-2);font-weight:700">79</td><td><span class="kpi-card-change">—</span></td></tr>
+            <tr style="background:rgba(59,130,246,0.05);"><td class="font-mono" style="color:var(--accent-blue-2);font-weight:700">12</td><td><strong style="color:var(--accent-blue-2)">Acme Corp (You)</strong></td><td class="font-mono" style="color:var(--accent-blue-2);font-weight:700">74</td><td><span class="kpi-card-change up">↑ 3</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historical Trend -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-title">Historical Trust Score Trend</div>
+      <div class="badge badge-ghost">Last 24 months</div>
+    </div>
+    <div class="card-body">
+      <div class="chart-container">
+        <canvas id="benchmarkTrendChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: TRUST COLLABORATION
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-collaboration">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Trust Collaboration</h1>
+        <p class="page-subtitle">Collaborative workspace for investigations, case management, evidence sharing, and team coordination.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">📁 Templates</button>
+        <button class="btn btn-primary btn-sm">➕ New Case</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collaboration Stats -->
+  <div class="kpi-grid stagger" style="grid-template-columns: repeat(5, 1fr);">
+    <div class="kpi-card">
+      <div class="kpi-card-value">23</div>
+      <div class="kpi-card-label">Open Cases</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-value">7</div>
+      <div class="kpi-card-label">In Progress</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-value">41</div>
+      <div class="kpi-card-label">Resolved</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-value">12</div>
+      <div class="kpi-card-label">Team Members</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-value">156</div>
+      <div class="kpi-card-label">Evidence Items</div>
+    </div>
+  </div>
+
+  <!-- Kanban Board -->
+  <div class="kanban-board">
+    <div class="kanban-column">
+      <div class="kanban-column-header">
+        <div class="kanban-column-title">📋 To Do <span class="kanban-column-count">8</span></div>
+        <button class="btn btn-ghost btn-sm">➕</button>
+      </div>
+      <div class="kanban-cards">
+        <div class="kanban-card">
+          <span class="kanban-card-priority high"></span>
+          <div class="kanban-card-title">Investigate bank-secure-verify.tk phishing campaign</div>
+          <div class="kanban-card-meta">🔍 Investigation · Due Jul 25</div>
+          <div class="kanban-card-tags"><span class="badge badge-danger">Critical</span><span class="badge badge-ghost">Phishing</span></div>
+        </div>
+        <div class="kanban-card">
+          <span class="kanban-card-priority high"></span>
+          <div class="kanban-card-title">Analyze QR scam reports from parking meter incidents</div>
+          <div class="kanban-card-meta">🔍 Investigation · Due Jul 26</div>
+          <div class="kanban-card-tags"><span class="badge badge-warn">High</span><span class="badge badge-ghost">QR Scam</span></div>
+        </div>
+        <div class="kanban-card">
+          <span class="kanban-card-priority medium"></span>
+          <div class="kanban-card-title">Review DMARC policy for all financial domains</div>
+          <div class="kanban-card-meta">📋 Task · Due Jul 28</div>
+          <div class="kanban-card-tags"><span class="badge badge-info">Medium</span><span class="badge badge-ghost">Email</span></div>
+        </div>
+        <div class="kanban-card">
+          <span class="kanban-card-priority low"></span>
+          <div class="kanban-card-title">Update threat intelligence database with new IOCs</div>
+          <div class="kanban-card-meta">📋 Task · Due Jul 30</div>
+          <div class="kanban-card-tags"><span class="badge badge-ghost">Low</span><span class="badge badge-ghost">Data</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="kanban-column">
+      <div class="kanban-column-header">
+        <div class="kanban-column-title">🔍 In Progress <span class="kanban-column-count">7</span></div>
+      </div>
+      <div class="kanban-cards">
+        <div class="kanban-card">
+          <span class="kanban-card-priority high"></span>
+          <div class="kanban-card-title">Crypto wallet drainer variant analysis</div>
+          <div class="kanban-card-meta">👤 Alex · Updated 2h ago</div>
+          <div class="kanban-card-tags"><span class="badge badge-danger">Critical</span><span class="badge badge-ghost">Crypto</span></div>
+        </div>
+        <div class="kanban-card">
+          <span class="kanban-card-priority medium"></span>
+          <div class="kanban-card-title">SOC2 Type II evidence collection</div>
+          <div class="kanban-card-meta">👤 Sarah · Updated 5h ago</div>
+          <div class="kanban-card-tags"><span class="badge badge-info">Medium</span><span class="badge badge-ghost">Compliance</span></div>
+        </div>
+        <div class="kanban-card">
+          <span class="kanban-card-priority medium"></span>
+          <div class="kanban-card-title">Brand impersonation takedown requests</div>
+          <div class="kanban-card-meta">👤 Mike · Updated 1d ago</div>
+          <div class="kanban-card-tags"><span class="badge badge-warn">High</span><span class="badge badge-ghost">Brand</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="kanban-column">
+      <div class="kanban-column-header">
+        <div class="kanban-column-title">✅ Review <span class="kanban-column-count">4</span></div>
+      </div>
+      <div class="kanban-cards">
+        <div class="kanban-card">
+          <span class="kanban-card-priority medium"></span>
+          <div class="kanban-card-title">Weekly threat report draft</div>
+          <div class="kanban-card-meta">👤 Alex · Pending review</div>
+          <div class="kanban-card-tags"><span class="badge badge-info">Medium</span><span class="badge badge-ghost">Report</span></div>
+        </div>
+        <div class="kanban-card">
+          <span class="kanban-card-priority low"></span>
+          <div class="kanban-card-title">New scanner heuristic rules review</div>
+          <div class="kanban-card-meta">👤 Dev Team · Pending review</div>
+          <div class="kanban-card-tags"><span class="badge badge-ghost">Low</span><span class="badge badge-ghost">Engineering</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="kanban-column">
+      <div class="kanban-column-header">
+        <div class="kanban-column-title">🎉 Done <span class="kanban-column-count">41</span></div>
+      </div>
+      <div class="kanban-cards">
+        <div class="kanban-card" style="opacity:0.6;">
+          <span class="kanban-card-priority low"></span>
+          <div class="kanban-card-title">Q2 compliance gap analysis</div>
+          <div class="kanban-card-meta">✓ Completed Jul 15</div>
+          <div class="kanban-card-tags"><span class="badge badge-safe">Done</span></div>
+        </div>
+        <div class="kanban-card" style="opacity:0.6;">
+          <span class="kanban-card-priority high"></span>
+          <div class="kanban-card-title">Critical phishing domain takedown</div>
+          <div class="kanban-card-meta">✓ Completed Jul 12</div>
+          <div class="kanban-card-tags"><span class="badge badge-safe">Done</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity in Collaboration -->
+  <div class="card" style="margin-top: 24px;">
+    <div class="card-header">
+      <div class="card-header-title">Recent Activity</div>
+      <button class="btn btn-ghost btn-sm">View All</button>
+    </div>
+    <div class="card-body" style="padding: 12px 16px;">
+      <div class="activity-card">
+        <div class="activity-icon blue">📝</div>
+        <div class="activity-content">
+          <div class="activity-title">Alex added evidence to "Crypto wallet drainer variant analysis"</div>
+          <div class="activity-desc">3 new IOCs, 2 wallet addresses, 1 C2 domain</div>
+          <div class="activity-meta">2 hours ago</div>
+        </div>
+      </div>
+      <div class="activity-card">
+        <div class="activity-icon green">✅</div>
+        <div class="activity-content">
+          <div class="activity-title">Sarah completed SOC2 evidence collection</div>
+          <div class="activity-desc">All 47 control evidence items uploaded and verified</div>
+          <div class="activity-meta">5 hours ago</div>
+        </div>
+      </div>
+      <div class="activity-card">
+        <div class="activity-icon amber">💬</div>
+        <div class="activity-content">
+          <div class="activity-title">Mike commented on "Brand impersonation takedown"</div>
+          <div class="activity-desc">"Registrar responded — 2 domains suspended, 3 pending"</div>
+          <div class="activity-meta">1 day ago</div>
+        </div>
+      </div>
+      <div class="activity-card">
+        <div class="activity-icon purple">📎</div>
+        <div class="activity-content">
+          <div class="activity-title">Team shared report: "Weekly Threat Digest — Week 29"</div>
+          <div class="activity-desc">PDF report attached · 14 pages · 2.3 MB</div>
+          <div class="activity-meta">2 days ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: INTELLIGENCE FEED
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-feed">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Intelligence Feed</h1>
+        <p class="page-subtitle">Real-time threat intelligence, breaking alerts, and community-sourced reports from the VEIL network.</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm">🔔 Subscribe</button>
+        <button class="btn btn-primary btn-sm">📤 Share Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feed Filters -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+    <button class="btn btn-primary btn-sm">All</button>
+    <button class="btn btn-ghost btn-sm">🚨 Breaking</button>
+    <button class="btn btn-ghost btn-sm">📊 Research</button>
+    <button class="btn btn-ghost btn-sm">⚠️ Advisories</button>
+    <button class="btn btn-ghost btn-sm">🌐 Community</button>
+    <button class="btn btn-ghost btn-sm">🎯 Scams</button>
+  </div>
+
+  <!-- Feed Cards -->
+  <div class="stagger">
+    <div class="feed-card">
+      <div class="feed-card-header">
+        <div class="feed-card-avatar" style="background:var(--accent-red)">🚨</div>
+        <div class="feed-card-source">VEIL Threat Intel</div>
+        <div class="feed-card-time">2 min ago</div>
+      </div>
+      <div class="feed-card-title">Breaking: New bank impersonation wave targets 14 regional banks</div>
+      <div class="feed-card-desc">A sophisticated phishing campaign using homograph domains and AI-generated landing pages is actively targeting customers of regional banks across the US Midwest. Over 14,000 malicious URLs detected in the past 48 hours.</div>
+      <div class="feed-card-tags">
+        <span class="badge badge-danger">Critical</span>
+        <span class="badge badge-ghost">Phishing</span>
+        <span class="badge badge-ghost">Banking</span>
+        <span class="badge badge-ghost">Active Campaign</span>
+      </div>
+    </div>
+
+    <div class="feed-card">
+      <div class="feed-card-header">
+        <div class="feed-card-avatar" style="background:var(--accent-amber)">⚠️</div>
+        <div class="feed-card-source">CISA Advisory</div>
+        <div class="feed-card-time">15 min ago</div>
+      </div>
+      <div class="feed-card-title">CISA Alert AA26-203: Critical vulnerability in widely-used router firmware</div>
+      <div class="feed-card-desc">CISA has added CVE-2026-8842 to its Known Exploited Vulnerabilities catalog. The vulnerability allows unauthenticated remote code execution on affected devices. Patch immediately.</div>
+      <div class="feed-card-tags">
+        <span class="badge badge-warn">High</span>
+        <span class="badge badge-ghost">CVE</span>
+        <span class="badge badge-ghost">Router</span>
+        <span class="badge badge-ghost">RCE</span>
+      </div>
+    </div>
+
+    <div class="feed-card">
+      <div class="feed-card-header">
+        <div class="feed-card-avatar" style="background:var(--accent-purple)">📊</div>
+        <div class="feed-card-source">VEIL Research Team</div>
+        <div class="feed-card-time">1 hour ago</div>
+      </div>
+      <div class="feed-card-title">New research: QR code payment scams surge 340% in Q2 2026</div>
+      <div class="feed-card-desc">Our latest analysis reveals a dramatic increase in QR-based payment fraud, particularly targeting parking meters, toll booths, and restaurant menus. Scammers replace legitimate QR codes with malicious ones that redirect to phishing sites.</div>
+      <div class="feed-card-tags">
+        <span class="badge badge-info">Research</span>
+        <span class="badge badge-ghost">QR Scam</span>
+        <span class="badge badge-ghost">Payment Fraud</span>
+      </div>
+    </div>
+
+    <div class="feed-card">
+      <div class="feed-card-header">
+        <div class="feed-card-avatar" style="background:var(--accent-blue)">🌐</div>
+        <div class="feed-card-source">Community Report</div>
+        <div class="feed-card-time">2 hours ago</div>
+      </div>
+      <div class="feed-card-title">Community member reports new crypto wallet drainer variant</div>
+      <div class="feed-card-desc">User "security_pro_99" reported a new variant of the Inferno Drainer targeting MetaMask users through fake Discord support channels. 47 community reports confirm the pattern.</div>
+      <div class="feed-card-tags">
+        <span class="badge badge-warn">High</span>
+        <span class="badge badge-ghost">Crypto</span>
+        <span class="badge badge-ghost">Wallet Drainer</span>
+        <span class="badge badge-ghost">Community</span>
+      </div>
+    </div>
+
+    <div class="feed-card">
+      <div class="feed-card-header">
+        <div class="feed-card-avatar" style="background:var(--accent-green)">✅</div>
+        <div class="feed-card-source">VEIL Operations</div>
+        <div class="feed-card-time">3 hours ago</div>
+      </div>
+      <div class="feed-card-title">Threat neutralized: Major phishing infrastructure taken down</div>
+      <div class="feed-card-desc">In coordination with law enforcement and hosting providers, VEIL successfully facilitated the takedown of a phishing infrastructure responsible for 23,000+ malicious domains. Operation "CleanWeb" concluded with zero false positives.</div>
+      <div class="feed-card-tags">
+        <span class="badge badge-safe">Resolved</span>
+        <span class="badge badge-ghost">Takedown</span>
+        <span class="badge badge-ghost">Infrastructure</span>
+      </div>
+    </div>
+
+    <div class="feed-card">
+      <div class="feed-card-header">
+        <div class="feed-card-avatar" style="background:var(--accent-teal)">🎯</div>
+        <div class="feed-card-source">Industry Advisory</div>
+        <div class="feed-card-time">5 hours ago</div>
+      </div>
+      <div class="feed-card-title">FS-ISAC warns of increased BEC attacks using deepfake voice calls</div>
+      <div class="feed-card-desc">The Financial Services Information Sharing and Analysis Center has issued an advisory regarding business email compromise attacks enhanced with AI-generated voice cloning. At least 3 confirmed cases of wire fraud totaling $2.4M.</div>
+      <div class="feed-card-tags">
+        <span class="badge badge-warn">High</span>
+        <span class="badge badge-ghost">BEC</span>
+        <span class="badge badge-ghost">Deepfake</span>
+        <span class="badge badge-ghost">Wire Fraud</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:24px;">
+    <button class="btn btn-secondary">Load More</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     PAGE: SETTINGS
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="page-content" id="page-settings">
+  <div class="page-header">
+    <div class="page-header-top">
+      <div>
+        <h1 class="page-title">Settings</h1>
+        <p class="page-subtitle">Manage your profile, workspace, notifications, and platform preferences.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Profile Settings -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">👤 Profile</div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;">AS</div>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--text-0);">Alex Sterling</div>
+            <div style="font-size:13px;color:var(--text-3);">alex.sterling@acme-corp.com</div>
+            <div style="font-size:12px;color:var(--text-4);margin-top:2px;">Security Lead · Member since Jan 2025</div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Display Name</div>
+              <div class="settings-desc">How your name appears across the platform</div>
+            </div>
+            <input class="scanner-input" style="width:200px;" value="Alex Sterling">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Email</div>
+              <div class="settings-desc">Used for notifications and login</div>
+            </div>
+            <input class="scanner-input" style="width:200px;" value="alex.sterling@acme-corp.com">
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Job Title</div>
+              <div class="settings-desc">Your role in the organization</div>
+            </div>
+            <input class="scanner-input" style="width:200px;" value="Security Lead">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">🎨 Appearance</div>
+      </div>
+      <div class="card-body">
+        <div class="settings-section">
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Dark Mode</div>
+              <div class="settings-desc">Always use dark theme (recommended)</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Compact Sidebar</div>
+              <div class="settings-desc">Show icons only in sidebar</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on');toggleSidebar()"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Animations</div>
+              <div class="settings-desc">Enable smooth transitions and micro-interactions</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Glassmorphism Effects</div>
+              <div class="settings-desc">Enable translucent blur effects</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">🔔 Notifications</div>
+      </div>
+      <div class="card-body">
+        <div class="settings-section">
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Breaking Threat Alerts</div>
+              <div class="settings-desc">Immediate alerts for critical threats</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Weekly Digest</div>
+              <div class="settings-desc">Summary every Monday at 9 AM</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Compliance Reminders</div>
+              <div class="settings-desc">Alerts for upcoming audit deadlines</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Team Activity</div>
+              <div class="settings-desc">Notifications for case assignments and mentions</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">🔒 Security</div>
+      </div>
+      <div class="card-body">
+        <div class="settings-section">
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Two-Factor Authentication</div>
+              <div class="settings-desc">Require 2FA for all logins</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">API Keys</div>
+              <div class="settings-desc">Manage programmatic access</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">Manage Keys</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Session Management</div>
+              <div class="settings-desc">View and revoke active sessions</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">View Sessions</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Login History</div>
+              <div class="settings-desc">Review recent login activity</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">View History</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="card" style="margin-top: 24px; border-color: rgba(239,68,68,0.2);">
+    <div class="card-header">
+      <div class="card-header-title" style="color:var(--accent-red-2)">⚠️ Danger Zone</div>
+    </div>
+    <div class="card-body">
+      <div class="settings-section">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label" style="color:var(--accent-red-2)">Delete Account</div>
+            <div class="settings-desc">Permanently delete your account and all data</div>
+          </div>
+          <button class="btn btn-danger">Delete Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════
+     TOAST CONTAINER
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+</div><!-- end content-scroll -->
+</div><!-- end main-area -->
+</div><!-- end app-shell -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// VEIL v5 — Digital Trust Intelligence Platform
+// Core Application Logic
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ── Navigation ──
+const PAGES = {
+  dashboard: { title: 'Dashboard', icon: '🏠' },
+  intelligence: { title: 'Trust Intelligence', icon: '🛡' },
+  academy: { title: 'Trust Academy', icon: '🎓' },
+  research: { title: 'Research Center', icon: '📚' },
+  compliance: { title: 'Compliance', icon: '📋' },
+  audit: { title: 'Trust Audit', icon: '🔍' },
+  benchmark: { title: 'Benchmarking', icon: '📈' },
+  collaboration: { title: 'Collaboration', icon: '👥' },
+  feed: { title: 'Intelligence Feed', icon: '📰' },
+  settings: { title: 'Settings', icon: '⚙️' }
+};
+
+let currentPage = 'dashboard';
+let scanHistory = [];
+let sidebarCollapsed = false;
+
+function navTo(page) {
+  if (!PAGES[page]) return;
+  currentPage = page;
+
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+
+  // Update breadcrumb
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = `<span>VEIL</span> / <strong>${PAGES[page].title}</strong>`;
+
+  // Show/hide pages
+  document.querySelectorAll('.page-content').forEach(el => {
+    el.classList.toggle('active', el.id === 'page-' + page);
+  });
+
+  // Scroll to top
+  document.getElementById('contentScroll').scrollTop = 0;
+
+  // Initialize charts for the page
+  setTimeout(() => initPageCharts(page), 50);
+}
+
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed', sidebarCollapsed);
+  const btn = document.querySelector('.sidebar-toggle');
+  btn.textContent = sidebarCollapsed ? '▶' : '◀';
+}
+
+// ── Toast ──
+function showToast(icon, message) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ── Scanner Intelligence Engine ──
+const SCAN_MESSAGES = [
+  '🔍 Running URL structure & heuristic checks…',
+  '🌐 Attempting live RDAP registry lookup…',
+  '📡 Querying DNS-over-HTTPS for DNS records…',
+  '🔒 Checking SSL/HTTPS & security headers…',
+  '🧠 Running AI behavioral read…',
+  '📊 Calculating transparent trust score…',
+  '✅ Assembling evidence report…'
+];
+
+const KNOWN_SAFE_DOMAINS = [
+  'github.com','gitlab.com','stackoverflow.com','google.com','microsoft.com',
+  'apple.com','amazon.com','stripe.com','paypal.com','cloudflare.com',
+  'aws.amazon.com','azure.com','vercel.app','netlify.app','notion.so',
+  'slack.com','zoom.us','dropbox.com','adobe.com','figma.com',
+  'wikipedia.org','nytimes.com','bbc.com','reuters.com','mozilla.org',
+  'netflix.com','spotify.com','linkedin.com','twitter.com','x.com',
+  'instagram.com','youtube.com','tiktok.com','reddit.com','discord.com'
+];
+
+const HIGH_RISK_TLDS = ['tk','ml','ga','cf','gq','xyz','top','work','click','loan','win','review','party'];
+const URL_SHORTENERS = ['bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','buff.ly'];
+const BRAND_KEYWORDS = ['paypal','amazon','apple','microsoft','netflix','chase','wellsfargo','google','facebook','instagram','irs','usps','fedex','coinbase','binance'];
+const URGENCY_KEYWORDS = ['verify','suspended','urgent','winner','claim-now','limited-time','act-now','confirm-identity','locked','expire','gift-card','security-alert'];
+
+function runUrlHeuristics(urlStr) {
+  let parsed;
+  try { parsed = new URL(urlStr); }
+  catch(e) {
+    return {
+      evidence: [{icon:'⚠',title:'Malformed URL',detail:'VEIL could not parse this URL structure.',severity:'risk',points:-20}],
+      host:'',isHttps:false,isKnownSafe:false
+    };
+  }
+
+  const evidence = [];
+  const host = parsed.hostname.toLowerCase();
+  const path = parsed.pathname.toLowerCase();
+  const isHttps = parsed.protocol === 'https:';
+  const labels = host.split('.').filter(Boolean);
+  const tld = labels[labels.length-1] || '';
+  const rootDomain = labels.slice(-2).join('.');
+  const subdomainCount = Math.max(0, labels.length - 2);
+  const hyphenCount = (host.match(/-/g) || []).length;
+  const isIp = /^(\d{1,3}\.){3}\d{1,3}$/.test(host);
+  const isShortener = URL_SHORTENERS.some(s => host === s || host.endsWith('.'+s));
+  const isKnownSafe = KNOWN_SAFE_DOMAINS.includes(rootDomain);
+
+  if (isHttps) {
+    evidence.push({icon:'✓',title:'HTTPS encryption present',detail:'TLS encryption protects data in transit.',severity:'safe',points:5});
+  } else {
+    evidence.push({icon:'⚠',title:'No HTTPS — unencrypted connection',detail:'Data transmitted without encryption.',severity:'risk',points:-15});
+  }
+
+  if (isIp) {
+    evidence.push({icon:'⚠',title:'Numeric IP address used',detail:'Raw IP addresses are rarely used by legitimate services.',severity:'risk',points:-22});
+  }
+
+  if (!isKnownSafe) {
+    const matchedBrand = BRAND_KEYWORDS.find(b => host.includes(b));
+    if (matchedBrand) {
+      evidence.push({icon:'⚠',title:`Brand impersonation — "${matchedBrand}"`,detail:`Domain references ${matchedBrand} but is not the official domain.`,severity:'risk',points:-22});
+    }
+  }
+
+  if (isKnownSafe) {
+    evidence.push({icon:'✓',title:'Recognized established domain',detail:`${rootDomain} is a well-known, trusted domain.`,severity:'safe',points:20});
+  }
+
+  if (subdomainCount >= 3) {
+    evidence.push({icon:'⚠',title:`Excessive subdomain depth — ${subdomainCount} levels`,detail:'Deep subdomains obscure the actual host.',severity:'risk',points:-10});
+  }
+
+  if (hyphenCount >= 4) {
+    evidence.push({icon:'⚠',title:`Very high hyphen count — ${hyphenCount}`,detail:'Multiple hyphens are a classic phishing pattern.',severity:'risk',points:-12});
+  }
+
+  if (HIGH_RISK_TLDS.includes(tld)) {
+    evidence.push({icon:'⚠',title:`High-risk TLD: .${tld}`,detail:`.${tld} domains have disproportionately high abuse rates.`,severity:'risk',points:-18});
+  }
+
+  if (isShortener) {
+    evidence.push({icon:'⚠',title:'URL shortener — hides real destination',detail:'The actual destination is hidden until clicked.',severity:'risk',points:-10});
+  }
+
+  const matchedUrgency = URGENCY_KEYWORDS.filter(k => path.includes(k));
+  if (matchedUrgency.length >= 2) {
+    evidence.push({icon:'⚠',title:`Urgency keywords in path`,detail:`Contains: ${matchedUrgency.slice(0,3).join(', ')}`,severity:'risk',points:-14});
+  }
+
+  if (!isKnownSafe && evidence.filter(e => e.severity === 'risk').length === 0) {
+    evidence.push({icon:'✓',title:'No structural risk signals detected',detail:'URL structure appears clean. Manual review still recommended.',severity:'safe',points:3});
+  }
+
+  return { evidence, host, rootDomain, tld, isHttps, isKnownSafe, isIp, isShortener, subdomainCount };
+}
+
+function computeTrustScore(heur) {
+  let score = 50;
+  const factors = [];
+  heur.evidence.forEach(e => {
+    if (e.points !== 0) {
+      score += e.points;
+      factors.push({ label: e.title, points: e.points, tag: 'real' });
+    }
+  });
+
+  // AI behavioral estimation
+  const riskCount = heur.evidence.filter(e => e.severity === 'risk').length;
+  let aiManip = heur.isKnownSafe ? 15 : riskCount >= 3 ? 75 : riskCount >= 1 ? 50 : 35;
+  let aiScam = heur.isKnownSafe ? 10 : riskCount >= 3 ? 70 : riskCount >= 1 ? 45 : 30;
+  let aiTransparency = heur.isKnownSafe ? 85 : riskCount >= 3 ? 25 : riskCount >= 1 ? 50 : 65;
+
+  const manipPts = Math.round((45 - aiManip) / 3);
+  score += manipPts;
+  factors.push({ label: 'AI read: manipulation pattern level', points: manipPts, tag: 'ai' });
+
+  const transPts = Math.round((aiTransparency - 50) / 4);
+  score += transPts;
+  factors.push({ label: 'AI read: transparency signals', points: transPts, tag: 'ai' });
+
+  const scamPts = Math.round((45 - aiScam) / 3);
+  score += scamPts;
+  factors.push({ label: 'AI read: scam likelihood', points: scamPts, tag: 'ai' });
+
+  score = Math.max(2, Math.min(98, Math.round(score)));
+
+  // Generate AI explanation
+  let explanation, verdict, recommendation;
+  if (heur.isKnownSafe) {
+    explanation = `${heur.rootDomain} is a well-established, widely-recognized domain with a strong trust history. VEIL's structural analysis found no risk signals, and the domain has been in active use for an extended period.`;
+    verdict = 'Safe — Recognized established domain with clean structural signals.';
+    recommendation = 'Safe to visit';
+  } else if (riskCount >= 3) {
+    explanation = `Multiple high-confidence risk signals detected in this URL. ${heur.evidence.filter(e => e.severity === 'risk').slice(0,2).map(e => e.title).join('; ')}. The combination of these factors strongly suggests malicious intent.`;
+    verdict = 'Dangerous — Multiple structural risk signals detected.';
+    recommendation = 'Dangerous — do not visit';
+  } else if (riskCount >= 1) {
+    explanation = `One or more risk signals were identified: ${heur.evidence.filter(e => e.severity === 'risk')[0].title}. While not conclusive on its own, caution is advised.`;
+    verdict = 'Suspicious — Some risk signals present. Proceed with caution.';
+    recommendation = 'Proceed with caution';
+  } else {
+    explanation = `No structural risk signals were detected in this URL. However, VEIL does not have domain age or reputation data for ${heur.rootDomain}. The site may be legitimate, but limited signals mean lower confidence.`;
+    verdict = 'Mostly Safe — No structural red flags, but limited data available.';
+    recommendation = 'Proceed with caution';
+  }
+
+  const level = score > 80 ? 'Safe' : score > 60 ? 'Mostly Safe' : score > 35 ? 'Suspicious' : 'Dangerous';
+
+  return {
+    score, level, factors, explanation, verdict, recommendation,
+    behaviorDNA: {
+      urgencyPressure: heur.isKnownSafe ? 12 : riskCount >= 3 ? 82 : riskCount >= 1 ? 55 : 30,
+      fearManipulation: heur.isKnownSafe ? 8 : riskCount >= 3 ? 78 : riskCount >= 1 ? 48 : 25,
+      authorityExploitation: heur.isKnownSafe ? 10 : riskCount >= 3 ? 75 : riskCount >= 1 ? 45 : 28,
+      scarcityManipulation: heur.isKnownSafe ? 5 : riskCount >= 3 ? 70 : riskCount >= 1 ? 40 : 22,
+      darkPatternIntensity: heur.isKnownSafe ? 8 : riskCount >= 3 ? 80 : riskCount >= 1 ? 50 : 30,
+      socialProofManipulation: heur.isKnownSafe ? 10 : riskCount >= 3 ? 65 : riskCount >= 1 ? 38 : 20,
+      emotionalManipulation: heur.isKnownSafe ? 7 : riskCount >= 3 ? 72 : riskCount >= 1 ? 42 : 24,
+      financialPressure: heur.isKnownSafe ? 5 : riskCount >= 3 ? 68 : riskCount >= 1 ? 40 : 22,
+      privacySignals: heur.isKnownSafe ? 88 : riskCount >= 3 ? 20 : riskCount >= 1 ? 45 : 60,
+      transparencyScore: heur.isKnownSafe ? 92 : riskCount >= 3 ? 18 : riskCount >= 1 ? 48 : 65
+    },
+    signals: {
+      domainReputation: heur.isKnownSafe ? 92 : riskCount >= 3 ? 18 : riskCount >= 1 ? 45 : 58,
+      sslSecurity: isHttps ? 88 : 5,
+      scamProbability: aiScam,
+      manipulationRisk: aiManip,
+      contentSafety: heur.isKnownSafe ? 90 : riskCount >= 3 ? 22 : riskCount >= 1 ? 50 : 65
+    }
+  };
+}
+
+function fillUrl(url) {
+  document.getElementById('urlInput').value = url;
+  document.getElementById('urlInput').focus();
+}
+
+async function startScan() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) { showToast('❗', 'Please paste a URL to scan.'); return; }
+
+  let validUrl = url;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) validUrl = 'https://' + url;
+  try { new URL(validUrl); } catch(e) { showToast('❗', 'Invalid URL format.'); return; }
+
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  document.getElementById('scanResults').style.display = 'none';
+  document.getElementById('scanAnim').style.display = 'block';
+
+  const stepsEl = document.getElementById('scanSteps');
+  stepsEl.innerHTML = '';
+
+  for (let i = 0; i < SCAN_MESSAGES.length; i++) {
+    const el = document.createElement('div');
+    el.style.cssText = 'font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:8px;opacity:0;animation:fadeIn 0.3s ease forwards;';
+    el.style.animationDelay = '0s';
+    el.innerHTML = `<span>${SCAN_MESSAGES[i]}</span>`;
+    stepsEl.appendChild(el);
+    if (i < SCAN_MESSAGES.length - 1) await new Promise(r => setTimeout(r, 400));
+    else await new Promise(r => setTimeout(r, 600));
+  }
+
+  // Run analysis
+  const heur = runUrlHeuristics(validUrl);
+  const result = computeTrustScore(heur);
+
+  document.getElementById('scanAnim').style.display = 'none';
+  stepsEl.innerHTML = '';
+  btn.disabled = false;
+
+  renderScanResults(validUrl, result, heur);
+  saveScanHistory(validUrl, result.score, result.level);
+}
+
+function renderScanResults(url, result, heur) {
+  document.getElementById('scannedUrl').textContent = url.length > 50 ? url.substring(0, 50) + '…' : url;
+
+  // Trust Meter
+  const arc = 377 * (1 - result.score / 100);
+  const arcEl = document.getElementById('trustMeterArc');
+  const colors = { Safe: '#10b981', 'Mostly Safe': '#60a5fa', Suspicious: '#f59e0b', Dangerous: '#ef4444' };
+  arcEl.style.stroke = colors[result.level] || '#3b82f6';
+  setTimeout(() => { arcEl.style.strokeDashoffset = arc; }, 100);
+
+  document.getElementById('orbScore').textContent = result.score;
+  document.getElementById('orbLevel').textContent = result.level.toUpperCase();
+
+  const badge = document.getElementById('statusBadge');
+  badge.textContent = result.level;
+  badge.className = 'badge ' + { Safe: 'badge-safe', 'Mostly Safe': 'badge-info', Suspicious: 'badge-warn', Dangerous: 'badge-danger' }[result.level];
+
+  // AI Explanation
+  document.getElementById('aiExplainText').innerHTML = `
+    <p style="margin-bottom:8px">${result.explanation}</p>
+    <p style="font-style:italic;color:var(--text-3);font-size:12px;margin-bottom:8px">${result.verdict}</p>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:8px">
+      <span style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4)">Recommendation</span>
+      <span style="font-size:13px;font-weight:600;color:${result.recommendation.includes('Safe')?'var(--accent-green-2)':result.recommendation.includes('Dangerous')?'var(--accent-red-2)':'var(--accent-amber-2)'}">${result.recommendation}</span>
+    </div>
+  `;
+
+  // Factors
+  document.getElementById('factorList').innerHTML = result.factors.map(f => {
+    const sign = f.points > 0 ? '+' : f.points < 0 ? '' : '';
+    const cls = f.points > 0 ? 'pos' : f.points < 0 ? 'neg' : '';
+    const tagHtml = f.tag === 'real' ? '<span class="tag-real">Real</span>' : '<span class="tag-ai">AI</span>';
+    return `<div class="factor-row">${tagHtml}<span class="factor-label">${f.label}</span><span class="factor-pts ${cls}">${f.points === 0 ? '—' : sign + f.points}</span></div>`;
+  }).join('');
+
+  // Signals
+  const sigs = result.signals;
+  document.getElementById('sigDomain').textContent = sigs.domainReputation > 75 ? 'High' : sigs.domainReputation > 50 ? 'Good' : sigs.domainReputation > 25 ? 'Low' : 'Poor';
+  document.getElementById('barDomain').style.width = sigs.domainReputation + '%';
+  document.getElementById('sigSSL').textContent = sigs.sslSecurity > 60 ? 'Secure' : 'Insecure';
+  document.getElementById('barSSL').style.width = sigs.sslSecurity + '%';
+  document.getElementById('sigScam').textContent = sigs.scamProbability + '%';
+  document.getElementById('barScam').style.width = sigs.scamProbability + '%';
+  document.getElementById('sigManip').textContent = sigs.manipulationRisk + '%';
+  document.getElementById('barManip').style.width = sigs.manipulationRisk + '%';
+
+  // Evidence
+  document.getElementById('evidenceList').innerHTML = heur.evidence.map(e => `
+    <div class="evidence-item ${e.severity}">
+      <span class="evidence-icon">${e.icon}</span>
+      <div>
+        <div class="evidence-title">${e.title}</div>
+        <div class="evidence-detail">${e.detail}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // DNA
+  const dnaLabels = {
+    urgencyPressure: 'Urgency Pressure', fearManipulation: 'Fear Manipulation',
+    authorityExploitation: 'Authority Exploitation', scarcityManipulation: 'Scarcity Manipulation',
+    darkPatternIntensity: 'Dark Pattern Intensity', socialProofManipulation: 'Social Proof Manipulation',
+    emotionalManipulation: 'Emotional Manipulation', financialPressure: 'Financial Pressure',
+    privacySignals: 'Privacy Signals', transparencyScore: 'Transparency'
+  };
+  const dnaGood = ['privacySignals', 'transparencyScore'];
+  document.getElementById('dnaItems').innerHTML = Object.entries(result.behaviorDNA).map(([k, v]) => {
+    const pct = Math.max(0, Math.min(100, v));
+    const isGood = dnaGood.includes(k);
+    const color = isGood ? (pct > 60 ? '#10b981' : pct > 30 ? '#f59e0b' : '#ef4444') : (pct < 30 ? '#10b981' : pct < 65 ? '#f59e0b' : '#ef4444');
+    return `<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span style="font-size:12px;color:var(--text-2);width:160px;flex-shrink:0">${dnaLabels[k]}</span><div class="progress-track" style="flex:1"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div><span style="font-size:11px;color:${color};width:36px;text-align:right;font-family:var(--font-mono)">${pct}%</span></div></div>`;
+  }).join('');
+
+  // Domain
+  document.getElementById('domainGrid').innerHTML = `
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">Protocol</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">${heur.isHttps ? 'HTTPS (encrypted)' : 'HTTP (not encrypted)'}</div></div>
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">Hostname</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">${heur.host || '—'}</div></div>
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">TLD Risk</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">${HIGH_RISK_TLDS.includes(heur.tld) ? 'Elevated (.' + heur.tld + ')' : 'Standard'}</div></div>
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">Subdomain Depth</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">${heur.subdomainCount} level${heur.subdomainCount === 1 ? '' : 's'}</div></div>
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">Recognition</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">${heur.isKnownSafe ? 'Recognized domain' : 'Not in curated list'}</div></div>
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">Domain Age</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">Unavailable</div></div>
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">Registrar</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">Unavailable</div></div>
+    <div style="background:var(--bg-3);border-radius:10px;padding:10px 12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-4);margin-bottom:3px">Registry Status</div><div style="font-size:13px;font-weight:600;color:var(--text-1)">Unavailable</div></div>
+  `;
+
+  // Community
+  document.getElementById('communityWrap').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-3);border-radius:10px;padding:10px 12px;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--text-2)">Community reports — all users</span>
+      <span style="font-size:14px;font-weight:600;color:var(--accent-green-2)">0</span>
+    </div>
+    <div style="font-size:12px;color:var(--text-4);line-height:1.6;background:var(--bg-3);border-radius:10px;padding:10px 12px">
+      🌐 <strong>Live community data.</strong> No reports have been filed for this URL yet. Be the first to contribute to the VEIL community trust network.
+    </div>
+  `;
+
+  document.getElementById('scanResults').style.display = 'block';
+  document.getElementById('scanResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function switchResultTab(name, el) {
+  const tabs = ['overview', 'evidence', 'dna', 'domain', 'community'];
+  tabs.forEach(t => {
+    document.getElementById('result-tab-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  if (el) {
+    el.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+}
+
+function switchIntelTab(name, el) {
+  const tabs = ['url', 'qr', 'file', 'email', 'history'];
+  tabs.forEach(t => {
+    document.getElementById('intel-panel-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  if (el) {
+    el.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+}
+
+function switchAcademyTab(name, el) {
+  if (el) {
+    el.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+  // Simple filter logic - in production would filter courses
+  showToast('📚', 'Filtering courses: ' + (name === 'all' ? 'All' : name.charAt(0).toUpperCase() + name.slice(1)));
+}
+
+function saveScanHistory(url, score, level) {
+  scanHistory.unshift({ url, score, level, date: Date.now() });
+  if (scanHistory.length > 20) scanHistory = scanHistory.slice(0, 20);
+  renderHistoryTable();
+}
+
+function renderHistoryTable() {
+  const tbody = document.getElementById('historyTableBody');
+  if (!tbody) return;
+  if (scanHistory.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-4)">No scans yet. Run your first scan above.</td></tr>';
+    return;
+  }
+  const cls = { Safe: 'badge-safe', 'Mostly Safe': 'badge-info', Suspicious: 'badge-warn', Dangerous: 'badge-danger' };
+  tbody.innerHTML = scanHistory.map(h => `
+    <tr>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.url}</td>
+      <td class="font-mono" style="font-weight:700">${h.score}</td>
+      <td><span class="badge ${cls[h.level]}">${h.level}</span></td>
+      <td style="font-size:12px;color:var(--text-4)">${new Date(h.date).toLocaleDateString()}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="fillUrl('${h.url}');startScan()">🔄</button></td>
+    </tr>
+  `).join('');
+}
+
+function clearHistory() {
+  scanHistory = [];
+  renderHistoryTable();
+  showToast('🗑️', 'Scan history cleared.');
+}
+
+// ── Charts ──
+let charts = {};
+
+function initPageCharts(page) {
+  if (page === 'dashboard') initDashboardCharts();
+  if (page === 'compliance') initComplianceChart();
+  if (page === 'benchmark') initBenchmarkCharts();
+}
+
+function initDashboardCharts() {
+  const commonOptions = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#4d5260', font: { size: 10 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#4d5260', font: { size: 10 } } }
+    }
+  };
+
+  // Threat Trend Chart
+  const threatCtx = document.getElementById('dashboardThreatChart');
+  if (threatCtx && !charts.threat) {
+    charts.threat = new Chart(threatCtx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: 30}, (_, i) => `${i+1}`),
+        datasets: [{
+          label: 'Threats Detected',
+          data: [890, 920, 880, 950, 1020, 980, 1100, 1050, 1120, 1080, 1150, 1200, 1180, 1220, 1190, 1250, 1280, 1240, 1300, 1270, 1320, 1290, 1350, 1310, 1380, 1340, 1400, 1360, 1420, 1247],
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239,68,68,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 4
+        }, {
+          label: 'Blocked',
+          data: [780, 810, 790, 840, 900, 870, 960, 920, 980, 950, 1010, 1050, 1030, 1070, 1040, 1090, 1120, 1080, 1140, 1110, 1160, 1130, 1190, 1150, 1220, 1180, 1240, 1200, 1260, 1100],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 4
+        }]
+      },
+      options: { ...commonOptions, plugins: { legend: { display: true, labels: { color: '#7a7f8f', font: { size: 11 }, boxWidth: 10 } } } }
+    });
+  }
+
+  // Trust Distribution Chart
+  const trustCtx = document.getElementById('dashboardTrustChart');
+  if (trustCtx && !charts.trust) {
+    charts.trust = new Chart(trustCtx, {
+      type: 'bar',
+      data: {
+        labels: ['0-20', '21-40', '41-60', '61-80', '81-100'],
+        datasets: [{
+          label: 'Entities',
+          data: [1240, 3890, 7840, 15200, 24830],
+          backgroundColor: ['#ef4444', '#f59e0b', '#60a5fa', '#34d399', '#10b981'],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: commonOptions
+    });
+  }
+
+  // Stats Chart
+  const statsCtx = document.getElementById('dashboardStatsChart');
+  if (statsCtx && !charts.stats) {
+    charts.stats = new Chart(statsCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Scans',
+          data: [320, 450, 580, 720, 890, 1100],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3
+        }, {
+          label: 'Threats',
+          data: [180, 240, 310, 380, 460, 520],
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239,68,68,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3
+        }]
+      },
+      options: { ...commonOptions, plugins: { legend: { display: true, labels: { color: '#7a7f8f', font: { size: 11 }, boxWidth: 10 } } } }
+    });
+  }
+}
+
+function initComplianceChart() {
+  const ctx = document.getElementById('complianceTrendChart');
+  if (ctx && !charts.compliance) {
+    charts.compliance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        datasets: [{
+          label: 'GDPR', data: [82, 84, 85, 87, 88, 89, 90, 91, 92, 93, 95, 96],
+          borderColor: '#3b82f6', tension: 0.4, pointRadius: 2
+        }, {
+          label: 'ISO 27001', data: [75, 77, 78, 80, 82, 83, 84, 85, 86, 87, 89, 91],
+          borderColor: '#10b981', tension: 0.4, pointRadius: 2
+        }, {
+          label: 'SOC 2', data: [70, 72, 74, 76, 78, 79, 80, 81, 82, 84, 85, 87],
+          borderColor: '#f59e0b', tension: 0.4, pointRadius: 2
+        }, {
+          label: 'PCI DSS', data: [68, 70, 71, 73, 74, 75, 76, 77, 78, 79, 80, 82],
+          borderColor: '#8b5cf6', tension: 0.4, pointRadius: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#7a7f8f', font: { size: 11 }, boxWidth: 10 } } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#4d5260', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#4d5260', font: { size: 10 } }, min: 60, max: 100 }
+        }
+      }
+    });
+  }
+}
+
+function initBenchmarkCharts() {
+  // Radar Chart
+  const radarCtx = document.getElementById('benchmarkRadarChart');
+  if (radarCtx && !charts.radar) {
+    charts.radar = new Chart(radarCtx, {
+      type: 'radar',
+      data: {
+        labels: ['Security', 'Privacy', 'Transparency', 'Reliability', 'Compliance', 'Reputation'],
+        datasets: [{
+          label: 'Acme Corp (You)',
+          data: [82, 68, 79, 71, 87, 74],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.15)',
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#3b82f6',
+          pointRadius: 3
+        }, {
+          label: 'Industry Average',
+          data: [72, 65, 70, 68, 75, 68],
+          borderColor: '#7a7f8f',
+          backgroundColor: 'rgba(122,127,143,0.08)',
+          pointBackgroundColor: '#7a7f8f',
+          pointBorderColor: '#7a7f8f',
+          pointRadius: 3
+        }, {
+          label: 'Top Performer',
+          data: [95, 92, 94, 90, 96, 93],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.08)',
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: '#10b981',
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#7a7f8f', font: { size: 11 }, boxWidth: 10 } } },
+        scales: {
+          r: {
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            angleLines: { color: 'rgba(255,255,255,0.04)' },
+            pointLabels: { color: '#b4b8c5', font: { size: 11 } },
+            ticks: { display: false, backdropColor: 'transparent' },
+            suggestedMin: 0, suggestedMax: 100
+          }
+        }
+      }
+    });
+  }
+
+  // Trend Chart
+  const trendCtx = document.getElementById('benchmarkTrendChart');
+  if (trendCtx && !charts.benchmarkTrend) {
+    charts.benchmarkTrend = new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jul 24', 'Aug 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dec 24', 'Jan 25', 'Feb 25', 'Mar 25', 'Apr 25', 'May 25', 'Jun 25', 'Jul 25'],
+        datasets: [{
+          label: 'Acme Corp',
+          data: [58, 60, 61, 63, 64, 65, 66, 67, 68, 70, 72, 73, 74],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59,130,246,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3
+        }, {
+          label: 'Industry Average',
+          data: [62, 63, 63, 64, 64, 65, 65, 66, 66, 67, 67, 68, 68],
+          borderColor: '#7a7f8f',
+          backgroundColor: 'transparent',
+          borderDash: [5, 5],
+          tension: 0.4,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, labels: { color: '#7a7f8f', font: { size: 11 }, boxWidth: 10 } } },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#4d5260', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#4d5260', font: { size: 10 } }, min: 50, max: 100 }
+        }
+      }
+    });
+  }
+}
+
+// ── Keyboard Shortcuts ──
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('globalSearch').focus();
+  }
+});
+
+// ── Initialize ──
+document.addEventListener('DOMContentLoaded', () => {
+  initPageCharts('dashboard');
+});
+</script>
+
+</body>
+</html>
